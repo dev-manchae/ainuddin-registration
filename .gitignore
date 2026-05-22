@@ -1,0 +1,19 @@
+# IDE and System Files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+
+# User Uploads (Ignore uploaded files, but preserve folder structure)
+public/uploads/gambar/*
+!public/uploads/gambar/.gitkeep
+
+public/uploads/pelajar_ic/*
+!public/uploads/pelajar_ic/.gitkeep
+
+public/uploads/sijil/*
+!public/uploads/sijil/.gitkeep
+
+# Database SQL Dump
+database/
