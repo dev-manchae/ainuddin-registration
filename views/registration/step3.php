@@ -105,7 +105,9 @@ if (!empty($akademik['surah_hafazan'])) {
                 <tbody>
                     <?php 
                     $agamaData = [];
-                    if (!empty($akademik['surah_hafazan'])) {
+                    if (isset($akademik['keputusan_agama']) && !empty($akademik['keputusan_agama'])) {
+                        $agamaData = json_decode($akademik['keputusan_agama'], true) ?: [];
+                    } elseif (!empty($akademik['surah_hafazan'])) {
                         $decoded = json_decode($akademik['surah_hafazan'], true);
                         if (is_array($decoded) && isset($decoded['keputusan_agama'])) {
                             $agamaData = $decoded['keputusan_agama'];

@@ -15,13 +15,20 @@ if (!$detail) {
 
  $hasNoPelajar = !empty($pl['no_pelajar']);
 
-// Decode surah_hafazan (backward compatible with plain text)
+// Decode surah_hafazan (backward compatible with old combined JSON format)
  $surahDecoded = null;
 if (!empty($ak['surah_hafazan'])) {
     $surahDecoded = json_decode($ak['surah_hafazan'], true);
 }
  $surahText = is_array($surahDecoded) ? ($surahDecoded['surah_hafazan'] ?? '-') : ($ak['surah_hafazan'] ?? '-');
- $agamaResults = is_array($surahDecoded) ? ($surahDecoded['keputusan_agama'] ?? []) : [];
+
+// Load keputusan_agama from its new column, or fallback to the combined JSON in surah_hafazan
+ $agamaResults = [];
+if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
+    $agamaResults = json_decode($ak['keputusan_agama'], true) ?: [];
+} elseif (is_array($surahDecoded) && isset($surahDecoded['keputusan_agama'])) {
+    $agamaResults = $surahDecoded['keputusan_agama'];
+}
 ?>
 
 <!-- HEADER -->

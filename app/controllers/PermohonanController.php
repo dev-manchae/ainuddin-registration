@@ -381,10 +381,8 @@ class PermohonanController {
             }
         }
 
-        $combinedSurah = json_encode([
-            'surah_hafazan' => $data['surah_hafazan'] ?? '',
-            'keputusan_agama' => $agamaJson
-        ]);
+        $keputusanAgamaVal = json_encode($agamaJson);
+        $surahHafazanVal = $data['surah_hafazan'] ?? '';
 
         $check = $this->pdo->prepare("SELECT id_akademik FROM akademik WHERE id_permohonan = ?");
         $check->execute([$id]);
@@ -399,6 +397,7 @@ class PermohonanController {
                 UPDATE akademik SET
                     nama_sekolah = ?,
                     keputusan_akademik = ?,
+                    keputusan_agama = ?,
                     tahap_quran = ?,
                     surah_hafazan = ?,
                     status_khatam = ?
@@ -407,22 +406,24 @@ class PermohonanController {
             $stmt->execute([
                 $sekolahVal,
                 json_encode($akademikJson),
+                $keputusanAgamaVal,
                 $tahapVal,
-                $combinedSurah,
+                $surahHafazanVal,
                 $khatamVal,
                 $id
             ]);
         } else {
             $stmt = $this->pdo->prepare("
-                INSERT INTO akademik (id_permohonan, nama_sekolah, keputusan_akademik, tahap_quran, surah_hafazan, status_khatam)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO akademik (id_permohonan, nama_sekolah, keputusan_akademik, keputusan_agama, tahap_quran, surah_hafazan, status_khatam)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $id,
                 $sekolahVal,
                 json_encode($akademikJson),
+                $keputusanAgamaVal,
                 $tahapVal,
-                $combinedSurah,
+                $surahHafazanVal,
                 $khatamVal
             ]);
         }
