@@ -59,12 +59,6 @@ Sistem web pendaftaran pelajar secara atas talian untuk **Tahfiz Ainuddin**. Sis
    $password = "";
    ```
 
-### 3. Log Masuk Lalai (Default Accounts)
-* **Akaun Pentadbir (Admin)**:
-  * Emel: `admin@gmail.com`
-* **Akaun Pelajar (Demo)**:
-  * Emel: `niko@gmail.com`
-
 ---
 
 ## 🔒 Privasi Data & Keselamatan
