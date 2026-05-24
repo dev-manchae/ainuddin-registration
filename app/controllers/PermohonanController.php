@@ -716,6 +716,15 @@ class PermohonanController {
             return $validation;
         }
 
+        // Validate that all active agreements were checked and submitted
+        $activeAgreements = $this->getActivePersetujuan();
+        if (!empty($activeAgreements)) {
+            $submittedAgreements = $_POST['persetujuan'] ?? [];
+            if (count($submittedAgreements) !== count($activeAgreements)) {
+                return "Sila tandakan persetujuan bagi semua syarat dan perakuan sebelum menghantar.";
+            }
+        }
+
         $id = (int) $id_permohonan;
 
         // Ensure all three mandatory documents exist before submission
@@ -745,6 +754,11 @@ class PermohonanController {
             ORDER BY p.tarikh_cipta DESC
         ");
         $stmt->execute([$id_pengguna]);
+        return $stmt->fetchAll();
+    }
+
+    public function getActivePersetujuan() {
+        $stmt = $this->pdo->query("SELECT * FROM persetujuan WHERE status = 'Y' ORDER BY id_persetujuan ASC");
         return $stmt->fetchAll();
     }
 }
