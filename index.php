@@ -707,6 +707,80 @@ switch ($page) {
 
         exit;
 
+    case 'cetak_surat_tawaran':
+
+        AuthMiddleware::check();
+
+        $pdo = getConnection();
+        $stmt = $pdo->prepare("SELECT id_permohonan, kod_status FROM permohonan WHERE id_pengguna = ? AND kod_status = '04' LIMIT 1");
+        $stmt->execute([$_SESSION['id_pengguna']]);
+        $app = $stmt->fetch();
+
+        if (!$app) {
+            $_SESSION['error'] = "Tiada surat tawaran ditemui atau permohonan anda belum diluluskan.";
+            header("Location: ?page=dashboard");
+            exit;
+        }
+
+        $id_permohonan = $app['id_permohonan'];
+
+        $adminController = new AdminController();
+        $detail = $adminController->getApplicationDetail($id_permohonan);
+
+        $stmt = $pdo->prepare("SELECT jenis_dokumen, nama_fail FROM dokumen WHERE id_permohonan = ?");
+        $stmt->execute([$id_permohonan]);
+        $docsList = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $detail['dokumen_list'] = $docsList;
+
+        require_once "app/helpers/SuratTawaranGenerator.php";
+        $generator = new SuratTawaranGenerator($detail);
+        $generator->generateLetter();
+        $generator->Output('I', 'Surat_Tawaran_MTA.pdf');
+        exit;
+
+    case 'download_peraturan':
+
+        AuthMiddleware::check();
+
+        $filePath = 'public/assets/docs/peraturan_mta.pdf';
+        if (!file_exists($filePath)) {
+            $_SESSION['error'] = "Fail peraturan tidak ditemui.";
+            header("Location: ?page=dashboard");
+            exit;
+        }
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="Peraturan_MTA.pdf"');
+        readfile($filePath);
+        exit;
+
+    case 'admin_cetak_surat_tawaran':
+
+        AdminMiddleware::check();
+
+        $id_permohonan = $_GET['id'] ?? 0;
+
+        $adminController = new AdminController();
+        $detail = $adminController->getApplicationDetail($id_permohonan);
+
+        if (!$detail || ($detail['permohonan']['kod_status'] ?? '') !== '04') {
+            $_SESSION['error'] = "Permohonan tidak sah atau belum diluluskan.";
+            header("Location: ?page=admin_senarai");
+            exit;
+        }
+
+        $pdo = getConnection();
+        $stmt = $pdo->prepare("SELECT jenis_dokumen, nama_fail FROM dokumen WHERE id_permohonan = ?");
+        $stmt->execute([$id_permohonan]);
+        $docsList = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $detail['dokumen_list'] = $docsList;
+
+        require_once "app/helpers/SuratTawaranGenerator.php";
+        $generator = new SuratTawaranGenerator($detail);
+        $generator->generateLetter();
+        $generator->Output('I', 'Surat_Tawaran_MTA.pdf');
+        exit;
+
     case 'admin_dashboard':
 
         AdminMiddleware::check();

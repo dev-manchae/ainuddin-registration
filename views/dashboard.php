@@ -97,18 +97,21 @@ require_once "app/controllers/PermohonanController.php";
                             : date('d/m/Y', strtotime($app['tarikh_cipta'])); ?>
                     </td>
                     <td>
-                        <?php if ($app['kod_status'] == '00'): ?>
-                            <div class="action-group">
+                        <div class="action-group">
+                            <?php if ($app['kod_status'] == '00'): ?>
                                 <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link">Sambung</a>
                                 <form method="POST" action="?page=delete_permohonan" onsubmit="return confirm('Adakah anda pasti ingin memadam draf ini?');">
                                     <?= csrfField(); ?>
                                     <input type="hidden" name="id_permohonan" value="<?= $app['id_permohonan']; ?>">
                                     <button type="submit" class="action-link action-delete">Padam</button>
                                 </form>
-                            </div>
-                        <?php else: ?>
-                            <span style="color: #cbd5e1; font-size: 13px;">-</span>
-                        <?php endif; ?>
+                            <?php elseif ($app['kod_status'] == '04'): ?>
+                                <a href="?page=cetak_surat_tawaran" target="_blank" class="action-link" style="background: var(--teal); color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Tawaran</a>
+                                <a href="?page=download_peraturan" target="_blank" class="action-link" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Peraturan</a>
+                            <?php else: ?>
+                                <span style="color: #64748b; font-size: 13px;">Tiada Tindakan</span>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>

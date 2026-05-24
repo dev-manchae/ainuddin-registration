@@ -93,13 +93,18 @@ if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
 
     <?php if ($p['kod_status'] == '04'): ?>
         <br>
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; font-size: 14px;">
-            <strong>Permohonan ini telah diluluskan.</strong>
-            <?php if ($hasNoPelajar): ?>
-                <br>Pelajar telah diberikan No Pelajar rasmi: <strong><?= htmlspecialchars($pl['no_pelajar']); ?></strong>
-            <?php else: ?>
-                <br>No Pelajar akan dijana setelah maklumat program disahkan.
-            <?php endif; ?>
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <strong>Permohonan ini telah diluluskan.</strong>
+                <?php if ($hasNoPelajar): ?>
+                    <br>Pelajar telah diberikan No Pelajar rasmi: <strong><?= htmlspecialchars($pl['no_pelajar']); ?></strong>
+                <?php else: ?>
+                    <br>No Pelajar akan dijana setelah maklumat program disahkan.
+                <?php endif; ?>
+            </div>
+            <div>
+                <a href="?page=admin_cetak_surat_tawaran&id=<?= $p['id_permohonan']; ?>" target="_blank" class="btn btn-teal" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">Cetak Surat Tawaran</a>
+            </div>
         </div>
     <?php endif; ?>
 </div>
