@@ -9,6 +9,17 @@
     <title>Admin — Ainuddin Registration</title>
 
     <style>
+        :root {
+            --primary: #1e5631;
+            --primary-dark: #143d23;
+            --primary-light: #2e7d32;
+            --teal: #00897b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 2px 8px rgba(30, 86, 49, 0.04);
+            --shadow-md: 0 8px 24px rgba(30, 86, 49, 0.08);
+            --shadow-lg: 0 16px 40px rgba(30, 86, 49, 0.12);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -275,6 +286,7 @@
         .btn-success { background: #22c55e; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #64748b; color: white; }
+        .btn-teal { background: #00897b; color: white !important; }
 
         .stats-grid {
             display: grid;
