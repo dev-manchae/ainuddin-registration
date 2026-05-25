@@ -11,6 +11,24 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetAutoPageBreak(true, 15);
     }
 
+    /**
+     * Get Y position.
+     * 
+     * @return float
+     */
+    public function GetY() {
+        return parent::GetY();
+    }
+
+    /**
+     * Get X position.
+     * 
+     * @return float
+     */
+    public function GetX() {
+        return parent::GetX();
+    }
+
     // Page Header
     public function Header() {
         // Logo
@@ -49,7 +67,7 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetY(-15);
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(148, 163, 184);
-        $this->Cell(0, 10, "Surat tawaran ini dijanakan secara komputer oleh Sistem Pendaftaran MTA. Halaman " . $this->PageNo() . "/{nb}", 0, 0, 'C');
+        $this->Cell(0, 10, "Surat tawaran ini dijanakan secara automatik oleh Sistem Pendaftaran MTA. Halaman " . $this->PageNo() . "/{nb}", 0, 0, 'C');
     }
 
     // Dynamic offer letter page
@@ -187,6 +205,9 @@ class SuratTawaranGenerator extends FPDF {
 
         // 9. Go to Page 2: Checklist & Attachments
         $this->generateChecklistPage();
+
+        // 10. Go to Page 3 & 4: Full Registration Details (Lampiran B)
+        $this->generateRegistrationDetailsPage();
     }
 
     // Page 2: Checklist & dynamic document verify status
@@ -270,5 +291,301 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetTextColor(185, 28, 28);
         $noticeText = "Pihak pengurusan Maahad Tahfiz 'Ainuddin (MTA) berhak menangguhkan pendaftaran pelajar sekiranya terdapat sebarang maklumat palsu, dokumen sokongan penting yang hilang, atau perakuan yang tidak ditandatangani dengan lengkap.";
         $this->MultiCell(0, 4.5, "  " . $noticeText, 'BRL', 'J', true);
+    }
+
+    // Page 3 & 4: Dynamic Full Registration Details (Lampiran B)
+    private function generateRegistrationDetailsPage() {
+        // PAGE 3: Student and Family details
+        $this->AddPage();
+        $this->SetTextColor(30, 41, 59);
+
+        // Header Title
+        $this->SetFont('Arial', 'B', 12);
+        $this->Cell(0, 6, "LAMPIRAN B: REKOD BUTIRAN PENDAFTARAN ONLINE PELAJAR", 0, 1, 'C');
+        $this->Ln(3);
+
+        // 1. MAKLUMAT PERIBADI PELAJAR
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetFillColor(240, 248, 243); // MTA Light Green/Teal
+        $this->SetTextColor(30, 86, 49);
+        $this->Cell(0, 6, " 1. MAKLUMAT PERIBADI PELAJAR", 1, 1, 'L', true);
+        
+        $this->SetTextColor(30, 41, 59);
+        $this->SetFont('Arial', '', 9);
+        $p = $this->data['pelajar'] ?? [];
+        
+        // Row 1: Nama Penuh
+        $this->SetFillColor(248, 250, 252);
+        $this->Cell(45, 6, "  Nama Penuh", 1, 0, 'L', true);
+        $this->SetFont('Arial', 'B', 9);
+        $this->Cell(135, 6, "  " . ($p['nama_penuh'] ?? '-'), 1, 1, 'L');
+        $this->SetFont('Arial', '', 9);
+
+        // Row 2: No. KP / Jantina
+        $this->Cell(45, 6, "  No. KP / Sijil Lahir", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($p['no_kp'] ?? '-'), 1, 0, 'L');
+        $this->Cell(45, 6, "  Jantina", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($p['jantina'] ?? '-'), 1, 1, 'L');
+
+        // Row 3: Tarikh Lahir / Tempat Lahir
+        $this->Cell(45, 6, "  Tarikh Lahir", 1, 0, 'L', true);
+        $tarikhLahir = !empty($p['tarikh_lahir']) ? date('d F Y', strtotime($p['tarikh_lahir'])) : '-';
+        $this->Cell(45, 6, "  " . $tarikhLahir, 1, 0, 'L');
+        $this->Cell(45, 6, "  Tempat Lahir", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($p['tempat_lahir'] ?? '-'), 1, 1, 'L');
+
+        // Row 4: Warganegara / Cawangan
+        $this->Cell(45, 6, "  Warganegara", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($p['warganegara'] ?? 'Malaysia'), 1, 0, 'L');
+        $this->Cell(45, 6, "  Cawangan MTA", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($p['cawangan'] ?? '-'), 1, 1, 'L');
+
+        // Row 5: Program
+        $this->Cell(45, 6, "  Program Pengajian", 1, 0, 'L', true);
+        $this->Cell(135, 6, "  " . ($p['program'] ?? 'Hafazan Al-Quran & Akademik'), 1, 1, 'L');
+
+        // Row 6: Alamat Penuh
+        $alamat = ($p['alamat'] ?? '-') . ", " . ($p['negeri'] ?? '');
+        $alamat = str_replace(["\r", "\n"], " ", $alamat);
+        
+        $this->Cell(45, 12, "  Alamat Kediaman", 1, 0, 'L', true);
+        $this->MultiCell(135, 6, " " . $alamat, 1, 'L');
+
+        $this->Ln(4);
+
+        // 2. MAKLUMAT KELUARGA / PENJAGA
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetTextColor(30, 86, 49);
+        $this->SetFillColor(240, 248, 243);
+        $this->Cell(0, 6, " 2. MAKLUMAT IBU BAPA / PENJAGA", 1, 1, 'L', true);
+        $this->SetTextColor(30, 41, 59);
+
+        $f = $this->data['keluarga']['Bapa'] ?? $this->data['keluarga']['Penjaga'] ?? [];
+        $m = $this->data['keluarga']['Ibu'] ?? [];
+
+        $yStartKeluarga = $this->GetY() + 2;
+        
+        // Titles
+        $this->SetXY(15, $yStartKeluarga);
+        $this->SetFont('Arial', 'B', 9);
+        $this->SetTextColor(30, 86, 49);
+        $this->Cell(85, 6, "Maklumat Bapa / Penjaga Utama", 'B', 0, 'L');
+        
+        $this->SetXY(110, $yStartKeluarga);
+        $this->Cell(85, 6, "Maklumat Ibu", 'B', 0, 'L');
+        
+        $this->SetTextColor(30, 41, 59);
+        $yRow = $yStartKeluarga + 7;
+        
+        // Row 1: Nama
+        $this->SetXY(15, $yRow);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(20, 5, "Nama:", 0, 0, 'L');
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(65, 5, $f['nama_penuh'] ?? '-', 0, 0, 'L');
+        
+        $this->SetXY(110, $yRow);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(20, 5, "Nama:", 0, 0, 'L');
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(65, 5, $m['nama_penuh'] ?? '-', 0, 0, 'L');
+        
+        // Row 2: Telefon
+        $yRow += 5.5;
+        $this->SetXY(15, $yRow);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(20, 5, "No. Tel:", 0, 0, 'L');
+        $this->Cell(65, 5, $f['no_telefon'] ?? '-', 0, 0, 'L');
+        
+        $this->SetXY(110, $yRow);
+        $this->Cell(20, 5, "No. Tel:", 0, 0, 'L');
+        $this->Cell(65, 5, $m['no_telefon'] ?? '-', 0, 0, 'L');
+
+        // Row 3: Pekerjaan
+        $yRow += 5.5;
+        $this->SetXY(15, $yRow);
+        $this->Cell(20, 5, "Pekerjaan:", 0, 0, 'L');
+        $this->Cell(65, 5, $f['pekerjaan'] ?? '-', 0, 0, 'L');
+        
+        $this->SetXY(110, $yRow);
+        $this->Cell(20, 5, "Pekerjaan:", 0, 0, 'L');
+        $this->Cell(65, 5, $m['pekerjaan'] ?? '-', 0, 0, 'L');
+
+        // Row 4: Pendapatan
+        $yRow += 5.5;
+        $this->SetXY(15, $yRow);
+        $this->Cell(20, 5, "Pendapatan:", 0, 0, 'L');
+        $this->Cell(65, 5, !empty($f['pendapatan']) ? 'RM ' . number_format($f['pendapatan'], 2) : '-', 0, 0, 'L');
+        
+        $this->SetXY(110, $yRow);
+        $this->Cell(20, 5, "Pendapatan:", 0, 0, 'L');
+        $this->Cell(65, 5, !empty($m['pendapatan']) ? 'RM ' . number_format($m['pendapatan'], 2) : '-', 0, 0, 'L');
+
+        // Row 5: Emel
+        $yRow += 5.5;
+        $this->SetXY(15, $yRow);
+        $this->Cell(20, 5, "Emel:", 0, 0, 'L');
+        $this->Cell(65, 5, $f['emel'] ?? '-', 0, 0, 'L');
+        
+        $this->SetXY(110, $yRow);
+        $this->Cell(20, 5, "Emel:", 0, 0, 'L');
+        $this->Cell(65, 5, $m['emel'] ?? '-', 0, 0, 'L');
+
+        // Row 6: Alamat
+        $yRow += 5.5;
+        $this->SetXY(15, $yRow);
+        $this->Cell(20, 5, "Alamat:", 0, 0, 'L');
+        $this->SetXY(35, $yRow);
+        $alamatBapa = str_replace(["\r", "\n"], " ", $f['alamat'] ?? '-');
+        $this->MultiCell(60, 4, $alamatBapa, 0, 'L');
+        $yEndBapa = $this->GetY();
+        
+        $this->SetXY(110, $yRow);
+        $this->Cell(20, 5, "Alamat:", 0, 0, 'L');
+        $this->SetXY(130, $yRow);
+        $alamatIbu = str_replace(["\r", "\n"], " ", $m['alamat'] ?? '-');
+        $this->MultiCell(60, 4, $alamatIbu, 0, 'L');
+        $yEndIbu = $this->GetY();
+        
+        $yNext = max($yEndBapa, $yEndIbu) + 5;
+        
+        // PAGE 4: Academic Results & Health
+        $this->AddPage();
+        $this->SetTextColor(30, 41, 59);
+
+        // Header Title
+        $this->SetFont('Arial', 'B', 12);
+        $this->Cell(0, 6, "LAMPIRAN B (SAMBUNGAN): REKOD PENGAJIAN & KESIHATAN", 0, 1, 'C');
+        $this->Ln(3);
+
+        // 3. MAKLUMAT AKADEMIK & AL-QURAN
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetTextColor(30, 86, 49);
+        $this->SetFillColor(240, 248, 243);
+        $this->Cell(0, 6, " 3. MAKLUMAT AKADEMIK & AL-QURAN", 1, 1, 'L', true);
+        $this->SetTextColor(30, 41, 59);
+        $this->SetFont('Arial', '', 9);
+
+        $a = $this->data['akademik'] ?? [];
+        
+        // Top general akademik
+        $this->SetFillColor(248, 250, 252);
+        $this->Cell(45, 6, "  Sekolah Terdahulu", 1, 0, 'L', true);
+        $this->SetFont('Arial', 'B', 9);
+        $this->Cell(135, 6, "  " . ($a['nama_sekolah'] ?? '-'), 1, 1, 'L');
+        $this->SetFont('Arial', '', 9);
+
+        $this->Cell(45, 6, "  Tahap Penguasaan Quran", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($a['tahap_quran'] ?? '-'), 1, 0, 'L');
+        $this->Cell(45, 6, "  Status Khatam", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($a['status_khatam'] ?? '-'), 1, 1, 'L');
+
+        // Extract and format hafazan text
+        $surahHafazanText = '-';
+        if (!empty($a['surah_hafazan'])) {
+            $decoded = json_decode($a['surah_hafazan'], true);
+            $surahHafazanText = (is_array($decoded) && isset($decoded['surah_hafazan'])) ? $decoded['surah_hafazan'] : $a['surah_hafazan'];
+        }
+        $surahHafazanText = str_replace(["\r", "\n"], " ", $surahHafazanText);
+        
+        $this->Cell(45, 12, "  Surah Hafazan (Jika Ada)", 1, 0, 'L', true);
+        $this->MultiCell(135, 6, " " . $surahHafazanText, 1, 'L');
+
+        $this->Ln(3);
+
+        // Subject Results tables side-by-side
+        $yTableStart = $this->GetY();
+        $akademikData = json_decode($a['keputusan_akademik'] ?? '', true) ?: [];
+        $agamaData = json_decode($a['keputusan_agama'] ?? '', true) ?: [];
+
+        // Academic Table (Left Column)
+        $this->SetXY(15, $yTableStart);
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->SetFillColor(241, 245, 249);
+        $this->Cell(85, 5, "Keputusan Akademik Sekolah Kebangsaan", 0, 1, 'L');
+        
+        $this->SetX(15);
+        $this->Cell(55, 5, " Subjek", 1, 0, 'L', true);
+        $this->Cell(30, 5, " Gred", 1, 1, 'C', true);
+        
+        $this->SetFont('Arial', '', 8.5);
+        $rowCount = 0;
+        foreach ($akademikData as $row) {
+            $this->SetX(15);
+            $this->Cell(55, 5, " " . ($row['subjek'] ?? ''), 1, 0, 'L');
+            $this->Cell(30, 5, ($row['keputusan'] ?? ''), 1, 1, 'C');
+            $rowCount++;
+        }
+        if ($rowCount === 0) {
+            $this->SetX(15);
+            $this->Cell(85, 5, "Tiada keputusan akademik direkodkan", 1, 1, 'C');
+        }
+        $yTableEndAkademik = $this->GetY();
+
+        // Religious Table (Right Column)
+        $this->SetXY(110, $yTableStart);
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(85, 5, "Keputusan Sekolah Agama (SRA / KAFA / SMA)", 0, 1, 'L');
+        
+        $this->SetX(110);
+        $this->Cell(55, 5, " Subjek", 1, 0, 'L', true);
+        $this->Cell(30, 5, " Gred", 1, 1, 'C', true);
+        
+        $this->SetFont('Arial', '', 8.5);
+        $rowCountAgama = 0;
+        foreach ($agamaData as $row) {
+            $this->SetX(110);
+            $this->Cell(55, 5, " " . ($row['subjek'] ?? ''), 1, 0, 'L');
+            $this->Cell(30, 5, ($row['keputusan'] ?? ''), 1, 1, 'C');
+            $rowCountAgama++;
+        }
+        if ($rowCountAgama === 0) {
+            $this->SetX(110);
+            $this->Cell(85, 5, "Tiada keputusan sekolah agama direkodkan", 1, 1, 'C');
+        }
+        $yTableEndAgama = $this->GetY();
+
+        $yNextSection = max($yTableEndAkademik, $yTableEndAgama) + 4;
+
+        // 4. MAKLUMAT KESIHATAN & KECEMASAN
+        $this->SetXY(15, $yNextSection);
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetTextColor(30, 86, 49);
+        $this->SetFillColor(240, 248, 243);
+        $this->Cell(0, 6, " 4. MAKLUMAT KESIHATAN & KECEMASAN", 1, 1, 'L', true);
+        $this->SetTextColor(30, 41, 59);
+        $this->SetFont('Arial', '', 9);
+
+        $h = $this->data['kesihatan'] ?? [];
+
+        // Row 1: Alahan
+        $this->SetFillColor(248, 250, 252);
+        $this->Cell(45, 6, "  Rekod Alahan", 1, 0, 'L', true);
+        $this->Cell(135, 6, "  " . ($h['alahan'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+
+        // Row 2: Penyakit Kronik
+        $this->Cell(45, 6, "  Penyakit Kronik", 1, 0, 'L', true);
+        $this->Cell(135, 6, "  " . ($h['penyakit_kronik'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+
+        // Row 3: Pengambilan Ubat
+        $this->Cell(45, 6, "  Pengambilan Ubat Semasa", 1, 0, 'L', true);
+        $this->Cell(135, 6, "  " . ($h['pengambilan_ubat'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+
+        // Row 4: No Kecemasan / Kebenaran Rawatan
+        $this->Cell(45, 6, "  No. Telefon Kecemasan", 1, 0, 'L', true);
+        $this->Cell(45, 6, "  " . ($h['nombor_kecemasan'] ?? '-'), 1, 0, 'L');
+        $this->Cell(45, 6, "  Kebenaran Rawatan Kecemasan", 1, 0, 'L', true);
+        $kebenaran = ($h['kebenaran_rawatan'] ?? '') === 'Ya' ? 'YA (Dibenarkan)' : 'TIDAK / TIADA RAKAMAN';
+        $this->Cell(45, 6, "  " . $kebenaran, 1, 1, 'L');
+
+        $this->Ln(8);
+
+        // Verification Footer Box
+        $this->SetDrawColor(30, 86, 49);
+        $this->SetFillColor(240, 248, 243);
+        $this->SetFont('Arial', 'I', 8.5);
+        $this->SetTextColor(30, 86, 49);
+        $veriText = "Dokumen Lampiran B ini dijana secara automatik oleh sistem pengurusan MTA berdasarkan maklumat yang dimasukkan secara atas talian oleh ibu bapa/penjaga. Sebarang pindaan maklumat fizikal hendaklah dilaporkan segera kepada pihak pentadbiran MTA.";
+        $this->MultiCell(0, 4.5, $veriText, 1, 'C', true);
     }
 }
