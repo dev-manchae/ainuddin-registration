@@ -244,7 +244,7 @@ class SuratTawaranGenerator extends FPDF {
         $index = 1;
         foreach ($docKeys as $dbKey => $label) {
             $hasDoc = isset($uploadedDocs[$dbKey]) && !empty($uploadedDocs[$dbKey]);
-            $statusText = $hasDoc ? "[  /  ] Telah Dimuatnaik" : "[     ] Perlu Dibawa";
+            $statusText = "[     ] Sediakan Fizikal";
             
             $this->Cell(15, 7, " " . $index++, 1, 0, 'C');
             $this->Cell(125, 7, " " . $label, 1, 0, 'L');
