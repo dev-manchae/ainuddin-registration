@@ -92,8 +92,10 @@ class SuratTawaranGenerator extends FPDF {
 
         // 2. Recipient Address
         $this->SetFont('Arial', 'B', 10);
-        $namaPenjaga = $this->data['keluarga']['Bapa']['nama_penuh'] ?? $this->data['keluarga']['Penjaga']['nama_penuh'] ?? 'Ibu/Bapa/Penjaga';
-        $alamatPenjaga = $this->data['keluarga']['Bapa']['alamat'] ?? $this->data['keluarga']['Penjaga']['alamat'] ?? 'Alamat Berdaftar';
+        $penjagaList = array_values($this->data['keluarga'] ?? []);
+        $primaryGuardian = $penjagaList[0] ?? null;
+        $namaPenjaga = $primaryGuardian['nama_penuh'] ?? 'Ibu/Bapa/Penjaga';
+        $alamatPenjaga = $primaryGuardian['alamat'] ?? 'Alamat Berdaftar';
         
         $this->Cell(0, 5, "Kepada:", 0, 1, 'L');
         $this->SetFont('Arial', '', 10);
@@ -354,77 +356,143 @@ class SuratTawaranGenerator extends FPDF {
         $this->Cell(0, 5.5, " 2. MAKLUMAT IBU BAPA / PENJAGA", 1, 1, 'L', true);
         $this->SetTextColor(30, 41, 59);
 
-        $f = $this->data['keluarga']['Bapa'] ?? $this->data['keluarga']['Penjaga'] ?? [];
-        $m = $this->data['keluarga']['Ibu'] ?? [];
-        
-        $alamatBapa = str_replace(["\r", "\n"], " ", $f['alamat'] ?? '-');
-        $alamatIbu = str_replace(["\r", "\n"], " ", $m['alamat'] ?? '-');
+        $penjagaList = array_values($this->data['keluarga'] ?? []);
+        $p1 = $penjagaList[0] ?? null;
+        $p2 = $penjagaList[1] ?? null;
 
-        $this->SetFont('Arial', '', 8);
-        $this->SetFillColor(248, 250, 252);
-        
-        // Row 1: Nama
-        $this->SetX(15);
-        $this->Cell(25, 5.2, "  Nama Penuh", 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 8);
-        $this->Cell(60, 5.2, "  " . ($f['nama_penuh'] ?? '-'), 1, 0, 'L');
-        $this->SetFont('Arial', '', 8);
-        $this->Cell(10, 5.2, "", 0, 0); // space
-        $this->Cell(25, 5.2, "  Nama Penuh", 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 8);
-        $this->Cell(60, 5.2, "  " . ($m['nama_penuh'] ?? '-'), 1, 1, 'L');
-        $this->SetFont('Arial', '', 8);
+        if ($p2) {
+            $alamat1 = str_replace(["\r", "\n"], " ", $p1['alamat'] ?? '-');
+            $alamat2 = str_replace(["\r", "\n"], " ", $p2['alamat'] ?? '-');
 
-        // Row 2: No Tel
-        $this->SetX(15);
-        $this->Cell(25, 5.2, "  No. Telefon", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . ($f['no_telefon'] ?? '-'), 1, 0, 'L');
-        $this->Cell(10, 5.2, "", 0, 0);
-        $this->Cell(25, 5.2, "  No. Telefon", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . ($m['no_telefon'] ?? '-'), 1, 1, 'L');
+            $this->SetFont('Arial', '', 8);
+            $this->SetFillColor(248, 250, 252);
+            
+            // Row 1: Hubungan
+            $this->SetX(15);
+            $this->Cell(25, 5.2, "  Hubungan", 1, 0, 'L', true);
+            $this->SetFont('Arial', 'B', 8);
+            $this->Cell(60, 5.2, "  " . ($p1['jenis_penjaga'] ?? 'Penjaga'), 1, 0, 'L');
+            $this->SetFont('Arial', '', 8);
+            $this->Cell(10, 5.2, "", 0, 0); // space
+            $this->Cell(25, 5.2, "  Hubungan", 1, 0, 'L', true);
+            $this->SetFont('Arial', 'B', 8);
+            $this->Cell(60, 5.2, "  " . ($p2['jenis_penjaga'] ?? 'Penjaga'), 1, 1, 'L');
+            $this->SetFont('Arial', '', 8);
 
-        // Row 3: Pekerjaan
-        $this->SetX(15);
-        $this->Cell(25, 5.2, "  Pekerjaan", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . ($f['pekerjaan'] ?? '-'), 1, 0, 'L');
-        $this->Cell(10, 5.2, "", 0, 0);
-        $this->Cell(25, 5.2, "  Pekerjaan", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . ($m['pekerjaan'] ?? '-'), 1, 1, 'L');
+            // Row 2: Nama Penuh
+            $this->SetX(15);
+            $this->Cell(25, 5.2, "  Nama Penuh", 1, 0, 'L', true);
+            $this->SetFont('Arial', 'B', 8);
+            $this->Cell(60, 5.2, "  " . ($p1['nama_penuh'] ?? '-'), 1, 0, 'L');
+            $this->SetFont('Arial', '', 8);
+            $this->Cell(10, 5.2, "", 0, 0); // space
+            $this->Cell(25, 5.2, "  Nama Penuh", 1, 0, 'L', true);
+            $this->SetFont('Arial', 'B', 8);
+            $this->Cell(60, 5.2, "  " . ($p2['nama_penuh'] ?? '-'), 1, 1, 'L');
+            $this->SetFont('Arial', '', 8);
 
-        // Row 4: Pendapatan
-        $this->SetX(15);
-        $this->Cell(25, 5.2, "  Pendapatan", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . (!empty($f['pendapatan']) ? 'RM ' . number_format($f['pendapatan'], 2) : '-'), 1, 0, 'L');
-        $this->Cell(10, 5.2, "", 0, 0);
-        $this->Cell(25, 5.2, "  Pendapatan", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . (!empty($m['pendapatan']) ? 'RM ' . number_format($m['pendapatan'], 2) : '-'), 1, 1, 'L');
+            // Row 3: No Tel
+            $this->SetX(15);
+            $this->Cell(25, 5.2, "  No. Telefon", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . ($p1['no_telefon'] ?? '-'), 1, 0, 'L');
+            $this->Cell(10, 5.2, "", 0, 0);
+            $this->Cell(25, 5.2, "  No. Telefon", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . ($p2['no_telefon'] ?? '-'), 1, 1, 'L');
 
-        // Row 5: Emel
-        $this->SetX(15);
-        $this->Cell(25, 5.2, "  Emel", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . ($f['emel'] ?? '-'), 1, 0, 'L');
-        $this->Cell(10, 5.2, "", 0, 0);
-        $this->Cell(25, 5.2, "  Emel", 1, 0, 'L', true);
-        $this->Cell(60, 5.2, "  " . ($m['emel'] ?? '-'), 1, 1, 'L');
+            // Row 4: Pekerjaan
+            $this->SetX(15);
+            $this->Cell(25, 5.2, "  Pekerjaan", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . ($p1['pekerjaan'] ?? '-'), 1, 0, 'L');
+            $this->Cell(10, 5.2, "", 0, 0);
+            $this->Cell(25, 5.2, "  Pekerjaan", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . ($p2['pekerjaan'] ?? '-'), 1, 1, 'L');
 
-        // Row 6: Alamat (Boxed Table Layout)
-        $this->SetX(15);
-        $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
-        $yParentAlamat = $this->GetY();
-        $this->SetXY(40, $yParentAlamat);
-        $this->SetFont('Arial', '', 7.5);
-        $this->MultiCell(60, 5.2, " " . $alamatBapa, 0, 'L');
-        $this->Rect(40, $yParentAlamat, 60, 10.4);
-        
-        $this->SetXY(110, $yParentAlamat);
-        $this->SetFont('Arial', '', 8);
-        $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
-        $this->SetXY(135, $yParentAlamat);
-        $this->SetFont('Arial', '', 7.5);
-        $this->MultiCell(60, 5.2, " " . $alamatIbu, 0, 'L');
-        $this->Rect(135, $yParentAlamat, 60, 10.4);
-        
-        $this->SetXY(15, $yParentAlamat + 10.4);
+            // Row 5: Pendapatan
+            $this->SetX(15);
+            $this->Cell(25, 5.2, "  Pendapatan", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . (!empty($p1['pendapatan']) ? 'RM ' . number_format($p1['pendapatan'], 2) : '-'), 1, 0, 'L');
+            $this->Cell(10, 5.2, "", 0, 0);
+            $this->Cell(25, 5.2, "  Pendapatan", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . (!empty($p2['pendapatan']) ? 'RM ' . number_format($p2['pendapatan'], 2) : '-'), 1, 1, 'L');
+
+            // Row 6: Emel
+            $this->SetX(15);
+            $this->Cell(25, 5.2, "  Emel", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . ($p1['emel'] ?? '-'), 1, 0, 'L');
+            $this->Cell(10, 5.2, "", 0, 0);
+            $this->Cell(25, 5.2, "  Emel", 1, 0, 'L', true);
+            $this->Cell(60, 5.2, "  " . ($p2['emel'] ?? '-'), 1, 1, 'L');
+
+            // Row 7: Alamat (Boxed Table Layout)
+            $this->SetX(15);
+            $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
+            $yParentAlamat = $this->GetY();
+            $this->SetXY(40, $yParentAlamat);
+            $this->SetFont('Arial', '', 7.5);
+            $this->MultiCell(60, 5.2, " " . $alamat1, 0, 'L');
+            $this->Rect(40, $yParentAlamat, 60, 10.4);
+            
+            $this->SetXY(110, $yParentAlamat);
+            $this->SetFont('Arial', '', 8);
+            $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
+            $this->SetXY(135, $yParentAlamat);
+            $this->SetFont('Arial', '', 7.5);
+            $this->MultiCell(60, 5.2, " " . $alamat2, 0, 'L');
+            $this->Rect(135, $yParentAlamat, 60, 10.4);
+            
+            $this->SetXY(15, $yParentAlamat + 10.4);
+        } else {
+            $p1 = $p1 ?: [];
+            $alamat1 = str_replace(["\r", "\n"], " ", $p1['alamat'] ?? '-');
+
+            $this->SetFont('Arial', '', 8);
+            $this->SetFillColor(248, 250, 252);
+
+            // Row 1: Hubungan
+            $this->SetX(15);
+            $this->Cell(45, 5.2, "  Hubungan", 1, 0, 'L', true);
+            $this->SetFont('Arial', 'B', 8);
+            $this->Cell(135, 5.2, "  " . ($p1['jenis_penjaga'] ?? 'Penjaga'), 1, 1, 'L');
+            $this->SetFont('Arial', '', 8);
+
+            // Row 2: Nama Penuh
+            $this->SetX(15);
+            $this->Cell(45, 5.2, "  Nama Penuh", 1, 0, 'L', true);
+            $this->SetFont('Arial', 'B', 8);
+            $this->Cell(135, 5.2, "  " . ($p1['nama_penuh'] ?? '-'), 1, 1, 'L');
+            $this->SetFont('Arial', '', 8);
+
+            // Row 3: No Tel
+            $this->SetX(15);
+            $this->Cell(45, 5.2, "  No. Telefon", 1, 0, 'L', true);
+            $this->Cell(135, 5.2, "  " . ($p1['no_telefon'] ?? '-'), 1, 1, 'L');
+
+            // Row 4: Pekerjaan
+            $this->SetX(15);
+            $this->Cell(45, 5.2, "  Pekerjaan", 1, 0, 'L', true);
+            $this->Cell(135, 5.2, "  " . ($p1['pekerjaan'] ?? '-'), 1, 1, 'L');
+
+            // Row 5: Pendapatan
+            $this->SetX(15);
+            $this->Cell(45, 5.2, "  Pendapatan", 1, 0, 'L', true);
+            $this->Cell(135, 5.2, "  " . (!empty($p1['pendapatan']) ? 'RM ' . number_format($p1['pendapatan'], 2) : '-'), 1, 1, 'L');
+
+            // Row 6: Emel
+            $this->SetX(15);
+            $this->Cell(45, 5.2, "  Emel", 1, 0, 'L', true);
+            $this->Cell(135, 5.2, "  " . ($p1['emel'] ?? '-'), 1, 1, 'L');
+
+            // Row 7: Alamat
+            $this->SetX(15);
+            $this->Cell(45, 10.4, "  Alamat", 1, 0, 'L', true);
+            $yParentAlamat = $this->GetY();
+            $this->SetXY(60, $yParentAlamat);
+            $this->SetFont('Arial', '', 7.5);
+            $this->MultiCell(135, 5.2, " " . $alamat1, 0, 'L');
+            $this->Rect(60, $yParentAlamat, 135, 10.4);
+
+            $this->SetXY(15, $yParentAlamat + 10.4);
+        }
 
         $this->Ln(3);
 

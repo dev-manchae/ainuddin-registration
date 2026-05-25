@@ -170,14 +170,10 @@ class AdminController {
             SELECT *
             FROM keluarga
             WHERE id_permohonan = ?
-            ORDER BY jenis_penjaga ASC
+            ORDER BY id_keluarga ASC
         ");
         $stmt->execute([$id_permohonan]);
-        $keluargaList = $stmt->fetchAll();
-        $keluarga = [];
-        foreach ($keluargaList as $row) {
-            $keluarga[$row['jenis_penjaga']] = $row;
-        }
+        $keluarga = $stmt->fetchAll();
 
         // Akademik
         $stmt = $this->pdo->prepare("

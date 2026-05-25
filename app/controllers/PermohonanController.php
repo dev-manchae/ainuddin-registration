@@ -255,23 +255,41 @@ class PermohonanController {
         }
 
         if (!$is_draft) {
-            $compulsory = [
-                'nama_bapa' => 'Nama Bapa',
-                'telefon_bapa' => 'No. Telefon Bapa',
-                'pekerjaan_bapa' => 'Pekerjaan Bapa',
-                'pendapatan_bapa' => 'Pendapatan Bapa',
-                'alamat_bapa' => 'Alamat Bapa',
-                
-                'nama_ibu' => 'Nama Ibu',
-                'telefon_ibu' => 'No. Telefon Ibu',
-                'pekerjaan_ibu' => 'Pekerjaan Ibu',
-                'pendapatan_ibu' => 'Pendapatan Ibu',
-                'alamat_ibu' => 'Alamat Ibu'
+            // Validate Penjaga Utama (Primary) - compulsory
+            $compulsory1 = [
+                'hubungan_penjaga_1' => 'Hubungan Penjaga Utama',
+                'nama_penjaga_1' => 'Nama Penjaga Utama',
+                'telefon_penjaga_1' => 'No. Telefon Penjaga Utama',
+                'pekerjaan_penjaga_1' => 'Pekerjaan Penjaga Utama',
+                'pendapatan_penjaga_1' => 'Pendapatan Penjaga Utama',
+                'alamat_penjaga_1' => 'Alamat Penjaga Utama'
             ];
-            
-            foreach ($compulsory as $field => $label) {
+            foreach ($compulsory1 as $field => $label) {
                 if (!isset($data[$field]) || trim($data[$field]) === '') {
                     return "Medan '$label' adalah wajib.";
+                }
+            }
+            if ($data['hubungan_penjaga_1'] === 'Lain' && empty(trim($data['hubungan_penjaga_1_lain'] ?? ''))) {
+                return "Sila nyatakan hubungan Penjaga Utama.";
+            }
+
+            // Validate Penjaga Kedua (Secondary) - optional
+            $hubungan2 = $data['hubungan_penjaga_2'] ?? 'Tiada';
+            if ($hubungan2 !== 'Tiada') {
+                $compulsory2 = [
+                    'nama_penjaga_2' => 'Nama Penjaga Kedua',
+                    'telefon_penjaga_2' => 'No. Telefon Penjaga Kedua',
+                    'pekerjaan_penjaga_2' => 'Pekerjaan Penjaga Kedua',
+                    'pendapatan_penjaga_2' => 'Pendapatan Penjaga Kedua',
+                    'alamat_penjaga_2' => 'Alamat Penjaga Kedua'
+                ];
+                foreach ($compulsory2 as $field => $label) {
+                    if (!isset($data[$field]) || trim($data[$field]) === '') {
+                        return "Medan '$label' adalah wajib untuk Penjaga Kedua.";
+                    }
+                }
+                if ($hubungan2 === 'Lain' && empty(trim($data['hubungan_penjaga_2_lain'] ?? ''))) {
+                    return "Sila nyatakan hubungan Penjaga Kedua.";
                 }
             }
         }
@@ -280,10 +298,44 @@ class PermohonanController {
 
         $this->pdo->prepare("DELETE FROM keluarga WHERE id_permohonan = ?")->execute([$id]);
 
-        $penjagaList = [
-            ['jenis' => 'Bapa', 'prefix' => 'bapa'],
-            ['jenis' => 'Ibu', 'prefix' => 'ibu']
-        ];
+        $penjagaList = [];
+
+        // Penjaga 1
+        if ($is_draft || !empty(trim($data['nama_penjaga_1'] ?? ''))) {
+            $rel = $data['hubungan_penjaga_1'] ?? 'Bapa';
+            if ($rel === 'Lain') {
+                $rel = trim($data['hubungan_penjaga_1_lain'] ?? 'Penjaga');
+            }
+            $penjagaList[] = [
+                'jenis' => $rel ?: 'Penjaga',
+                'nama' => $data['nama_penjaga_1'] ?? null,
+                'telefon' => $data['telefon_penjaga_1'] ?? null,
+                'pekerjaan' => $data['pekerjaan_penjaga_1'] ?? null,
+                'pendapatan' => $data['pendapatan_penjaga_1'] ?? null,
+                'alamat' => $data['alamat_penjaga_1'] ?? null,
+                'emel' => $data['emel_penjaga_1'] ?? null
+            ];
+        }
+
+        // Penjaga 2
+        $hubungan2 = $data['hubungan_penjaga_2'] ?? 'Tiada';
+        if ($hubungan2 !== 'Tiada') {
+            if ($is_draft || !empty(trim($data['nama_penjaga_2'] ?? ''))) {
+                $rel = $hubungan2;
+                if ($rel === 'Lain') {
+                    $rel = trim($data['hubungan_penjaga_2_lain'] ?? 'Penjaga');
+                }
+                $penjagaList[] = [
+                    'jenis' => $rel ?: 'Penjaga',
+                    'nama' => $data['nama_penjaga_2'] ?? null,
+                    'telefon' => $data['telefon_penjaga_2'] ?? null,
+                    'pekerjaan' => $data['pekerjaan_penjaga_2'] ?? null,
+                    'pendapatan' => $data['pendapatan_penjaga_2'] ?? null,
+                    'alamat' => $data['alamat_penjaga_2'] ?? null,
+                    'emel' => $data['emel_penjaga_2'] ?? null
+                ];
+            }
+        }
 
         $stmt = $this->pdo->prepare("
             INSERT INTO keluarga (id_permohonan, jenis_penjaga, nama_penuh, no_telefon, pekerjaan, pendapatan, alamat, emel)
@@ -291,13 +343,12 @@ class PermohonanController {
         ");
 
         foreach ($penjagaList as $p) {
-            $prefix = $p['prefix'];
-            $namaVal = isset($data['nama_' . $prefix]) && trim($data['nama_' . $prefix]) !== '' ? $data['nama_' . $prefix] : null;
-            $telVal = isset($data['telefon_' . $prefix]) && trim($data['telefon_' . $prefix]) !== '' ? $this->formatPhoneNumber($data['telefon_' . $prefix]) : '+60';
-            $pekVal = isset($data['pekerjaan_' . $prefix]) && trim($data['pekerjaan_' . $prefix]) !== '' ? $data['pekerjaan_' . $prefix] : null;
-            $penVal = isset($data['pendapatan_' . $prefix]) && trim($data['pendapatan_' . $prefix]) !== '' ? $data['pendapatan_' . $prefix] : null;
-            $alaVal = isset($data['alamat_' . $prefix]) && trim($data['alamat_' . $prefix]) !== '' ? $data['alamat_' . $prefix] : null;
-            $emlVal = isset($data['emel_' . $prefix]) && trim($data['emel_' . $prefix]) !== '' ? $data['emel_' . $prefix] : null;
+            $namaVal = !empty(trim($p['nama'] ?? '')) ? trim($p['nama']) : null;
+            $telVal = !empty(trim($p['telefon'] ?? '')) ? $this->formatPhoneNumber($p['telefon']) : '+60';
+            $pekVal = !empty(trim($p['pekerjaan'] ?? '')) ? trim($p['pekerjaan']) : null;
+            $penVal = !empty(trim($p['pendapatan'] ?? '')) ? $p['pendapatan'] : 0.00;
+            $alaVal = !empty(trim($p['alamat'] ?? '')) ? trim($p['alamat']) : null;
+            $emlVal = !empty(trim($p['emel'] ?? '')) ? trim($p['emel']) : null;
 
             $stmt->execute([
                 $id,
@@ -323,19 +374,13 @@ class PermohonanController {
     }
 
     public function getKeluarga($id_permohonan) {
-        $stmt = $this->pdo->prepare("SELECT * FROM keluarga WHERE id_permohonan = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM keluarga WHERE id_permohonan = ? ORDER BY id_keluarga ASC");
         $stmt->execute([(int) $id_permohonan]);
-        $result = $stmt->fetchAll();
-        $keluarga = [];
-        foreach ($result as $row) {
-            $keluarga[$row['jenis_penjaga']] = $row;
-        }
-        return $keluarga;
+        return $stmt->fetchAll();
     }
 
     // =========================
     // SAVE AKADEMIK
-    // =========================
     public function saveAkademik($data, $id_permohonan, $is_draft = false) {
 
         $validation = $this->validatePermohonan($id_permohonan);

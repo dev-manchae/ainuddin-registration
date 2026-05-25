@@ -170,22 +170,17 @@ function hideRejectForm() { document.getElementById('rejectForm').style.display 
     <?php elseif ($currentTab == '2'): ?>
         <h3>Maklumat Penjaga</h3><br>
         <?php if (!empty($kl)): ?>
-            <?php foreach (['Bapa', 'Ibu'] as $jenis): ?>
-                <?php $penjaga = $kl[$jenis] ?? null; ?>
+            <?php foreach ($kl as $penjaga): ?>
                 <div style="border:1px solid #e2e8f0; padding:20px; border-radius:8px; margin-bottom:20px;">
-                    <h4 style="margin-bottom: 15px; color: #334155;"><?= $jenis; ?></h4>
-                    <?php if ($penjaga): ?>
-                        <div class="detail-grid">
-                            <div class="detail-label">Nama</div><div class="detail-value"><?= htmlspecialchars($penjaga['nama_penuh'] ?? '-'); ?></div>
-                            <div class="detail-label">Telefon</div><div class="detail-value"><?= htmlspecialchars($penjaga['no_telefon'] ?? '-'); ?></div>
-                            <div class="detail-label">Emel</div><div class="detail-value"><?= htmlspecialchars($penjaga['emel'] ?? '-'); ?></div>
-                            <div class="detail-label">Pekerjaan</div><div class="detail-value"><?= htmlspecialchars($penjaga['pekerjaan'] ?? '-'); ?></div>
-                            <div class="detail-label">Pendapatan</div><div class="detail-value">RM <?= number_format($penjaga['pendapatan'] ?? 0, 2); ?></div>
-                            <div class="detail-label">Alamat</div><div class="detail-value"><?= nl2br(htmlspecialchars($penjaga['alamat'] ?? '-')); ?></div>
-                        </div>
-                    <?php else: ?>
-                        <p style="color: #64748b;">Tiada maklumat.</p>
-                    <?php endif; ?>
+                    <h4 style="margin-bottom: 15px; color: #334155;">Maklumat <?= htmlspecialchars($penjaga['jenis_penjaga'] ?? 'Penjaga'); ?></h4>
+                    <div class="detail-grid">
+                        <div class="detail-label">Nama</div><div class="detail-value"><?= htmlspecialchars($penjaga['nama_penuh'] ?? '-'); ?></div>
+                        <div class="detail-label">Telefon</div><div class="detail-value"><?= htmlspecialchars($penjaga['no_telefon'] ?? '-'); ?></div>
+                        <div class="detail-label">Emel</div><div class="detail-value"><?= htmlspecialchars($penjaga['emel'] ?? '-'); ?></div>
+                        <div class="detail-label">Pekerjaan</div><div class="detail-value"><?= htmlspecialchars($penjaga['pekerjaan'] ?? '-'); ?></div>
+                        <div class="detail-label">Pendapatan</div><div class="detail-value">RM <?= number_format($penjaga['pendapatan'] ?? 0, 2); ?></div>
+                        <div class="detail-label">Alamat</div><div class="detail-value"><?= nl2br(htmlspecialchars($penjaga['alamat'] ?? '-')); ?></div>
+                    </div>
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
