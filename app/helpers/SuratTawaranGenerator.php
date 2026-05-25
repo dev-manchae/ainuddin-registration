@@ -479,34 +479,28 @@ class SuratTawaranGenerator extends FPDF {
 
         $this->Ln(3);
 
-        // Subject Results tables side-by-side
+        // Subject Results tables side-by-side (integrated inside Section 3)
         $yTableStart = $this->GetY();
         $akademikData = json_decode($a['keputusan_akademik'] ?? '', true) ?: [];
         $agamaData = json_decode($a['keputusan_agama'] ?? '', true) ?: [];
 
-        // Header for Academic Table (Left Column)
-        $this->SetXY(15, $yTableStart);
-        $this->SetFont('Arial', 'B', 8);
-        $this->SetTextColor(30, 86, 49);
-        $this->Cell(85, 5, "Keputusan Akademik Sekolah Kebangsaan", 0, 0, 'L');
-        
-        // Header for Religious Table (Right Column)
-        $this->SetXY(110, $yTableStart);
-        $this->Cell(85, 5, "Keputusan Sekolah Agama (SRA / KAFA / SMA)", 0, 1, 'L');
-        
-        // Column headers
-        $yColHeader = $this->GetY();
+        // Row 4: Sub-headers for results
+        $this->SetX(15);
         $this->SetFont('Arial', 'B', 7.5);
-        $this->SetTextColor(30, 41, 59);
+        $this->SetTextColor(30, 86, 49);
         $this->SetFillColor(241, 245, 249);
+        $this->Cell(85, 5.2, "  Keputusan Akademik Sekolah Kebangsaan", 1, 0, 'L', true);
+        $this->Cell(10, 5.2, "", 0, 0);
+        $this->Cell(85, 5.2, "  Keputusan Sekolah Agama (SRA / KAFA / SMA)", 1, 1, 'L', true);
         
-        $this->SetXY(15, $yColHeader);
-        $this->Cell(55, 4.5, " Subjek", 1, 0, 'L', true);
-        $this->Cell(30, 4.5, " Gred", 1, 0, 'C', true);
-        
-        $this->SetXY(110, $yColHeader);
-        $this->Cell(55, 4.5, " Subjek", 1, 0, 'L', true);
-        $this->Cell(30, 4.5, " Gred", 1, 1, 'C', true);
+        // Row 5: Column headers
+        $this->SetX(15);
+        $this->SetTextColor(30, 41, 59);
+        $this->Cell(55, 4.5, "  Subjek", 1, 0, 'L');
+        $this->Cell(30, 4.5, "  Gred", 1, 0, 'C');
+        $this->Cell(10, 4.5, "", 0, 0);
+        $this->Cell(55, 4.5, "  Subjek", 1, 0, 'L');
+        $this->Cell(30, 4.5, "  Gred", 1, 1, 'C');
         
         $yRowStart = $this->GetY();
         
@@ -521,11 +515,11 @@ class SuratTawaranGenerator extends FPDF {
             // Academic cell
             $this->SetXY(15, $yCurrentRow);
             if (isset($akademikData[$i])) {
-                $this->Cell(55, 4.5, " " . ($akademikData[$i]['subjek'] ?? ''), 1, 0, 'L');
-                $this->Cell(30, 4.5, ($akademikData[$i]['keputusan'] ?? ''), 1, 0, 'C');
+                $this->Cell(55, 4.5, "  " . ($akademikData[$i]['subjek'] ?? ''), 1, 0, 'L');
+                $this->Cell(30, 4.5, "  " . ($akademikData[$i]['keputusan'] ?? ''), 1, 0, 'C');
             } else {
                 if ($i == 0) {
-                    $this->Cell(85, 4.5, "Tiada keputusan akademik", 1, 0, 'C');
+                    $this->Cell(85, 4.5, "  Tiada keputusan akademik", 1, 0, 'C');
                 } else {
                     $this->Cell(55, 4.5, "", 1, 0, 'L');
                     $this->Cell(30, 4.5, "", 1, 0, 'C');
@@ -535,11 +529,11 @@ class SuratTawaranGenerator extends FPDF {
             // Religious cell
             $this->SetXY(110, $yCurrentRow);
             if (isset($agamaData[$i])) {
-                $this->Cell(55, 4.5, " " . ($agamaData[$i]['subjek'] ?? ''), 1, 0, 'L');
-                $this->Cell(30, 4.5, ($agamaData[$i]['keputusan'] ?? ''), 1, 0, 'C');
+                $this->Cell(55, 4.5, "  " . ($agamaData[$i]['subjek'] ?? ''), 1, 0, 'L');
+                $this->Cell(30, 4.5, "  " . ($agamaData[$i]['keputusan'] ?? ''), 1, 0, 'C');
             } else {
                 if ($i == 0) {
-                    $this->Cell(85, 4.5, "Tiada keputusan sekolah agama", 1, 0, 'C');
+                    $this->Cell(85, 4.5, "  Tiada keputusan sekolah agama", 1, 0, 'C');
                 } else {
                     $this->Cell(55, 4.5, "", 1, 0, 'L');
                     $this->Cell(30, 4.5, "", 1, 0, 'C');
@@ -560,18 +554,46 @@ class SuratTawaranGenerator extends FPDF {
 
         $h = $this->data['kesihatan'] ?? [];
 
+        // Check values and map to Tiada if empty/Tiada, or Tiada Maklumat if NULL
+        $alahanVal = isset($h['alahan']) ? trim($h['alahan']) : null;
+        if ($alahanVal === null) {
+            $alahanText = "Tiada Maklumat";
+        } elseif ($alahanVal === "" || strcasecmp($alahanVal, "tiada") === 0) {
+            $alahanText = "Tiada";
+        } else {
+            $alahanText = $alahanVal;
+        }
+
+        $penyakitVal = isset($h['penyakit_kronik']) ? trim($h['penyakit_kronik']) : null;
+        if ($penyakitVal === null) {
+            $penyakitText = "Tiada Maklumat";
+        } elseif ($penyakitVal === "" || strcasecmp($penyakitVal, "tiada") === 0) {
+            $penyakitText = "Tiada";
+        } else {
+            $penyakitText = $penyakitVal;
+        }
+
+        $ubatVal = isset($h['pengambilan_ubat']) ? trim($h['pengambilan_ubat']) : null;
+        if ($ubatVal === null) {
+            $ubatText = "Tiada Maklumat";
+        } elseif ($ubatVal === "" || strcasecmp($ubatVal, "tiada") === 0) {
+            $ubatText = "Tiada";
+        } else {
+            $ubatText = $ubatVal;
+        }
+
         // Row 1: Alahan
         $this->SetFillColor(248, 250, 252);
         $this->Cell(45, 5.2, "  Rekod Alahan", 1, 0, 'L', true);
-        $this->Cell(135, 5.2, "  " . ($h['alahan'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+        $this->Cell(135, 5.2, "  " . $alahanText, 1, 1, 'L');
 
         // Row 2: Penyakit Kronik
         $this->Cell(45, 5.2, "  Penyakit Kronik", 1, 0, 'L', true);
-        $this->Cell(135, 5.2, "  " . ($h['penyakit_kronik'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+        $this->Cell(135, 5.2, "  " . $penyakitText, 1, 1, 'L');
 
         // Row 3: Pengambilan Ubat
         $this->Cell(45, 5.2, "  Pengambilan Ubat Semasa", 1, 0, 'L', true);
-        $this->Cell(135, 5.2, "  " . ($h['pengambilan_ubat'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+        $this->Cell(135, 5.2, "  " . $ubatText, 1, 1, 'L');
 
         // Row 4: No Kecemasan / Kebenaran Rawatan
         $this->Cell(45, 5.2, "  No. Telefon Kecemasan", 1, 0, 'L', true);
