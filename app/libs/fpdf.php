@@ -1451,7 +1451,9 @@ protected function _parsegif($file)
 	ob_start();
 	imagepng($im);
 	$data = ob_get_clean();
-	imagedestroy($im);
+	if (PHP_VERSION_ID < 80000) {
+		imagedestroy($im);
+	}
 	$f = fopen('php://temp','rb+');
 	if(!$f)
 		$this->Error('Unable to create memory stream');
