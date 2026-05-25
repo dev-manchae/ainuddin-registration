@@ -1,6 +1,7 @@
 <?php
 
-function getConnection() {
+function getConnection()
+{
 
     $host = "localhost";
     $dbname = "ainuddin_registration";

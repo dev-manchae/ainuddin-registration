@@ -19,21 +19,26 @@
                 $ext = strtolower(pathinfo($doc['nama_asal'], PATHINFO_EXTENSION));
                 $isImage = in_array($ext, ['jpg', 'jpeg', 'png']);
             ?>
-                <?php if ($isImage): ?>
-                    <a href="<?= $filePath; ?>" target="_blank" class="img-preview-anchor">
-                        <img src="<?= $filePath; ?>" class="img-preview-direct" alt="Salinan IC/Sijil Lahir Pelajar">
-                    </a>
-                <?php else: ?>
-                    <a href="<?= $filePath; ?>" target="_blank" class="doc-preview-card">
-                        <div class="doc-preview-icon pdf">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                        </div>
-                        <div class="doc-preview-info">
-                            <span class="doc-preview-name" title="<?= htmlspecialchars($doc['nama_asal']); ?>"><?= htmlspecialchars($doc['nama_asal']); ?></span>
-                            <span class="doc-preview-action">Klik untuk buka PDF</span>
-                        </div>
-                    </a>
-                <?php endif; ?>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; border: 1px solid var(--border); padding: 12px; border-radius: 8px; background: #fafafa;">
+                    <div style="flex-grow: 1; min-width: 0;">
+                        <?php if ($isImage): ?>
+                            <a href="<?= $filePath; ?>" target="_blank" class="img-preview-anchor">
+                                <img src="<?= $filePath; ?>" class="img-preview-direct" alt="Salinan IC/Sijil Lahir Pelajar">
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= $filePath; ?>" target="_blank" class="doc-preview-card" style="margin: 0;">
+                                <div class="doc-preview-icon pdf">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                </div>
+                                <div class="doc-preview-info">
+                                    <span class="doc-preview-name" title="<?= htmlspecialchars($doc['nama_asal']); ?>"><?= htmlspecialchars($doc['nama_asal']); ?></span>
+                                    <span class="doc-preview-action">Klik untuk buka PDF</span>
+                                </div>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteDoc(<?= $doc['id_dokumen']; ?>)" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+                </div>
             <?php endif; ?>
         </div>
     </div>
@@ -50,21 +55,26 @@
                 $ext = strtolower(pathinfo($doc['nama_asal'], PATHINFO_EXTENSION));
                 $isImage = in_array($ext, ['jpg', 'jpeg', 'png']);
             ?>
-                <?php if ($isImage): ?>
-                    <a href="<?= $filePath; ?>" target="_blank" class="img-preview-anchor">
-                        <img src="<?= $filePath; ?>" class="img-preview-direct" alt="Gambar Pelajar">
-                    </a>
-                <?php else: ?>
-                    <a href="<?= $filePath; ?>" target="_blank" class="doc-preview-card">
-                        <div class="doc-preview-icon pdf">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                        </div>
-                        <div class="doc-preview-info">
-                            <span class="doc-preview-name" title="<?= htmlspecialchars($doc['nama_asal']); ?>"><?= htmlspecialchars($doc['nama_asal']); ?></span>
-                            <span class="doc-preview-action">Klik untuk buka PDF</span>
-                        </div>
-                    </a>
-                <?php endif; ?>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; border: 1px solid var(--border); padding: 12px; border-radius: 8px; background: #fafafa;">
+                    <div style="flex-grow: 1; min-width: 0;">
+                        <?php if ($isImage): ?>
+                            <a href="<?= $filePath; ?>" target="_blank" class="img-preview-anchor">
+                                <img src="<?= $filePath; ?>" class="img-preview-direct" alt="Gambar Pelajar">
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= $filePath; ?>" target="_blank" class="doc-preview-card" style="margin: 0;">
+                                <div class="doc-preview-icon pdf">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                </div>
+                                <div class="doc-preview-info">
+                                    <span class="doc-preview-name" title="<?= htmlspecialchars($doc['nama_asal']); ?>"><?= htmlspecialchars($doc['nama_asal']); ?></span>
+                                    <span class="doc-preview-action">Klik untuk buka PDF</span>
+                                </div>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteDoc(<?= $doc['id_dokumen']; ?>)" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+                </div>
             <?php endif; ?>
         </div>
     </div>
@@ -206,15 +216,16 @@ function previewFile(input) {
     const objectUrl = URL.createObjectURL(file);
     activeBlobUrls[input.name] = objectUrl;
     
+    let previewHtml = '';
     if (fileType.startsWith('image/')) {
-        wrapper.innerHTML = `
-            <a href="${objectUrl}" target="_blank" class="img-preview-anchor">
+        previewHtml = `
+            <a href="${objectUrl}" target="_blank" class="img-preview-anchor" style="margin: 0;">
                 <img src="${objectUrl}" class="img-preview-direct" alt="${escapeHtml(fileName)}">
             </a>
         `;
     } else if (fileType === 'application/pdf') {
-        wrapper.innerHTML = `
-            <a href="${objectUrl}" target="_blank" class="doc-preview-card">
+        previewHtml = `
+            <a href="${objectUrl}" target="_blank" class="doc-preview-card" style="margin: 0;">
                 <div class="doc-preview-icon pdf">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -228,7 +239,17 @@ function previewFile(input) {
         `;
     } else {
         wrapper.innerHTML = `<span style="color:var(--danger); font-size: 13px;">Format fail tidak disokong untuk pra-lihat.</span>`;
+        return;
     }
+
+    wrapper.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; border: 1px solid var(--border); padding: 12px; border-radius: 8px; background: #fafafa;">
+            <div style="flex-grow: 1; min-width: 0;">
+                ${previewHtml}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearLocalSelection('${input.name}')" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+        </div>
+    `;
 }
 
 function previewMultipleFile(input, id) {
@@ -274,15 +295,16 @@ function previewMultipleFile(input, id) {
     const objectUrl = URL.createObjectURL(file);
     activeBlobUrls[key] = objectUrl;
     
+    let previewHtml = '';
     if (fileType.startsWith('image/')) {
-        wrapper.innerHTML = `
-            <a href="${objectUrl}" target="_blank" class="img-preview-anchor">
+        previewHtml = `
+            <a href="${objectUrl}" target="_blank" class="img-preview-anchor" style="margin: 0;">
                 <img src="${objectUrl}" class="img-preview-direct" alt="${escapeHtml(fileName)}">
             </a>
         `;
     } else if (fileType === 'application/pdf') {
-        wrapper.innerHTML = `
-            <a href="${objectUrl}" target="_blank" class="doc-preview-card">
+        previewHtml = `
+            <a href="${objectUrl}" target="_blank" class="doc-preview-card" style="margin: 0;">
                 <div class="doc-preview-icon pdf">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -296,7 +318,17 @@ function previewMultipleFile(input, id) {
         `;
     } else {
         wrapper.innerHTML = `<span style="color:var(--danger); font-size: 13px;">Format fail tidak disokong untuk pra-lihat.</span>`;
+        return;
     }
+
+    wrapper.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; border: 1px solid var(--border); padding: 12px; border-radius: 8px; background: #fafafa;">
+            <div style="flex-grow: 1; min-width: 0;">
+                ${previewHtml}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearMultipleLocalSelection(${id})" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+        </div>
+    `;
 }
 
 function removeSijilRow(id) {
@@ -308,6 +340,25 @@ function removeSijilRow(id) {
             delete activeBlobUrls[key];
         }
         row.remove();
+    }
+}
+
+function clearLocalSelection(inputName) {
+    const input = document.querySelector(`input[name="${inputName}"]`);
+    if (input) {
+        input.value = '';
+        previewFile(input);
+    }
+}
+
+function clearMultipleLocalSelection(id) {
+    const row = document.getElementById('sijil_row_' + id);
+    if (row) {
+        const input = row.querySelector('input[type="file"]');
+        if (input) {
+            input.value = '';
+            previewMultipleFile(input, id);
+        }
     }
 }
 
