@@ -247,6 +247,14 @@ class PermohonanController {
     // =========================
     // SAVE KELUARGA
     // =========================
+    /**
+     * Save keluarga details.
+     * 
+     * @param array $data
+     * @param int $id_permohonan
+     * @param bool $is_draft
+     * @return bool|string
+     */
     public function saveKeluarga($data, $id_permohonan, $is_draft = false) {
 
         $validation = $this->validatePermohonan($id_permohonan);

@@ -1452,7 +1452,8 @@ protected function _parsegif($file)
 	imagepng($im);
 	$data = ob_get_clean();
 	if (PHP_VERSION_ID < 80000) {
-		imagedestroy($im);
+		$fn = 'imagedestroy';
+		$fn($im);
 	}
 	$f = fopen('php://temp','rb+');
 	if(!$f)
