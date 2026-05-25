@@ -248,18 +248,7 @@ class SuratTawaranGenerator extends FPDF {
             
             $this->Cell(15, 7, " " . $index++, 1, 0, 'C');
             $this->Cell(125, 7, " " . $label, 1, 0, 'L');
-            
-            if ($hasDoc) {
-                $this->SetTextColor(22, 101, 52); // Green for uploaded
-                $this->SetFont('Arial', 'B', 9);
-            } else {
-                $this->SetTextColor(185, 28, 28); // Red for missing
-            }
             $this->Cell(40, 7, $statusText, 1, 1, 'C');
-            
-            // Reset text colors
-            $this->SetTextColor(30, 41, 59);
-            $this->SetFont('Arial', '', 9);
         }
 
         // Additional items checklist (Manual check for parents)
