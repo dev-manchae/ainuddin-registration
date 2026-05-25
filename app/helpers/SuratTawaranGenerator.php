@@ -295,190 +295,171 @@ class SuratTawaranGenerator extends FPDF {
 
     // Page 3 & 4: Dynamic Full Registration Details (Lampiran B)
     private function generateRegistrationDetailsPage() {
-        // PAGE 3: Student and Family details
+        // Combined Page 3 (Lampiran B)
         $this->AddPage();
         $this->SetTextColor(30, 41, 59);
 
         // Header Title
-        $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 6, "LAMPIRAN B: REKOD BUTIRAN PENDAFTARAN ONLINE PELAJAR", 0, 1, 'C');
-        $this->Ln(3);
+        $this->SetFont('Arial', 'B', 11);
+        $this->Cell(0, 5, "LAMPIRAN B: REKOD BUTIRAN PENDAFTARAN ONLINE PELAJAR", 0, 1, 'C');
+        $this->Ln(2);
 
         // 1. MAKLUMAT PERIBADI PELAJAR
-        $this->SetFont('Arial', 'B', 10);
+        $this->SetFont('Arial', 'B', 9);
         $this->SetFillColor(240, 248, 243); // MTA Light Green/Teal
         $this->SetTextColor(30, 86, 49);
-        $this->Cell(0, 6, " 1. MAKLUMAT PERIBADI PELAJAR", 1, 1, 'L', true);
+        $this->Cell(0, 5.5, " 1. MAKLUMAT PERIBADI PELAJAR", 1, 1, 'L', true);
         
         $this->SetTextColor(30, 41, 59);
-        $this->SetFont('Arial', '', 9);
+        $this->SetFont('Arial', '', 8);
         $p = $this->data['pelajar'] ?? [];
         
         // Row 1: Nama Penuh
         $this->SetFillColor(248, 250, 252);
-        $this->Cell(45, 6, "  Nama Penuh", 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 9);
-        $this->Cell(135, 6, "  " . ($p['nama_penuh'] ?? '-'), 1, 1, 'L');
-        $this->SetFont('Arial', '', 9);
+        $this->Cell(45, 5.2, "  Nama Penuh", 1, 0, 'L', true);
+        $this->SetFont('Arial', 'B', 8);
+        $this->Cell(135, 5.2, "  " . ($p['nama_penuh'] ?? '-'), 1, 1, 'L');
+        $this->SetFont('Arial', '', 8);
 
         // Row 2: No. KP / Jantina
-        $this->Cell(45, 6, "  No. KP / Sijil Lahir", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($p['no_kp'] ?? '-'), 1, 0, 'L');
-        $this->Cell(45, 6, "  Jantina", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($p['jantina'] ?? '-'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  No. KP / Sijil Lahir", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($p['no_kp'] ?? '-'), 1, 0, 'L');
+        $this->Cell(45, 5.2, "  Jantina", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($p['jantina'] ?? '-'), 1, 1, 'L');
 
         // Row 3: Tarikh Lahir / Tempat Lahir
-        $this->Cell(45, 6, "  Tarikh Lahir", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  Tarikh Lahir", 1, 0, 'L', true);
         $tarikhLahir = !empty($p['tarikh_lahir']) ? date('d F Y', strtotime($p['tarikh_lahir'])) : '-';
-        $this->Cell(45, 6, "  " . $tarikhLahir, 1, 0, 'L');
-        $this->Cell(45, 6, "  Tempat Lahir", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($p['tempat_lahir'] ?? '-'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  " . $tarikhLahir, 1, 0, 'L');
+        $this->Cell(45, 5.2, "  Tempat Lahir", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($p['tempat_lahir'] ?? '-'), 1, 1, 'L');
 
         // Row 4: Warganegara / Cawangan
-        $this->Cell(45, 6, "  Warganegara", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($p['warganegara'] ?? 'Malaysia'), 1, 0, 'L');
-        $this->Cell(45, 6, "  Cawangan MTA", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($p['cawangan'] ?? '-'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  Warganegara", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($p['warganegara'] ?? 'Malaysia'), 1, 0, 'L');
+        $this->Cell(45, 5.2, "  Cawangan MTA", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($p['cawangan'] ?? '-'), 1, 1, 'L');
 
         // Row 5: Program
-        $this->Cell(45, 6, "  Program Pengajian", 1, 0, 'L', true);
-        $this->Cell(135, 6, "  " . ($p['program'] ?? 'Hafazan Al-Quran & Akademik'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  Program Pengajian", 1, 0, 'L', true);
+        $this->Cell(135, 5.2, "  " . ($p['program'] ?? 'Hafazan Al-Quran & Akademik'), 1, 1, 'L');
 
         // Row 6: Alamat Penuh
         $alamat = ($p['alamat'] ?? '-') . ", " . ($p['negeri'] ?? '');
         $alamat = str_replace(["\r", "\n"], " ", $alamat);
         
-        $this->Cell(45, 12, "  Alamat Kediaman", 1, 0, 'L', true);
-        $this->MultiCell(135, 6, " " . $alamat, 1, 'L');
+        $this->Cell(45, 10.4, "  Alamat Kediaman", 1, 0, 'L', true);
+        $yAlamat = $this->GetY();
+        $this->SetXY(60, $yAlamat);
+        $this->MultiCell(135, 5.2, " " . $alamat, 0, 'L');
+        $this->Rect(60, $yAlamat, 135, 10.4);
+        
+        $this->SetXY(15, $yAlamat + 10.4);
 
-        $this->Ln(4);
+        $this->Ln(3);
 
         // 2. MAKLUMAT KELUARGA / PENJAGA
-        $this->SetFont('Arial', 'B', 10);
+        $this->SetFont('Arial', 'B', 9);
         $this->SetTextColor(30, 86, 49);
         $this->SetFillColor(240, 248, 243);
-        $this->Cell(0, 6, " 2. MAKLUMAT IBU BAPA / PENJAGA", 1, 1, 'L', true);
+        $this->Cell(0, 5.5, " 2. MAKLUMAT IBU BAPA / PENJAGA", 1, 1, 'L', true);
         $this->SetTextColor(30, 41, 59);
 
         $f = $this->data['keluarga']['Bapa'] ?? $this->data['keluarga']['Penjaga'] ?? [];
         $m = $this->data['keluarga']['Ibu'] ?? [];
+        
+        $alamatBapa = str_replace(["\r", "\n"], " ", $f['alamat'] ?? '-');
+        $alamatIbu = str_replace(["\r", "\n"], " ", $m['alamat'] ?? '-');
 
-        $yStartKeluarga = $this->GetY() + 2;
-        
-        // Titles
-        $this->SetXY(15, $yStartKeluarga);
-        $this->SetFont('Arial', 'B', 9);
-        $this->SetTextColor(30, 86, 49);
-        $this->Cell(85, 6, "Maklumat Bapa / Penjaga Utama", 'B', 0, 'L');
-        
-        $this->SetXY(110, $yStartKeluarga);
-        $this->Cell(85, 6, "Maklumat Ibu", 'B', 0, 'L');
-        
-        $this->SetTextColor(30, 41, 59);
-        $yRow = $yStartKeluarga + 7;
+        $this->SetFont('Arial', '', 8);
+        $this->SetFillColor(248, 250, 252);
         
         // Row 1: Nama
-        $this->SetXY(15, $yRow);
-        $this->SetFont('Arial', '', 8.5);
-        $this->Cell(20, 5, "Nama:", 0, 0, 'L');
-        $this->SetFont('Arial', 'B', 8.5);
-        $this->Cell(65, 5, $f['nama_penuh'] ?? '-', 0, 0, 'L');
-        
-        $this->SetXY(110, $yRow);
-        $this->SetFont('Arial', '', 8.5);
-        $this->Cell(20, 5, "Nama:", 0, 0, 'L');
-        $this->SetFont('Arial', 'B', 8.5);
-        $this->Cell(65, 5, $m['nama_penuh'] ?? '-', 0, 0, 'L');
-        
-        // Row 2: Telefon
-        $yRow += 5.5;
-        $this->SetXY(15, $yRow);
-        $this->SetFont('Arial', '', 8.5);
-        $this->Cell(20, 5, "No. Tel:", 0, 0, 'L');
-        $this->Cell(65, 5, $f['no_telefon'] ?? '-', 0, 0, 'L');
-        
-        $this->SetXY(110, $yRow);
-        $this->Cell(20, 5, "No. Tel:", 0, 0, 'L');
-        $this->Cell(65, 5, $m['no_telefon'] ?? '-', 0, 0, 'L');
+        $this->SetX(15);
+        $this->Cell(25, 5.2, "  Nama Penuh", 1, 0, 'L', true);
+        $this->SetFont('Arial', 'B', 8);
+        $this->Cell(60, 5.2, "  " . ($f['nama_penuh'] ?? '-'), 1, 0, 'L');
+        $this->SetFont('Arial', '', 8);
+        $this->Cell(10, 5.2, "", 0, 0); // space
+        $this->Cell(25, 5.2, "  Nama Penuh", 1, 0, 'L', true);
+        $this->SetFont('Arial', 'B', 8);
+        $this->Cell(60, 5.2, "  " . ($m['nama_penuh'] ?? '-'), 1, 1, 'L');
+        $this->SetFont('Arial', '', 8);
+
+        // Row 2: No Tel
+        $this->SetX(15);
+        $this->Cell(25, 5.2, "  No. Telefon", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . ($f['no_telefon'] ?? '-'), 1, 0, 'L');
+        $this->Cell(10, 5.2, "", 0, 0);
+        $this->Cell(25, 5.2, "  No. Telefon", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . ($m['no_telefon'] ?? '-'), 1, 1, 'L');
 
         // Row 3: Pekerjaan
-        $yRow += 5.5;
-        $this->SetXY(15, $yRow);
-        $this->Cell(20, 5, "Pekerjaan:", 0, 0, 'L');
-        $this->Cell(65, 5, $f['pekerjaan'] ?? '-', 0, 0, 'L');
-        
-        $this->SetXY(110, $yRow);
-        $this->Cell(20, 5, "Pekerjaan:", 0, 0, 'L');
-        $this->Cell(65, 5, $m['pekerjaan'] ?? '-', 0, 0, 'L');
+        $this->SetX(15);
+        $this->Cell(25, 5.2, "  Pekerjaan", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . ($f['pekerjaan'] ?? '-'), 1, 0, 'L');
+        $this->Cell(10, 5.2, "", 0, 0);
+        $this->Cell(25, 5.2, "  Pekerjaan", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . ($m['pekerjaan'] ?? '-'), 1, 1, 'L');
 
         // Row 4: Pendapatan
-        $yRow += 5.5;
-        $this->SetXY(15, $yRow);
-        $this->Cell(20, 5, "Pendapatan:", 0, 0, 'L');
-        $this->Cell(65, 5, !empty($f['pendapatan']) ? 'RM ' . number_format($f['pendapatan'], 2) : '-', 0, 0, 'L');
-        
-        $this->SetXY(110, $yRow);
-        $this->Cell(20, 5, "Pendapatan:", 0, 0, 'L');
-        $this->Cell(65, 5, !empty($m['pendapatan']) ? 'RM ' . number_format($m['pendapatan'], 2) : '-', 0, 0, 'L');
+        $this->SetX(15);
+        $this->Cell(25, 5.2, "  Pendapatan", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . (!empty($f['pendapatan']) ? 'RM ' . number_format($f['pendapatan'], 2) : '-'), 1, 0, 'L');
+        $this->Cell(10, 5.2, "", 0, 0);
+        $this->Cell(25, 5.2, "  Pendapatan", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . (!empty($m['pendapatan']) ? 'RM ' . number_format($m['pendapatan'], 2) : '-'), 1, 1, 'L');
 
         // Row 5: Emel
-        $yRow += 5.5;
-        $this->SetXY(15, $yRow);
-        $this->Cell(20, 5, "Emel:", 0, 0, 'L');
-        $this->Cell(65, 5, $f['emel'] ?? '-', 0, 0, 'L');
-        
-        $this->SetXY(110, $yRow);
-        $this->Cell(20, 5, "Emel:", 0, 0, 'L');
-        $this->Cell(65, 5, $m['emel'] ?? '-', 0, 0, 'L');
+        $this->SetX(15);
+        $this->Cell(25, 5.2, "  Emel", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . ($f['emel'] ?? '-'), 1, 0, 'L');
+        $this->Cell(10, 5.2, "", 0, 0);
+        $this->Cell(25, 5.2, "  Emel", 1, 0, 'L', true);
+        $this->Cell(60, 5.2, "  " . ($m['emel'] ?? '-'), 1, 1, 'L');
 
-        // Row 6: Alamat
-        $yRow += 5.5;
-        $this->SetXY(15, $yRow);
-        $this->Cell(20, 5, "Alamat:", 0, 0, 'L');
-        $this->SetXY(35, $yRow);
-        $alamatBapa = str_replace(["\r", "\n"], " ", $f['alamat'] ?? '-');
-        $this->MultiCell(60, 4, $alamatBapa, 0, 'L');
-        $yEndBapa = $this->GetY();
+        // Row 6: Alamat (Boxed Table Layout)
+        $this->SetX(15);
+        $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
+        $yParentAlamat = $this->GetY();
+        $this->SetXY(40, $yParentAlamat);
+        $this->SetFont('Arial', '', 7.5);
+        $this->MultiCell(60, 5.2, " " . $alamatBapa, 0, 'L');
+        $this->Rect(40, $yParentAlamat, 60, 10.4);
         
-        $this->SetXY(110, $yRow);
-        $this->Cell(20, 5, "Alamat:", 0, 0, 'L');
-        $this->SetXY(130, $yRow);
-        $alamatIbu = str_replace(["\r", "\n"], " ", $m['alamat'] ?? '-');
-        $this->MultiCell(60, 4, $alamatIbu, 0, 'L');
-        $yEndIbu = $this->GetY();
+        $this->SetXY(110, $yParentAlamat);
+        $this->SetFont('Arial', '', 8);
+        $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
+        $this->SetXY(135, $yParentAlamat);
+        $this->SetFont('Arial', '', 7.5);
+        $this->MultiCell(60, 5.2, " " . $alamatIbu, 0, 'L');
+        $this->Rect(135, $yParentAlamat, 60, 10.4);
         
-        $yNext = max($yEndBapa, $yEndIbu) + 5;
-        
-        // PAGE 4: Academic Results & Health
-        $this->AddPage();
-        $this->SetTextColor(30, 41, 59);
+        $this->SetXY(15, $yParentAlamat + 10.4);
 
-        // Header Title
-        $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 6, "LAMPIRAN B (SAMBUNGAN): REKOD PENGAJIAN & KESIHATAN", 0, 1, 'C');
         $this->Ln(3);
 
         // 3. MAKLUMAT AKADEMIK & AL-QURAN
-        $this->SetFont('Arial', 'B', 10);
+        $this->SetFont('Arial', 'B', 9);
         $this->SetTextColor(30, 86, 49);
         $this->SetFillColor(240, 248, 243);
-        $this->Cell(0, 6, " 3. MAKLUMAT AKADEMIK & AL-QURAN", 1, 1, 'L', true);
+        $this->Cell(0, 5.5, " 3. MAKLUMAT AKADEMIK & AL-QURAN", 1, 1, 'L', true);
         $this->SetTextColor(30, 41, 59);
-        $this->SetFont('Arial', '', 9);
+        $this->SetFont('Arial', '', 8);
 
         $a = $this->data['akademik'] ?? [];
         
         // Top general akademik
         $this->SetFillColor(248, 250, 252);
-        $this->Cell(45, 6, "  Sekolah Terdahulu", 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 9);
-        $this->Cell(135, 6, "  " . ($a['nama_sekolah'] ?? '-'), 1, 1, 'L');
-        $this->SetFont('Arial', '', 9);
+        $this->Cell(45, 5.2, "  Sekolah Terdahulu", 1, 0, 'L', true);
+        $this->SetFont('Arial', 'B', 8);
+        $this->Cell(135, 5.2, "  " . ($a['nama_sekolah'] ?? '-'), 1, 1, 'L');
+        $this->SetFont('Arial', '', 8);
 
-        $this->Cell(45, 6, "  Tahap Penguasaan Quran", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($a['tahap_quran'] ?? '-'), 1, 0, 'L');
-        $this->Cell(45, 6, "  Status Khatam", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($a['status_khatam'] ?? '-'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  Tahap Penguasaan Quran", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($a['tahap_quran'] ?? '-'), 1, 0, 'L');
+        $this->Cell(45, 5.2, "  Status Khatam", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($a['status_khatam'] ?? '-'), 1, 1, 'L');
 
         // Extract and format hafazan text
         $surahHafazanText = '-';
@@ -488,8 +469,13 @@ class SuratTawaranGenerator extends FPDF {
         }
         $surahHafazanText = str_replace(["\r", "\n"], " ", $surahHafazanText);
         
-        $this->Cell(45, 12, "  Surah Hafazan (Jika Ada)", 1, 0, 'L', true);
-        $this->MultiCell(135, 6, " " . $surahHafazanText, 1, 'L');
+        $this->Cell(45, 10.4, "  Surah Hafazan (Jika Ada)", 1, 0, 'L', true);
+        $yHafazan = $this->GetY();
+        $this->SetXY(60, $yHafazan);
+        $this->MultiCell(135, 5.2, " " . $surahHafazanText, 0, 'L');
+        $this->Rect(60, $yHafazan, 135, 10.4);
+        
+        $this->SetXY(15, $yHafazan + 10.4);
 
         $this->Ln(3);
 
@@ -498,92 +484,108 @@ class SuratTawaranGenerator extends FPDF {
         $akademikData = json_decode($a['keputusan_akademik'] ?? '', true) ?: [];
         $agamaData = json_decode($a['keputusan_agama'] ?? '', true) ?: [];
 
-        // Academic Table (Left Column)
+        // Header for Academic Table (Left Column)
         $this->SetXY(15, $yTableStart);
-        $this->SetFont('Arial', 'B', 8.5);
-        $this->SetFillColor(241, 245, 249);
-        $this->Cell(85, 5, "Keputusan Akademik Sekolah Kebangsaan", 0, 1, 'L');
+        $this->SetFont('Arial', 'B', 8);
+        $this->SetTextColor(30, 86, 49);
+        $this->Cell(85, 5, "Keputusan Akademik Sekolah Kebangsaan", 0, 0, 'L');
         
-        $this->SetX(15);
-        $this->Cell(55, 5, " Subjek", 1, 0, 'L', true);
-        $this->Cell(30, 5, " Gred", 1, 1, 'C', true);
-        
-        $this->SetFont('Arial', '', 8.5);
-        $rowCount = 0;
-        foreach ($akademikData as $row) {
-            $this->SetX(15);
-            $this->Cell(55, 5, " " . ($row['subjek'] ?? ''), 1, 0, 'L');
-            $this->Cell(30, 5, ($row['keputusan'] ?? ''), 1, 1, 'C');
-            $rowCount++;
-        }
-        if ($rowCount === 0) {
-            $this->SetX(15);
-            $this->Cell(85, 5, "Tiada keputusan akademik direkodkan", 1, 1, 'C');
-        }
-        $yTableEndAkademik = $this->GetY();
-
-        // Religious Table (Right Column)
+        // Header for Religious Table (Right Column)
         $this->SetXY(110, $yTableStart);
-        $this->SetFont('Arial', 'B', 8.5);
         $this->Cell(85, 5, "Keputusan Sekolah Agama (SRA / KAFA / SMA)", 0, 1, 'L');
         
-        $this->SetX(110);
-        $this->Cell(55, 5, " Subjek", 1, 0, 'L', true);
-        $this->Cell(30, 5, " Gred", 1, 1, 'C', true);
+        // Column headers
+        $yColHeader = $this->GetY();
+        $this->SetFont('Arial', 'B', 7.5);
+        $this->SetTextColor(30, 41, 59);
+        $this->SetFillColor(241, 245, 249);
         
-        $this->SetFont('Arial', '', 8.5);
-        $rowCountAgama = 0;
-        foreach ($agamaData as $row) {
-            $this->SetX(110);
-            $this->Cell(55, 5, " " . ($row['subjek'] ?? ''), 1, 0, 'L');
-            $this->Cell(30, 5, ($row['keputusan'] ?? ''), 1, 1, 'C');
-            $rowCountAgama++;
+        $this->SetXY(15, $yColHeader);
+        $this->Cell(55, 4.5, " Subjek", 1, 0, 'L', true);
+        $this->Cell(30, 4.5, " Gred", 1, 0, 'C', true);
+        
+        $this->SetXY(110, $yColHeader);
+        $this->Cell(55, 4.5, " Subjek", 1, 0, 'L', true);
+        $this->Cell(30, 4.5, " Gred", 1, 1, 'C', true);
+        
+        $yRowStart = $this->GetY();
+        
+        // Synchronized rows output
+        $maxRows = max(count($akademikData), count($agamaData));
+        $maxRows = max(1, $maxRows);
+        
+        $this->SetFont('Arial', '', 7.5);
+        for ($i = 0; $i < $maxRows; $i++) {
+            $yCurrentRow = $yRowStart + ($i * 4.5);
+            
+            // Academic cell
+            $this->SetXY(15, $yCurrentRow);
+            if (isset($akademikData[$i])) {
+                $this->Cell(55, 4.5, " " . ($akademikData[$i]['subjek'] ?? ''), 1, 0, 'L');
+                $this->Cell(30, 4.5, ($akademikData[$i]['keputusan'] ?? ''), 1, 0, 'C');
+            } else {
+                if ($i == 0) {
+                    $this->Cell(85, 4.5, "Tiada keputusan akademik", 1, 0, 'C');
+                } else {
+                    $this->Cell(55, 4.5, "", 1, 0, 'L');
+                    $this->Cell(30, 4.5, "", 1, 0, 'C');
+                }
+            }
+            
+            // Religious cell
+            $this->SetXY(110, $yCurrentRow);
+            if (isset($agamaData[$i])) {
+                $this->Cell(55, 4.5, " " . ($agamaData[$i]['subjek'] ?? ''), 1, 0, 'L');
+                $this->Cell(30, 4.5, ($agamaData[$i]['keputusan'] ?? ''), 1, 0, 'C');
+            } else {
+                if ($i == 0) {
+                    $this->Cell(85, 4.5, "Tiada keputusan sekolah agama", 1, 0, 'C');
+                } else {
+                    $this->Cell(55, 4.5, "", 1, 0, 'L');
+                    $this->Cell(30, 4.5, "", 1, 0, 'C');
+                }
+            }
         }
-        if ($rowCountAgama === 0) {
-            $this->SetX(110);
-            $this->Cell(85, 5, "Tiada keputusan sekolah agama direkodkan", 1, 1, 'C');
-        }
-        $yTableEndAgama = $this->GetY();
-
-        $yNextSection = max($yTableEndAkademik, $yTableEndAgama) + 4;
+        
+        $yNextSection = $yRowStart + ($maxRows * 4.5) + 3;
 
         // 4. MAKLUMAT KESIHATAN & KECEMASAN
         $this->SetXY(15, $yNextSection);
-        $this->SetFont('Arial', 'B', 10);
+        $this->SetFont('Arial', 'B', 9);
         $this->SetTextColor(30, 86, 49);
         $this->SetFillColor(240, 248, 243);
-        $this->Cell(0, 6, " 4. MAKLUMAT KESIHATAN & KECEMASAN", 1, 1, 'L', true);
+        $this->Cell(0, 5.5, " 4. MAKLUMAT KESIHATAN & KECEMASAN", 1, 1, 'L', true);
         $this->SetTextColor(30, 41, 59);
-        $this->SetFont('Arial', '', 9);
+        $this->SetFont('Arial', '', 8);
 
         $h = $this->data['kesihatan'] ?? [];
 
         // Row 1: Alahan
         $this->SetFillColor(248, 250, 252);
-        $this->Cell(45, 6, "  Rekod Alahan", 1, 0, 'L', true);
-        $this->Cell(135, 6, "  " . ($h['alahan'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  Rekod Alahan", 1, 0, 'L', true);
+        $this->Cell(135, 5.2, "  " . ($h['alahan'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
 
         // Row 2: Penyakit Kronik
-        $this->Cell(45, 6, "  Penyakit Kronik", 1, 0, 'L', true);
-        $this->Cell(135, 6, "  " . ($h['penyakit_kronik'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  Penyakit Kronik", 1, 0, 'L', true);
+        $this->Cell(135, 5.2, "  " . ($h['penyakit_kronik'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
 
         // Row 3: Pengambilan Ubat
-        $this->Cell(45, 6, "  Pengambilan Ubat Semasa", 1, 0, 'L', true);
-        $this->Cell(135, 6, "  " . ($h['pengambilan_ubat'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
+        $this->Cell(45, 5.2, "  Pengambilan Ubat Semasa", 1, 0, 'L', true);
+        $this->Cell(135, 5.2, "  " . ($h['pengambilan_ubat'] ?? 'Tiada / Tiada Maklumat'), 1, 1, 'L');
 
         // Row 4: No Kecemasan / Kebenaran Rawatan
-        $this->Cell(45, 6, "  No. Telefon Kecemasan", 1, 0, 'L', true);
-        $this->Cell(45, 6, "  " . ($h['nombor_kecemasan'] ?? '-'), 1, 0, 'L');
-        $this->Cell(45, 6, "  Kebenaran Rawatan Kecemasan", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  No. Telefon Kecemasan", 1, 0, 'L', true);
+        $this->Cell(45, 5.2, "  " . ($h['nombor_kecemasan'] ?? '-'), 1, 0, 'L');
+        $this->Cell(45, 5.2, "  Kebenaran Rawatan", 1, 0, 'L', true);
         $kebenaran = ($h['kebenaran_rawatan'] ?? '') === 'Ya' ? 'YA (Dibenarkan)' : 'TIDAK / TIADA RAKAMAN';
-        $this->Cell(45, 6, "  " . $kebenaran, 1, 1, 'L');
+        $this->Cell(45, 5.2, "  " . $kebenaran, 1, 1, 'L');
 
-        $this->Ln(8);
+        $this->Ln(3);
 
         // Verification Footer Box
         $this->SetDrawColor(30, 86, 49);
         $this->SetFillColor(240, 248, 243);
-        $this->SetFont('Arial', 'I', 8.5);
+        $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(30, 86, 49);
         $veriText = "Dokumen Lampiran B ini dijana secara automatik oleh sistem pengurusan MTA berdasarkan maklumat yang dimasukkan secara atas talian oleh ibu bapa/penjaga. Sebarang pindaan maklumat fizikal hendaklah dilaporkan segera kepada pihak pentadbiran MTA.";
         $this->MultiCell(0, 4.5, $veriText, 1, 'C', true);
