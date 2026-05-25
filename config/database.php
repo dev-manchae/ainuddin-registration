@@ -21,7 +21,8 @@ function getConnection() {
 
     } catch (PDOException $e) {
 
-        die("Database connection failed: " . $e->getMessage());
+        error_log("Database Connection Error: " . $e->getMessage());
+        die("Sistem mengalami ralat teknikal. Sila cuba seketika lagi.");
 
     }
 

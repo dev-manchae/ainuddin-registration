@@ -20,7 +20,7 @@ class AuthController {
         $emel = strtolower(trim($data['emel']));
         $kata_laluan = $data['kata_laluan'];
         $kata_laluan_sahkan = $data['kata_laluan_sahkan'];
-        $no_telefon = preg_replace('/\s+/', '', trim($data['no_telefon']));
+        $no_telefon = preg_replace('/[^\d+]/', '', trim($data['no_telefon']));
 
         if (!preg_match("/^[a-zA-Z0-9._%+-]+@gmail\.com$/", $emel)) {
             return "Emel mesti menggunakan @gmail.com";
@@ -34,19 +34,22 @@ class AuthController {
             return "Kata laluan dan pengesahan kata laluan tidak sepadan.";
         }
 
-        if (!preg_match("/^\d{9,10}$/", $no_telefon)) {
+        // Extract raw subscriber digits without +60, 60 or 0 prefix
+        $raw_digits = $no_telefon;
+        if (strpos($raw_digits, '+60') === 0) {
+            $raw_digits = substr($raw_digits, 3);
+        } elseif (strpos($raw_digits, '60') === 0 && strlen($raw_digits) >= 11) {
+            $raw_digits = substr($raw_digits, 2);
+        } elseif (strpos($raw_digits, '0') === 0) {
+            $raw_digits = substr($raw_digits, 1);
+        }
+
+        // Malaysian mobile subscriber number starts with 1 and has 8 or 9 digits (total 9-10 digits)
+        if (!preg_match("/^1\d{8,9}$/", $raw_digits)) {
             return "Format nombor telefon tidak sah.";
         }
 
-        // Strip existing +60 prefix if present
-        $no_telefon = str_replace('+60', '', $no_telefon);
-
-        // Strip leading 0 before prepending +60
-        if (substr($no_telefon, 0, 1) == '0') {
-            $no_telefon = substr($no_telefon, 1);
-        }
-
-        $no_telefon = "+60" . $no_telefon;
+        $no_telefon = "+60" . $raw_digits;
 
         $check = $this->pdo->prepare("
             SELECT id_pengguna 
@@ -145,8 +148,11 @@ class AuthController {
         ");
         $stmt->execute([$token, $expires, $user['id_pengguna']]);
 
-        // Send Email (Note: Requires XAMPP Sendmail/MercuryMail configured to actually send)
-        $resetLink = "http://localhost/ainuddin-registration/?page=reset_kata_laluan&token=" . $token;
+        // Build reset link dynamically based on HTTP request host and path
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $path = isset($_SERVER['REQUEST_URI']) ? explode('?', $_SERVER['REQUEST_URI'])[0] : '/ainuddin-registration/';
+        $resetLink = $protocol . "://" . $host . $path . "?page=reset_kata_laluan&token=" . $token;
         $subject = "Pautan Set Semula Kata Laluan - Tahfiz Ainuddin";
         $message = "Klik pautan berikut untuk menetapkan semula kata laluan anda:\n\n" . $resetLink;
         $headers = "From: noreply@ainuddin.com\r\nContent-Type: text/plain; charset=UTF-8";

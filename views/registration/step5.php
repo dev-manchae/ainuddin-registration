@@ -178,6 +178,28 @@ function previewFile(input) {
         wrapper.innerHTML = wrapper.dataset.originalHtml || '';
         return;
     }
+
+    // Client-side Validation: Size (Max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+        alert("Saiz fail '" + file.name + "' melebihi had 2MB. Sila muat naik fail yang lebih kecil.");
+        input.value = '';
+        wrapper.innerHTML = wrapper.dataset.originalHtml || '';
+        return;
+    }
+
+    // Client-side Validation: Allowed Formats (from input accept attribute)
+    const acceptAttr = input.getAttribute('accept');
+    if (acceptAttr) {
+        const allowedExtensions = acceptAttr.split(',').map(ext => ext.trim().toLowerCase().replace('.', ''));
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(fileExt)) {
+            alert("Format fail '" + file.name + "' tidak sah. Sila pilih fail berformat: " + acceptAttr);
+            input.value = '';
+            wrapper.innerHTML = wrapper.dataset.originalHtml || '';
+            return;
+        }
+    }
     
     const fileType = file.type;
     const fileName = file.name;
@@ -223,6 +245,28 @@ function previewMultipleFile(input, id) {
     if (!file) {
         wrapper.innerHTML = '';
         return;
+    }
+
+    // Client-side Validation: Size (Max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+        alert("Saiz fail '" + file.name + "' melebihi had 2MB. Sila muat naik fail yang lebih kecil.");
+        input.value = '';
+        wrapper.innerHTML = '';
+        return;
+    }
+
+    // Client-side Validation: Allowed Formats (from input accept attribute)
+    const acceptAttr = input.getAttribute('accept');
+    if (acceptAttr) {
+        const allowedExtensions = acceptAttr.split(',').map(ext => ext.trim().toLowerCase().replace('.', ''));
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(fileExt)) {
+            alert("Format fail '" + file.name + "' tidak sah. Sila pilih fail berformat: " + acceptAttr);
+            input.value = '';
+            wrapper.innerHTML = '';
+            return;
+        }
     }
     
     const fileType = file.type;
