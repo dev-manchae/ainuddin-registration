@@ -12,7 +12,7 @@
             <div class="form-field" style="text-align:left;">
                 <label>Kata Laluan Baru <span style="color: var(--danger);">*</span></label>
                 <div class="password-container">
-                    <input type="password" name="kata_laluan" id="reset-password" required placeholder="Min 6 aksara"
+                    <input type="password" name="kata_laluan" id="reset-password" required placeholder="Min 8 aksara" minlength="8"
                            onkeyup="checkCapsLock(event, 'reset-password-caps')">
                     <button type="button" class="peek-toggle"
                             onmousedown="peekPassword('reset-password', 'reset-eye-open', 'reset-eye-closed', true)" 

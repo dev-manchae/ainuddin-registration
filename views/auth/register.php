@@ -27,7 +27,7 @@
             <div class="form-field" style="text-align:left;">
                 <label>Kata Laluan <span style="color: var(--danger);">*</span></label>
                 <div class="password-container">
-                    <input type="password" name="kata_laluan" id="reg-password" required placeholder="Min 6 aksara"
+                    <input type="password" name="kata_laluan" id="reg-password" required placeholder="Min 8 aksara" minlength="8"
                            onkeyup="checkCapsLock(event, 'reg-password-caps')">
                     <button type="button" class="peek-toggle"
                             onmousedown="peekPassword('reg-password', 'reg-eye-open', 'reg-eye-closed', true)" 
