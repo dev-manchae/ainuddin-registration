@@ -4,8 +4,17 @@ $penjaga1 = $keluarga[0] ?? null;
 $penjaga2 = $keluarga[1] ?? null;
 
 // Penjaga 1 (Utama)
-$jenis1 = $penjaga1['jenis_penjaga'] ?? 'Bapa';
-if (in_array($jenis1, ['Bapa', 'Ibu'])) {
+$jenis1 = $penjaga1['jenis_penjaga'] ?? 'Bapa Kandung';
+if ($jenis1 === 'Bapa') {
+    $jenis1 = 'Bapa Kandung';
+}
+if ($jenis1 === 'Ibu') {
+    $jenis1 = 'Ibu Kandung';
+}
+
+$allowedOptions = ['Bapa Kandung', 'Bapa Tiri', 'Bapa Angkat', 'Ibu Kandung', 'Ibu Tiri', 'Ibu Angkat'];
+
+if (in_array($jenis1, $allowedOptions)) {
     $select1 = $jenis1;
     $lain1 = '';
 } else {
@@ -15,7 +24,14 @@ if (in_array($jenis1, ['Bapa', 'Ibu'])) {
 
 // Penjaga 2 (Kedua)
 $jenis2 = $penjaga2['jenis_penjaga'] ?? 'Tiada';
-if (in_array($jenis2, ['Tiada', 'Bapa', 'Ibu'])) {
+if ($jenis2 === 'Bapa') {
+    $jenis2 = 'Bapa Kandung';
+}
+if ($jenis2 === 'Ibu') {
+    $jenis2 = 'Ibu Kandung';
+}
+
+if (in_array($jenis2, array_merge(['Tiada'], $allowedOptions))) {
     $select2 = $jenis2;
     $lain2 = '';
 } else {
@@ -38,8 +54,12 @@ if (in_array($jenis2, ['Tiada', 'Bapa', 'Ibu'])) {
         <div class="form-field">
             <label>Hubungan Penjaga Utama <span style="color: var(--danger);">*</span></label>
             <select name="hubungan_penjaga_1" id="hubungan_penjaga_1" required onchange="toggleCustomRel1()">
-                <option value="Bapa" <?= $select1 === 'Bapa' ? 'selected' : ''; ?>>Bapa (Bapa Kandung/Tiri)</option>
-                <option value="Ibu" <?= $select1 === 'Ibu' ? 'selected' : ''; ?>>Ibu (Ibu Kandung/Tiri)</option>
+                <option value="Bapa Kandung" <?= $select1 === 'Bapa Kandung' ? 'selected' : ''; ?>>Bapa Kandung</option>
+                <option value="Bapa Tiri" <?= $select1 === 'Bapa Tiri' ? 'selected' : ''; ?>>Bapa Tiri</option>
+                <option value="Bapa Angkat" <?= $select1 === 'Bapa Angkat' ? 'selected' : ''; ?>>Bapa Angkat</option>
+                <option value="Ibu Kandung" <?= $select1 === 'Ibu Kandung' ? 'selected' : ''; ?>>Ibu Kandung</option>
+                <option value="Ibu Tiri" <?= $select1 === 'Ibu Tiri' ? 'selected' : ''; ?>>Ibu Tiri</option>
+                <option value="Ibu Angkat" <?= $select1 === 'Ibu Angkat' ? 'selected' : ''; ?>>Ibu Angkat</option>
                 <option value="Lain" <?= $select1 === 'Lain' ? 'selected' : ''; ?>>Lain-lain Hubungan (Sila nyatakan)</option>
             </select>
         </div>
@@ -96,8 +116,12 @@ if (in_array($jenis2, ['Tiada', 'Bapa', 'Ibu'])) {
             <label>Hubungan Penjaga Kedua</label>
             <select name="hubungan_penjaga_2" id="hubungan_penjaga_2" onchange="togglePenjagaKedua()">
                 <option value="Tiada" <?= $select2 === 'Tiada' ? 'selected' : ''; ?>>Tiada (Hanya Penjaga Utama)</option>
-                <option value="Bapa" <?= $select2 === 'Bapa' ? 'selected' : ''; ?>>Bapa (Bapa Kandung/Tiri)</option>
-                <option value="Ibu" <?= $select2 === 'Ibu' ? 'selected' : ''; ?>>Ibu (Ibu Kandung/Tiri)</option>
+                <option value="Bapa Kandung" <?= $select2 === 'Bapa Kandung' ? 'selected' : ''; ?>>Bapa Kandung</option>
+                <option value="Bapa Tiri" <?= $select2 === 'Bapa Tiri' ? 'selected' : ''; ?>>Bapa Tiri</option>
+                <option value="Bapa Angkat" <?= $select2 === 'Bapa Angkat' ? 'selected' : ''; ?>>Bapa Angkat</option>
+                <option value="Ibu Kandung" <?= $select2 === 'Ibu Kandung' ? 'selected' : ''; ?>>Ibu Kandung</option>
+                <option value="Ibu Tiri" <?= $select2 === 'Ibu Tiri' ? 'selected' : ''; ?>>Ibu Tiri</option>
+                <option value="Ibu Angkat" <?= $select2 === 'Ibu Angkat' ? 'selected' : ''; ?>>Ibu Angkat</option>
                 <option value="Lain" <?= $select2 === 'Lain' ? 'selected' : ''; ?>>Lain-lain Hubungan (Sila nyatakan)</option>
             </select>
         </div>
