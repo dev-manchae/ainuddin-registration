@@ -791,9 +791,44 @@ class PermohonanController {
             return "Sila muat naik semua dokumen mandatori yang diperlukan sebelum menghantar: " . implode(', ', $missing) . ".";
         }
 
-        $no_rujukan = $this->generateNoRujukan();
+        // Keep existing reference number if already generated (e.g. during revision)
+        $stmt = $this->pdo->prepare("SELECT no_rujukan FROM permohonan WHERE id_permohonan = ?");
+        $stmt->execute([$id]);
+        $existingNoRuj = $stmt->fetchColumn();
+
+        $no_rujukan = !empty($existingNoRuj) ? $existingNoRuj : $this->generateNoRujukan();
+
         $this->pdo->prepare("UPDATE permohonan SET no_rujukan = ?, kod_status = '03', langkah_semasa = 6, tarikh_hantar = NOW() WHERE id_permohonan = ?")
             ->execute([$no_rujukan, $id]);
+
+        // Get primary guardian email, name, and student name for simulation email
+        $stmtDetail = $this->pdo->prepare("
+            SELECT pl.nama_penuh as nama_pelajar, kl.nama_penuh as nama_penjaga, kl.emel as emel_penjaga
+            FROM permohonan p
+            LEFT JOIN pelajar pl ON p.id_permohonan = pl.id_permohonan
+            LEFT JOIN keluarga kl ON p.id_permohonan = kl.id_permohonan
+            WHERE p.id_permohonan = ?
+            ORDER BY kl.id_keluarga ASC LIMIT 1
+        ");
+        $stmtDetail->execute([$id]);
+        $details = $stmtDetail->fetch();
+
+        if ($details && !empty($details['emel_penjaga'])) {
+            require_once __DIR__ . '/../../app/helpers/EmailSimulator.php';
+            EmailSimulator::simulate(
+                $id,
+                $details['emel_penjaga'],
+                "Permohonan Pendaftaran Tahfiz Ainuddin Diterima - " . $no_rujukan,
+                'pendaftaran_diterima',
+                [
+                    'title' => 'Pengesahan Penerimaan Permohonan',
+                    'no_rujukan' => $no_rujukan,
+                    'nama_pelajar' => $details['nama_pelajar'],
+                    'nama_penjaga' => $details['nama_penjaga']
+                ]
+            );
+        }
+
         return $no_rujukan;
     }
 

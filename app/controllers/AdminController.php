@@ -76,6 +76,16 @@ class AdminController {
         ");
         $stats['ikut_program'] = $stmt->fetchAll();
 
+        // 7-Day daily registration trend
+        $stmt = $this->pdo->query("
+            SELECT DATE_FORMAT(tarikh_cipta, '%d/%m/%Y') as tarikh, COUNT(*) as jumlah
+            FROM permohonan
+            GROUP BY DATE(tarikh_cipta)
+            ORDER BY DATE(tarikh_cipta) ASC
+            LIMIT 7
+        ");
+        $stats['trend_harian'] = $stmt->fetchAll();
+
         return $stats;
     }
 
@@ -236,7 +246,7 @@ class AdminController {
     // UPDATE STATUS
     // =========================
     public function updateStatus($id_permohonan, $kod_status, $catatan, $id_admin, $batch = null) {
-        $allowed = ['04', '05'];
+        $allowed = ['04', '05', '08'];
         if (!in_array($kod_status, $allowed)) {
             return "Kod status tidak sah.";
         }
@@ -291,6 +301,72 @@ class AdminController {
                 VALUES (?, ?, ?, ?)
             ");
             $stmt->execute([$id_permohonan, $kod_status, $catatan, $id_admin]);
+
+            // Simulate email notification
+            $stmtDetail = $this->pdo->prepare("
+                SELECT p.no_rujukan, pl.nama_penuh as nama_pelajar, pl.no_pelajar,
+                       kl.nama_penuh as nama_penjaga, kl.emel as emel_penjaga
+                FROM permohonan p
+                LEFT JOIN pelajar pl ON p.id_permohonan = pl.id_permohonan
+                LEFT JOIN keluarga kl ON p.id_permohonan = kl.id_permohonan
+                WHERE p.id_permohonan = ?
+                ORDER BY kl.id_keluarga ASC LIMIT 1
+            ");
+            $stmtDetail->execute([$id_permohonan]);
+            $details = $stmtDetail->fetch();
+
+            if ($details && !empty($details['emel_penjaga'])) {
+                require_once __DIR__ . '/../../app/helpers/EmailSimulator.php';
+                
+                $no_rujukan = $details['no_rujukan'] ?: 'Draf';
+                $nama_pelajar = $details['nama_pelajar'] ?: '-';
+                $nama_penjaga = $details['nama_penjaga'] ?: 'Penjaga';
+                $no_pelajar = $details['no_pelajar'] ?: '';
+
+                if ($kod_status == '04') {
+                    EmailSimulator::simulate(
+                        $id_permohonan,
+                        $details['emel_penjaga'],
+                        "Tawaran Kemasukan Tahfiz Ainuddin - LULUS - " . $no_rujukan,
+                        'permohonan_diluluskan',
+                        [
+                            'title' => 'Tawaran Kemasukan Pelajar Baru',
+                            'no_rujukan' => $no_rujukan,
+                            'nama_pelajar' => $nama_pelajar,
+                            'nama_penjaga' => $nama_penjaga,
+                            'no_pelajar' => $no_pelajar
+                        ]
+                    );
+                } elseif ($kod_status == '05') {
+                    EmailSimulator::simulate(
+                        $id_permohonan,
+                        $details['emel_penjaga'],
+                        "Keputusan Permohonan Pendaftaran Tahfiz Ainuddin - " . $no_rujukan,
+                        'permohonan_ditolak',
+                        [
+                            'title' => 'Keputusan Saringan Permohonan',
+                            'no_rujukan' => $no_rujukan,
+                            'nama_pelajar' => $nama_pelajar,
+                            'nama_penjaga' => $nama_penjaga,
+                            'catatan' => $catatan
+                        ]
+                    );
+                } elseif ($kod_status == '08') {
+                    EmailSimulator::simulate(
+                        $id_permohonan,
+                        $details['emel_penjaga'],
+                        "Pembetulan Maklumat Diperlukan bagi Permohonan - " . $no_rujukan,
+                        'pembetulan_diperlukan',
+                        [
+                            'title' => 'Tindakan Diperlukan: Kemaskini Maklumat',
+                            'no_rujukan' => $no_rujukan,
+                            'nama_pelajar' => $nama_pelajar,
+                            'nama_penjaga' => $nama_penjaga,
+                            'catatan' => $catatan
+                        ]
+                    );
+                }
+            }
 
             $this->pdo->commit();
             return true;
@@ -365,5 +441,99 @@ class AdminController {
             ORDER BY jumlah DESC
         ");
         return $stmt->fetchAll();
+    }
+
+    // =========================
+    // EXPORT TO CSV
+    // =========================
+    public function exportCSV($filters = []) {
+        $applications = $this->getApplications($filters);
+
+        $headers = [
+            'No. Rujukan', 'No. Pelajar', 'Status', 'Tarikh Hantar',
+            'Nama Pelajar', 'No. KP Pelajar', 'Jantina', 'Tarikh Lahir', 'Tempat Lahir', 'Warganegara', 'Alamat Pelajar', 'Negeri', 'Cawangan', 'Program',
+            'Penjaga Utama (Nama)', 'Penjaga Utama (Hubungan)', 'Penjaga Utama (Telefon)', 'Penjaga Utama (Pekerjaan)', 'Penjaga Utama (Pendapatan)', 'Penjaga Utama (Emel)', 'Penjaga Utama (Alamat)',
+            'Penjaga Kedua (Nama)', 'Penjaga Kedua (Hubungan)', 'Penjaga Kedua (Telefon)', 'Penjaga Kedua (Pekerjaan)', 'Penjaga Kedua (Pendapatan)', 'Penjaga Kedua (Emel)', 'Penjaga Kedua (Alamat)',
+            'Sekolah Terdahulu', 'Tahap Al-Quran', 'Status Khatam', 'Surah Hafazan', 'Guru Terdahulu',
+            'Alahan', 'Penyakit Kronik', 'Pengambilan Ubat', 'No. Kecemasan', 'Kebenaran Rawatan'
+        ];
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="senarai_permohonan_' . date('Ymd_His') . '.csv"');
+        echo "\xEF\xBB\xBF"; // UTF-8 BOM
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, $headers);
+
+        foreach ($applications as $app) {
+            $detail = $this->getApplicationDetail($app['id_permohonan']);
+            if (!$detail) continue;
+
+            $p  = $detail['permohonan'];
+            $pl = $detail['pelajar'] ?: [];
+            $kl = $detail['keluarga'] ?: [];
+            $ak = $detail['akademik'] ?: [];
+            $ks = $detail['kesihatan'] ?: [];
+
+            $p1 = $kl[0] ?? [];
+            $p2 = $kl[1] ?? [];
+
+            $surahDecoded = null;
+            if (!empty($ak['surah_hafazan'])) {
+                $surahDecoded = json_decode($ak['surah_hafazan'], true);
+            }
+            $surahText = is_array($surahDecoded) ? ($surahDecoded['surah_hafazan'] ?? '-') : ($ak['surah_hafazan'] ?? '-');
+
+            $row = [
+                $p['no_rujukan'] ?? 'Draf',
+                $pl['no_pelajar'] ?? '-',
+                $p['status_perihal'] ?? '-',
+                $p['tarikh_hantar'] ? date('d/m/Y H:i', strtotime($p['tarikh_hantar'])) : '-',
+                
+                $pl['nama_penuh'] ?? '-',
+                $pl['no_kp'] ?? '-',
+                $pl['jantina'] ?? '-',
+                $pl['tarikh_lahir'] ?? '-',
+                $pl['tempat_lahir'] ?? '-',
+                $pl['warganegara'] ?? '-',
+                $pl['alamat'] ?? '-',
+                $pl['negeri'] ?? '-',
+                $pl['cawangan'] ?? '-',
+                $pl['program'] ?? '-',
+
+                $p1['nama_penuh'] ?? '-',
+                $p1['jenis_penjaga'] ?? '-',
+                $p1['no_telefon'] ?? '-',
+                $p1['pekerjaan'] ?? '-',
+                $p1['pendapatan'] ? 'RM ' . number_format($p1['pendapatan'], 2) : '-',
+                $p1['emel'] ?? '-',
+                $p1['alamat'] ?? '-',
+
+                $p2['nama_penuh'] ?? '-',
+                $p2['jenis_penjaga'] ?? '-',
+                $p2['no_telefon'] ?? '-',
+                $p2['pekerjaan'] ?? '-',
+                $p2['pendapatan'] ? 'RM ' . number_format($p2['pendapatan'], 2) : '-',
+                $p2['emel'] ?? '-',
+                $p2['alamat'] ?? '-',
+
+                $ak['nama_sekolah'] ?? '-',
+                $ak['tahap_quran'] ?? '-',
+                $ak['status_khatam'] ?? '-',
+                $surahText,
+                $ak['guru_terdahulu'] ?? '-',
+
+                $ks['alahan'] ?? '-',
+                $ks['penyakit_kronik'] ?? '-',
+                $ks['pengambilan_ubat'] ?? '-',
+                $ks['nombor_kecemasan'] ?? '-',
+                $ks['kebenaran_rawatan'] ?? '-'
+            ];
+
+            fputcsv($output, $row);
+        }
+
+        fclose($output);
+        exit;
     }
 }

@@ -619,7 +619,7 @@ switch ($page) {
         $stmt = $pdo->prepare("
             SELECT id_permohonan, langkah_semasa
             FROM permohonan
-            WHERE id_permohonan = ? AND id_pengguna = ? AND kod_status = '00'
+            WHERE id_permohonan = ? AND id_pengguna = ? AND kod_status IN ('00', '08')
         ");
         $stmt->execute([$id, $_SESSION['id_pengguna']]);
         $row = $stmt->fetch();
@@ -816,6 +816,64 @@ switch ($page) {
 
         break;
 
+    case 'admin_export_csv':
+
+        AdminMiddleware::check();
+
+        $adminController = new AdminController();
+
+        $filters = [
+            'kod_status' => $_GET['kod_status'] ?? null,
+            'carian' => $_GET['carian'] ?? null
+        ];
+
+        $adminController->exportCSV($filters);
+
+        exit;
+
+    case 'admin_emails':
+
+        AdminMiddleware::check();
+
+        $content = "views/admin/emails.php";
+
+        require_once "views/layouts/admin_layout.php";
+
+        break;
+
+    case 'admin_json_emel':
+
+        AdminMiddleware::check();
+
+        $id = $_GET['id'] ?? 0;
+        
+        require_once "app/helpers/EmailSimulator.php";
+        $email = EmailSimulator::getEmailDetail($id);
+        
+        header('Content-Type: application/json');
+        if (!$email) {
+            echo json_encode(['error' => 'Emel tidak dijumpai.']);
+        } else {
+            echo json_encode($email);
+        }
+        exit;
+
+    case 'admin_lihat_emel':
+
+        AdminMiddleware::check();
+
+        $id = $_GET['id'] ?? 0;
+        
+        require_once "app/helpers/EmailSimulator.php";
+        $email = EmailSimulator::getEmailDetail($id);
+        
+        if (!$email) {
+            echo "Emel tidak ditemui.";
+        } else {
+            echo $email['kandungan'];
+        }
+        exit;
+
     case 'admin_lihat':
 
         AdminMiddleware::check();
@@ -903,7 +961,7 @@ function validatePermohonanSession() {
     $pdo = getConnection();
     $stmt = $pdo->prepare("
         SELECT id_permohonan FROM permohonan 
-        WHERE id_permohonan = ? AND id_pengguna = ? AND kod_status = '00'
+        WHERE id_permohonan = ? AND id_pengguna = ? AND kod_status IN ('00', '08')
     ");
     $stmt->execute([$id, $_SESSION['id_pengguna']]);
 

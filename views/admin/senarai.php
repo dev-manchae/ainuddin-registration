@@ -40,6 +40,19 @@
                         <?php if (!empty($_GET['carian']) || !empty($_GET['kod_status'])): ?>
                             <a href="?page=admin_senarai" class="btn btn-secondary">Reset</a>
                         <?php endif; ?>
+                        <?php
+                        $exportUrl = "?page=admin_export_csv";
+                        if (!empty($_GET['carian'])) {
+                            $exportUrl .= "&carian=" . urlencode($_GET['carian']);
+                        }
+                        if (!empty($_GET['kod_status'])) {
+                            $exportUrl .= "&kod_status=" . urlencode($_GET['kod_status']);
+                        }
+                        ?>
+                        <a href="<?= $exportUrl; ?>" class="btn" style="background: #047857; color: white; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Eksport CSV
+                        </a>
                     </div>
                 </div>
             </div>
@@ -81,14 +94,16 @@
                             if ($row['kod_status'] == '03') $badgeClass = 'badge-submitted';
                             elseif ($row['kod_status'] == '04') $badgeClass = 'badge-approved';
                             elseif ($row['kod_status'] == '05') $badgeClass = 'badge-rejected';
+                            elseif ($row['kod_status'] == '08') $badgeClass = 'badge-warning';
 
                             $statusLabel = match($row['kod_status']) {
                                 '00' => 'Draf',
                                 '03' => 'Dihantar',
                                 '04' => 'Diluluskan',
                                 '05' => 'Ditolak',
+                                '08' => 'Perlu Kemaskini',
                                 default => $row['kod_status']
-                            };
+                             };
                             ?>
                             <span class="badge <?= $badgeClass; ?>"><?= $statusLabel; ?></span>
                         </td>

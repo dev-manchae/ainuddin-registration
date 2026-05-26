@@ -266,6 +266,7 @@
         .badge-submitted { background: #dbeafe; color: #1e40af; }
         .badge-approved { background: #dcfce7; color: #166534; }
         .badge-rejected { background: #fee2e2; color: #991b1b; }
+        .badge-warning { background: #fef3c7; color: #d97706; }
 
         .btn {
             padding: 8px 16px;

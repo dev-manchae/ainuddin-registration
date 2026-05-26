@@ -62,6 +62,7 @@ if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
                 '03' => 'badge-submitted',
                 '04' => 'badge-approved',
                 '05' => 'badge-rejected',
+                '08' => 'badge-warning',
                 default => 'badge-draft'
             };
             ?>
@@ -74,7 +75,7 @@ if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
         </div>
 
         <?php if ($p['kod_status'] == '03'): ?>
-            <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
                 <form method="POST" action="?page=admin_update_status&id=<?= $p['id_permohonan']; ?>" style="display: flex; gap: 10px; align-items: flex-end;">
                     <?= csrfField(); ?>
                     <input type="hidden" name="kod_status" value="04">
@@ -87,6 +88,7 @@ if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
                     <button type="submit" class="btn btn-success">Luluskan</button>
                 </form>
                 <button onclick="showRejectForm()" class="btn btn-danger">Tolak</button>
+                <button onclick="showRevisionForm()" class="btn" style="background: #d97706; color: white;">Minta Kemaskini</button>
             </div>
         <?php endif; ?>
     </div>
@@ -128,9 +130,37 @@ if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
     </form>
 </div>
 
+<!-- REVISION FORM (hidden) -->
+<div id="revisionForm" class="card" style="display: none; border-left: 4px solid #d97706;">
+    <h3>Catatan Pembetulan / Kemaskini</h3><br>
+    <form method="POST" action="?page=admin_update_status&id=<?= $p['id_permohonan']; ?>">
+        <?= csrfField(); ?>
+        <input type="hidden" name="kod_status" value="08">
+        <div class="form-group">
+            <label>Keterangan / Pembetulan yang Diperlukan</label>
+            <textarea name="catatan" required placeholder="Sila nyatakan bahagian yang perlu diperbetulkan oleh pemohon (contoh: Sijil akademik kurang jelas, sila muat naik semula)..." rows="4"></textarea>
+        </div>
+        <br>
+        <button type="submit" class="btn" style="background: #d97706; color: white;">Hantar Arahan Kemaskini</button>
+        <button type="button" onclick="hideRevisionForm()" class="btn btn-secondary">Batal</button>
+    </form>
+</div>
+
 <script>
-function showRejectForm() { document.getElementById('rejectForm').style.display = 'block'; }
-function hideRejectForm() { document.getElementById('rejectForm').style.display = 'none'; }
+function showRejectForm() {
+    document.getElementById('rejectForm').style.display = 'block';
+    document.getElementById('revisionForm').style.display = 'none';
+}
+function hideRejectForm() {
+    document.getElementById('rejectForm').style.display = 'none';
+}
+function showRevisionForm() {
+    document.getElementById('revisionForm').style.display = 'block';
+    document.getElementById('rejectForm').style.display = 'none';
+}
+function hideRevisionForm() {
+    document.getElementById('revisionForm').style.display = 'none';
+}
 </script>
 
 <br>

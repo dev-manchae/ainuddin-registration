@@ -22,6 +22,9 @@
         <a href="?page=admin_senarai" class="nav-item <?= ($_GET['page'] ?? '') == 'admin_senarai' ? 'active' : ''; ?>">
             <span class="nav-icon">▸</span> <span class="nav-text">Senarai Permohonan</span>
         </a>
+        <a href="?page=admin_emails" class="nav-item <?= ($_GET['page'] ?? '') == 'admin_emails' ? 'active' : ''; ?>">
+            <span class="nav-icon">▸</span> <span class="nav-text">Simulasi Emel</span>
+        </a>
 
         <div class="sidebar-divider"></div>
 
