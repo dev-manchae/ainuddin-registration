@@ -120,6 +120,18 @@ class AdminController {
             $like = '%' . $filters['carian'] . '%';
             array_push($params, $like, $like, $like, $like, $like, $like);
         }
+        if (!empty($filters['tahun'])) {
+            $sql .= " AND YEAR(p.tarikh_cipta) = ?";
+            $params[] = (int)$filters['tahun'];
+        }
+        if (!empty($filters['tarikh_dari'])) {
+            $sql .= " AND DATE(p.tarikh_cipta) >= ?";
+            $params[] = $filters['tarikh_dari'];
+        }
+        if (!empty($filters['tarikh_hingga'])) {
+            $sql .= " AND DATE(p.tarikh_cipta) <= ?";
+            $params[] = $filters['tarikh_hingga'];
+        }
 
         $sql .= " ORDER BY p.tarikh_cipta DESC";
         $stmt = $this->pdo->prepare($sql);
@@ -335,7 +347,8 @@ class AdminController {
                             'nama_pelajar' => $nama_pelajar,
                             'nama_penjaga' => $nama_penjaga,
                             'no_pelajar' => $no_pelajar
-                        ]
+                        ],
+                        $this->pdo
                     );
                 } elseif ($kod_status == '05') {
                     EmailSimulator::simulate(
@@ -349,7 +362,8 @@ class AdminController {
                             'nama_pelajar' => $nama_pelajar,
                             'nama_penjaga' => $nama_penjaga,
                             'catatan' => $catatan
-                        ]
+                        ],
+                        $this->pdo
                     );
                 } elseif ($kod_status == '08') {
                     EmailSimulator::simulate(
@@ -363,7 +377,8 @@ class AdminController {
                             'nama_pelajar' => $nama_pelajar,
                             'nama_penjaga' => $nama_penjaga,
                             'catatan' => $catatan
-                        ]
+                        ],
+                        $this->pdo
                     );
                 }
             }
@@ -535,5 +550,17 @@ class AdminController {
 
         fclose($output);
         exit;
+    }
+
+    // =========================
+    // GET DISTINCT REGISTRATION YEARS
+    // =========================
+    public function getRegistrationYears() {
+        $stmt = $this->pdo->query("
+            SELECT DISTINCT YEAR(tarikh_cipta) as tahun
+            FROM permohonan
+            ORDER BY tahun DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 }

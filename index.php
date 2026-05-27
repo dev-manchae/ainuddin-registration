@@ -7,6 +7,15 @@ require_once "app/controllers/AdminController.php";
 require_once "app/middleware/AuthMiddleware.php";
 require_once "app/middleware/AdminMiddleware.php";
 
+// Set secure session cookie parameters for production security
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 session_start();
 
 // Ensure CSRF token exists for all pages
@@ -803,12 +812,16 @@ switch ($page) {
 
         $filters = [
             'kod_status' => $_GET['kod_status'] ?? null,
-            'carian' => $_GET['carian'] ?? null
+            'carian' => $_GET['carian'] ?? null,
+            'tahun' => $_GET['tahun'] ?? null,
+            'tarikh_dari' => $_GET['tarikh_dari'] ?? null,
+            'tarikh_hingga' => $_GET['tarikh_hingga'] ?? null
         ];
 
         $applications = $adminController->getApplications($filters);
 
         $statusList = $adminController->getStatusList();
+        $yearsList = $adminController->getRegistrationYears();
 
         $content = "views/admin/senarai.php";
 
@@ -824,7 +837,10 @@ switch ($page) {
 
         $filters = [
             'kod_status' => $_GET['kod_status'] ?? null,
-            'carian' => $_GET['carian'] ?? null
+            'carian' => $_GET['carian'] ?? null,
+            'tahun' => $_GET['tahun'] ?? null,
+            'tarikh_dari' => $_GET['tarikh_dari'] ?? null,
+            'tarikh_hingga' => $_GET['tarikh_hingga'] ?? null
         ];
 
         $adminController->exportCSV($filters);

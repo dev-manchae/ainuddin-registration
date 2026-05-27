@@ -3,10 +3,11 @@
 function getConnection()
 {
 
-    $host = "localhost";
-    $dbname = "ainuddin_registration";
-    $username = "root";
-    $password = "";
+    // Retrieve credentials from environment variables for production, with fallbacks for local XAMPP
+    $host = getenv('DB_HOST') ?: "localhost";
+    $dbname = getenv('DB_NAME') ?: "ainuddin_registration";
+    $username = getenv('DB_USER') ?: "root";
+    $password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : "";
 
     try {
 

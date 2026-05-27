@@ -1,0 +1,7 @@
+# Disable script execution inside uploads folder
+<Files *>
+    SetHandler default-handler
+</Files>
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phps
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phps
+php_flag engine off

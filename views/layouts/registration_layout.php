@@ -101,55 +101,61 @@
     }
 </style>
 
+<?php
+$isSuccessPage = (isset($content) && $content === "views/registration/success.php");
+?>
+
 <div class="wizard-wrapper">
     <div class="wizard-card">
-        <h1 class="wizard-heading">Borang Permohonan Pelajar</h1>
-        <p class="wizard-subtitle">Lengkapkan setiap langkah untuk menghantar permohonan</p>
+        <?php if (!$isSuccessPage): ?>
+            <h1 class="wizard-heading">Borang Permohonan Pelajar</h1>
+            <p class="wizard-subtitle">Lengkapkan setiap langkah untuk menghantar permohonan</p>
 
-        <?php
-        $steps = [
-            1 => 'Pelajar',
-            2 => 'Penjaga',
-            3 => 'Akademik',
-            4 => 'Kesihatan',
-            5 => 'Dokumen',
-            6 => 'Hantar'
-        ];
-        
-        $current = 1;
-        if (isset($page) && preg_match('/^step(\d+)$/', $page, $matches)) {
-            $current = (int)$matches[1];
-        }
-        $max_unlocked = $langkah_semasa ?? 1;
-        ?>
-        <div class="step-indicator">
-            <?php foreach ($steps as $num => $label): ?>
-                <?php
-                $isCompleted = $max_unlocked > $num;
-                $isActive = $current == $num;
-                $isReachable = $max_unlocked >= $num;
-                $classes = [];
-                if ($isActive) $classes[] = 'active';
-                if ($isCompleted) $classes[] = 'completed';
-                if (!$isReachable) $classes[] = 'locked';
-                $classStr = implode(' ', $classes);
-                ?>
-                <?php if ($isReachable): ?>
-                    <a href="?page=step<?= $num; ?>" class="step-dot clickable <?= $classStr; ?>">
-                        <div class="step-circle"><?= $isCompleted ? '✓' : $num; ?></div>
-                        <span class="step-label"><?= $label; ?></span>
-                    </a>
-                <?php else: ?>
-                    <span class="step-dot <?= $classStr; ?>">
-                        <div class="step-circle"><?= $num; ?></div>
-                        <span class="step-label"><?= $label; ?></span>
-                    </span>
-                <?php endif; ?>
-            <?php endforeach; ?>
-            <div class="progress-line">
-                <div class="progress-line-fill" style="width: <?= (($current-1)/5)*100 ?>%;"></div>
+            <?php
+            $steps = [
+                1 => 'Pelajar',
+                2 => 'Penjaga',
+                3 => 'Akademik',
+                4 => 'Kesihatan',
+                5 => 'Dokumen',
+                6 => 'Hantar'
+            ];
+            
+            $current = 1;
+            if (isset($page) && preg_match('/^step(\d+)$/', $page, $matches)) {
+                $current = (int)$matches[1];
+            }
+            $max_unlocked = $langkah_semasa ?? 1;
+            ?>
+            <div class="step-indicator">
+                <?php foreach ($steps as $num => $label): ?>
+                    <?php
+                    $isCompleted = $max_unlocked > $num;
+                    $isActive = $current == $num;
+                    $isReachable = $max_unlocked >= $num;
+                    $classes = [];
+                    if ($isActive) $classes[] = 'active';
+                    if ($isCompleted) $classes[] = 'completed';
+                    if (!$isReachable) $classes[] = 'locked';
+                    $classStr = implode(' ', $classes);
+                    ?>
+                    <?php if ($isReachable): ?>
+                        <a href="?page=step<?= $num; ?>" class="step-dot clickable <?= $classStr; ?>">
+                            <div class="step-circle"><?= $isCompleted ? '✓' : $num; ?></div>
+                            <span class="step-label"><?= $label; ?></span>
+                        </a>
+                    <?php else: ?>
+                        <span class="step-dot <?= $classStr; ?>">
+                            <div class="step-circle"><?= $num; ?></div>
+                            <span class="step-label"><?= $label; ?></span>
+                        </span>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+                <div class="progress-line">
+                    <div class="progress-line-fill" style="width: <?= (($current-1)/5)*100 ?>%;"></div>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
 
         <!-- FLASH MESSAGE -->
         <?php require_once "views/layouts/flash_message.php"; ?>
@@ -157,21 +163,23 @@
         <!-- PAGE CONTENT -->
         <?php require_once $content; ?>
 
-        <div class="wizard-footer">
-            <?php if ($current > 1): ?>
-                <a href="?page=step<?= $current-1; ?>" class="btn btn-outline">← Kembali</a>
-            <?php else: ?>
-                <div></div>
-            <?php endif; ?>
-            <?php if ($current < 6): ?>
-                <button type="submit" form="stepForm" class="btn btn-teal">Seterusnya →</button>
-            <?php endif; ?>
-            <?php if ($current >= 1 && $current < 6): ?>
-                <button type="submit" name="simpan_dan_keluar" value="1" form="stepForm" class="btn btn-outline" formnovalidate>Simpan & Keluar</button>
-            <?php else: ?>
-                <div></div>
-            <?php endif; ?>
-        </div>
+        <?php if (!$isSuccessPage): ?>
+            <div class="wizard-footer">
+                <div>
+                    <?php if ($current > 1): ?>
+                        <a href="?page=step<?= $current-1; ?>" class="btn btn-outline">← Kembali</a>
+                    <?php endif; ?>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <?php if ($current >= 1 && $current < 6): ?>
+                        <button type="submit" name="simpan_dan_keluar" value="1" form="stepForm" class="btn btn-outline" formnovalidate>Simpan & Keluar</button>
+                    <?php endif; ?>
+                    <?php if ($current < 6): ?>
+                        <button type="submit" form="stepForm" class="btn btn-teal">Seterusnya →</button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

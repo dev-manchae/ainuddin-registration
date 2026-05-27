@@ -7,7 +7,7 @@
         <input type="hidden" name="page" value="admin_senarai">
 
         <div style="display: flex; gap: 15px; align-items: end; flex-wrap: wrap;">
-            <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+            <div class="form-group" style="flex: 2; min-width: 200px; margin-bottom: 0;">
                 <label>Carian</label>
                 <input 
                     type="text" 
@@ -17,7 +17,7 @@
                 >
             </div>
 
-            <div class="form-group" style="min-width: 150px; margin-bottom: 0;">
+            <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
                 <label>Status</label>
                 <select name="kod_status">
                     <option value="">-- Semua --</option>
@@ -32,12 +32,45 @@
                 </select>
             </div>
 
+            <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                <label>Sesi (Tahun)</label>
+                <select name="tahun">
+                    <option value="">-- Semua --</option>
+                    <?php foreach ($yearsList as $yr): ?>
+                        <option 
+                            value="<?= $yr; ?>"
+                            <?= (($_GET['tahun'] ?? '') == $yr) ? 'selected' : ''; ?>
+                        >
+                            <?= $yr; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-group" style="flex: 1; min-width: 140px; margin-bottom: 0;">
+                <label>Tarikh Dari</label>
+                <input 
+                    type="date" 
+                    name="tarikh_dari" 
+                    value="<?= htmlspecialchars($_GET['tarikh_dari'] ?? ''); ?>"
+                >
+            </div>
+
+            <div class="form-group" style="flex: 1; min-width: 140px; margin-bottom: 0;">
+                <label>Tarikh Hingga</label>
+                <input 
+                    type="date" 
+                    name="tarikh_hingga" 
+                    value="<?= htmlspecialchars($_GET['tarikh_hingga'] ?? ''); ?>"
+                >
+            </div>
+
             <div class="form-group" style="display: flex; gap: 8px; align-items: end; margin-bottom: 0;">
                 <div style="display: flex; flex-direction: column; width: 100%;">
                     <label style="visibility: hidden; height: 20px;">Tapis</label>
                     <div style="display: flex; gap: 8px;">
                         <button type="submit" class="btn btn-primary">Tapis</button>
-                        <?php if (!empty($_GET['carian']) || !empty($_GET['kod_status'])): ?>
+                        <?php if (!empty($_GET['carian']) || !empty($_GET['kod_status']) || !empty($_GET['tahun']) || !empty($_GET['tarikh_dari']) || !empty($_GET['tarikh_hingga'])): ?>
                             <a href="?page=admin_senarai" class="btn btn-secondary">Reset</a>
                         <?php endif; ?>
                         <?php
@@ -47,6 +80,15 @@
                         }
                         if (!empty($_GET['kod_status'])) {
                             $exportUrl .= "&kod_status=" . urlencode($_GET['kod_status']);
+                        }
+                        if (!empty($_GET['tahun'])) {
+                            $exportUrl .= "&tahun=" . urlencode($_GET['tahun']);
+                        }
+                        if (!empty($_GET['tarikh_dari'])) {
+                            $exportUrl .= "&tarikh_dari=" . urlencode($_GET['tarikh_dari']);
+                        }
+                        if (!empty($_GET['tarikh_hingga'])) {
+                            $exportUrl .= "&tarikh_hingga=" . urlencode($_GET['tarikh_hingga']);
                         }
                         ?>
                         <a href="<?= $exportUrl; ?>" class="btn" style="background: #047857; color: white; display: inline-flex; align-items: center; gap: 6px;">
