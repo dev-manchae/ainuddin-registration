@@ -505,7 +505,7 @@ class AdminController {
                 $p1['jenis_penjaga'] ?? '-',
                 $p1['no_telefon'] ?? '-',
                 $p1['pekerjaan'] ?? '-',
-                $p1['pendapatan'] ? 'RM ' . number_format($p1['pendapatan'], 2) : '-',
+                (isset($p1['pendapatan']) && $p1['pendapatan'] !== '') ? 'RM ' . number_format($p1['pendapatan'], 2) : '-',
                 $p1['emel'] ?? '-',
                 $p1['alamat'] ?? '-',
 
@@ -513,7 +513,7 @@ class AdminController {
                 $p2['jenis_penjaga'] ?? '-',
                 $p2['no_telefon'] ?? '-',
                 $p2['pekerjaan'] ?? '-',
-                $p2['pendapatan'] ? 'RM ' . number_format($p2['pendapatan'], 2) : '-',
+                (isset($p2['pendapatan']) && $p2['pendapatan'] !== '') ? 'RM ' . number_format($p2['pendapatan'], 2) : '-',
                 $p2['emel'] ?? '-',
                 $p2['alamat'] ?? '-',
 
