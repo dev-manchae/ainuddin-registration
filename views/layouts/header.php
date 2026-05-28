@@ -1,3 +1,9 @@
+<?php
+$currentPage = $_GET['page'] ?? 'home';
+$isUtama = ($currentPage === 'home' || $currentPage === '');
+$isDashboard = in_array($currentPage, ['dashboard', 'my_applications', 'mula_permohonan', 'step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'resume_permohonan']);
+$isProfil = ($currentPage === 'profil');
+?>
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -29,13 +35,19 @@
     </button>
 
     <div class="nav-links">
-        <a href="?page=home">Utama</a>
+        <div class="nav-menu">
+            <a href="?page=home" class="nav-link <?= $isUtama ? 'active' : '' ?>">Utama</a>
+            <?php if (isset($_SESSION['id_pengguna'])): ?>
+                <a href="?page=dashboard" class="nav-link <?= $isDashboard ? 'active' : '' ?>">Dashboard</a>
+                <a href="?page=profil" class="nav-link <?= $isProfil ? 'active' : '' ?>">Profil Saya</a>
+            <?php else: ?>
+                <a href="?page=login" class="nav-link <?= $currentPage === 'login' ? 'active' : '' ?>">Log Masuk</a>
+            <?php endif; ?>
+        </div>
         
         <?php if (isset($_SESSION['id_pengguna'])): ?>
-            <a href="?page=dashboard" class="nav-user-name"><?= htmlspecialchars($_SESSION['nama_penuh']); ?></a>
             <a href="?page=logout" class="btn-nav-logout">Log Keluar</a>
         <?php else: ?>
-            <a href="?page=login">Log Masuk</a>
             <a href="?page=register" class="btn-nav">Daftar</a>
         <?php endif; ?>
     </div>

@@ -4,6 +4,7 @@ require_once "app/helpers/csrf.php";
 require_once "app/controllers/AuthController.php";
 require_once "app/controllers/PermohonanController.php";
 require_once "app/controllers/AdminController.php";
+require_once "app/controllers/ProfileController.php";
 require_once "app/middleware/AuthMiddleware.php";
 require_once "app/middleware/AdminMiddleware.php";
 
@@ -609,6 +610,82 @@ switch ($page) {
 
         header("Location: ?page=login");
 
+        exit;
+
+    // =========================
+    // USER PROFILE & SECURITY
+    // =========================
+    case 'profil':
+
+        AuthMiddleware::check();
+
+        require_once "app/controllers/ProfileController.php";
+        $profileController = new ProfileController();
+        $user = $profileController->getProfile($_SESSION['id_pengguna']);
+
+        if (!$user) {
+            $_SESSION['error'] = "Pengguna tidak ditemui.";
+            header("Location: ?page=dashboard");
+            exit;
+        }
+
+        $content = "views/profile/profil.php";
+
+        // Adapt layout based on user's role
+        if ($user['peranan'] === 'admin') {
+            require_once "views/layouts/admin_layout.php";
+        } else {
+            require_once "views/layouts/header.php";
+            require_once $content;
+            require_once "views/layouts/footer.php";
+        }
+
+        break;
+
+    case 'profil_update_info':
+
+        AuthMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=profil");
+            exit;
+        }
+
+        require_once "app/controllers/ProfileController.php";
+        $profileController = new ProfileController();
+        $result = $profileController->updateProfile($_SESSION['id_pengguna'], $_POST);
+
+        if ($result === true) {
+            $_SESSION['success'] = "Profil anda berjaya dikemaskini.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=profil");
+        exit;
+
+    case 'profil_update_password':
+
+        AuthMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=profil");
+            exit;
+        }
+
+        require_once "app/controllers/ProfileController.php";
+        $profileController = new ProfileController();
+        $result = $profileController->changePassword($_SESSION['id_pengguna'], $_POST);
+
+        if ($result === true) {
+            $_SESSION['success'] = "Kata laluan anda berjaya dikemaskini.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=profil");
         exit;
 
     // =========================

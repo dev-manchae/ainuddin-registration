@@ -825,7 +825,8 @@ class PermohonanController {
                     'no_rujukan' => $no_rujukan,
                     'nama_pelajar' => $details['nama_pelajar'],
                     'nama_penjaga' => $details['nama_penjaga']
-                ]
+                ],
+                $this->pdo
             );
         }
 

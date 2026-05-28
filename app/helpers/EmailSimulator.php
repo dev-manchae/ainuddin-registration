@@ -9,8 +9,10 @@ class EmailSimulator {
     /**
      * Generate HTML email template and log to table
      */
-    public static function simulate($id_permohonan, $recipient, $subject, $template, $variables = []) {
-        $pdo = getConnection();
+    public static function simulate($id_permohonan, $recipient, $subject, $template, $variables = [], $pdo = null) {
+        if ($pdo === null) {
+            $pdo = getConnection();
+        }
         
         $body = self::getTemplateHtml($template, $variables);
         

@@ -85,9 +85,6 @@ class AuthController {
         return true;
     }
 
-    // =========================
-    // LOGIN USER
-    // =========================
     public function login($data) {
 
         $emel = strtolower(trim($data['emel']));
@@ -107,9 +104,31 @@ class AuthController {
             return "Emel atau kata laluan salah.";
         }
 
-        if (!password_verify($kata_laluan, $user['kata_laluan_hash'])) {
-            return "Emel atau kata laluan salah.";
+        // Check if user is locked out
+        if ($user['lockout_time']) {
+            $lockout_seconds = strtotime($user['lockout_time']) + 900 - time();
+            if ($lockout_seconds > 0) {
+                $minutes = ceil($lockout_seconds / 60);
+                return "Akaun anda telah disekat sementara. Sila cuba lagi dalam masa " . $minutes . " minit.";
+            }
         }
+
+        if (!password_verify($kata_laluan, $user['kata_laluan_hash'])) {
+            $failed = $user['failed_logins'] + 1;
+            if ($failed >= 5) {
+                $stmt = $this->pdo->prepare("UPDATE pengguna SET failed_logins = ?, lockout_time = NOW() WHERE id_pengguna = ?");
+                $stmt->execute([$failed, $user['id_pengguna']]);
+                return "Akaun anda telah disekat sementara selama 15 minit kerana cubaan log masuk gagal yang berlebihan.";
+            } else {
+                $stmt = $this->pdo->prepare("UPDATE pengguna SET failed_logins = ? WHERE id_pengguna = ?");
+                $stmt->execute([$failed, $user['id_pengguna']]);
+                return "Emel atau kata laluan salah.";
+            }
+        }
+
+        // Reset failed logins upon successful login
+        $stmt = $this->pdo->prepare("UPDATE pengguna SET failed_logins = 0, lockout_time = NULL WHERE id_pengguna = ?");
+        $stmt->execute([$user['id_pengguna']]);
 
         $_SESSION['id_pengguna'] = $user['id_pengguna'];
         $_SESSION['nama_penuh'] = $user['nama_penuh'];

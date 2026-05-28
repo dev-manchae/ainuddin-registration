@@ -25,6 +25,9 @@
         <a href="?page=admin_emails" class="nav-item <?= ($_GET['page'] ?? '') == 'admin_emails' ? 'active' : ''; ?>">
             <span class="nav-icon">▸</span> <span class="nav-text">Simulasi Emel</span>
         </a>
+        <a href="?page=profil" class="nav-item <?= ($_GET['page'] ?? '') == 'profil' ? 'active' : ''; ?>">
+            <span class="nav-icon">▸</span> <span class="nav-text">Profil Saya</span>
+        </a>
 
         <div class="sidebar-divider"></div>
 
