@@ -50,7 +50,7 @@ body {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
     padding: 0 40px;
-    height: 80px;
+    height: 75px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -62,7 +62,7 @@ body {
 }
 
 .top-nav.scrolled {
-    height: 74px;
+    height: 65px;
     box-shadow: var(--shadow-md);
 }
 
@@ -109,44 +109,7 @@ body {
     gap: 8px;
 }
 
-/* Capsule Segmented Menu Styling */
-.nav-menu {
-    display: flex;
-    align-items: center;
-    background: #f1f5f9;
-    padding: 5px;
-    border-radius: 30px;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    gap: 4px;
-    margin-right: 8px;
-}
-
-.nav-menu .nav-link {
-    text-decoration: none;
-    color: var(--text-light) !important;
-    font-weight: 500 !important;
-    font-size: 14px !important;
-    padding: 8px 20px !important;
-    border-radius: 20px !important;
-    border-bottom: none !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.nav-menu .nav-link:hover {
-    color: var(--primary) !important;
-    background: rgba(255, 255, 255, 0.6) !important;
-    border-bottom: none !important;
-}
-
-.nav-menu .nav-link.active {
-    background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
-    color: white !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 10px rgba(30, 86, 49, 0.15) !important;
-    border-bottom: none !important;
-}
-
-/* Default text links fallback */
+/* Default text links (Utama, User Name) */
 .nav-links a {
     text-decoration: none;
     color: var(--text-light);
@@ -164,6 +127,15 @@ body {
     background: transparent;
 }
 
+/* Logged in user name link */
+.nav-user-name {
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+    border-left: 1px solid var(--border);
+    padding-left: 16px !important;
+    margin-left: 4px;
+}
+
 /* Log Keluar Button (Pill design like Daftar) */
 .btn-nav-logout {
     background: #475569 !important;
@@ -174,7 +146,6 @@ body {
     border-bottom: none !important;
     box-shadow: 0 4px 10px rgba(71, 85, 105, 0.2);
     margin-left: 8px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .btn-nav-logout:hover {
@@ -182,7 +153,6 @@ body {
     box-shadow: 0 6px 15px rgba(71, 85, 105, 0.3) !important;
     border-bottom: none !important;
     color: white !important;
-    transform: translateY(-1px);
 }
 
 /* Daftar Button */
@@ -194,7 +164,6 @@ body {
     font-weight: 600 !important;
     box-shadow: 0 4px 15px rgba(30, 86, 49, 0.2);
     border-bottom: none !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .btn-nav:hover {
@@ -531,7 +500,7 @@ body {
     }
     .nav-links {
         position: absolute;
-        top: 100%;
+        top: 75px;
         left: 0;
         right: 0;
         background: white;
@@ -540,38 +509,18 @@ body {
         box-shadow: var(--shadow-lg);
         border-bottom: 1px solid var(--border);
         display: none; /* Hidden by default */
-        gap: 10px;
     }
     .nav-links.active {
         display: flex;
     }
-    .nav-menu {
-        flex-direction: column;
+    .nav-user-name,
+    .btn-nav-logout {
+        border-left: none !important;
+        margin-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        margin-top: 8px;
         width: 100%;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        gap: 6px !important;
-        margin-right: 0 !important;
-    }
-    .nav-menu .nav-link {
-        width: 100% !important;
-        padding: 12px 20px !important;
-        border-radius: 8px !important;
-        text-align: center !important;
-    }
-    .nav-menu .nav-link.active {
-        background: rgba(30, 86, 49, 0.08) !important;
-        color: var(--primary) !important;
-        box-shadow: none !important;
-        border: none !important;
-        font-weight: 600 !important;
-    }
-    .btn-nav-logout,
-    .btn-nav {
-        width: 100% !important;
-        margin-left: 0 !important;
-        margin-top: 4px;
         text-align: center;
     }
     .hero-title {
