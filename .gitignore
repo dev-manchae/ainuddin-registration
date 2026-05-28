@@ -17,3 +17,7 @@ public/uploads/sijil/*
 
 # Database SQL Dump
 database/
+
+# Example documents and PDFs
+/SURAT TAWARAN MATAF 2024 - example surat tawaran.pdf
+
