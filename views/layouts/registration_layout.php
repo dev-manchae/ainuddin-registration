@@ -106,11 +106,17 @@ $isSuccessPage = (isset($content) && $content === "views/registration/success.ph
 ?>
 
 <div class="wizard-wrapper">
+    <?php if (!$isSuccessPage): ?>
+        <div class="student-header">
+            <div>
+                <h2>Borang Permohonan Pelajar</h2>
+                <div class="subtext">Lengkapkan setiap langkah untuk menghantar permohonan</div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div class="wizard-card">
         <?php if (!$isSuccessPage): ?>
-            <h1 class="wizard-heading">Borang Permohonan Pelajar</h1>
-            <p class="wizard-subtitle">Lengkapkan setiap langkah untuk menghantar permohonan</p>
-
             <?php
             $steps = [
                 1 => 'Pelajar',

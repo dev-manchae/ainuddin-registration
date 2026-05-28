@@ -136,9 +136,12 @@
         }
     }
 </style>
-
-<h2>Profil Saya</h2>
-<p style="color: #64748b; font-size: 14px; margin-bottom: 25px;">Urus maklumat peribadi dan tetapan keselamatan akaun anda</p>
+<div class="student-header">
+    <div>
+        <h2>Profil Saya</h2>
+        <div class="subtext">Urus maklumat peribadi dan tetapan keselamatan akaun anda</div>
+    </div>
+</div>
 
 <div class="profile-container">
     

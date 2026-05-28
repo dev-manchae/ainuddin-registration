@@ -35,13 +35,6 @@ if (!empty($revisionApps)) {
 ?>
 
 <style>
-    .student-header { background: white; border-radius: 12px; padding: 24px 28px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-    .student-header h2 { margin: 0; font-size: 22px; font-weight: 600; color: #1e293b; }
-    .student-header .subtext { color: #64748b; font-size: 14px; margin-top: 4px; }
-    .btn-permohonan { background: #1e5631; color: white; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px; transition: background 0.2s; border: none; cursor: pointer; font-family: inherit; }
-    .btn-permohonan:hover { background: #163d26; }
-    .btn-permohonan.disabled { background: #cbd5e1; cursor: not-allowed; }
-    .btn-permohonan.disabled:hover { background: #cbd5e1; }
     .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 30px; }
     .stat-item { background: white; border-radius: 12px; padding: 18px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
     .stat-item .stat-number { font-size: 26px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
