@@ -1,0 +1,60 @@
+# Walkthrough 2.4 - Inline Lightbox Viewer & Dynamic Consent Management
+
+We have successfully implemented two major administrative enhancements:
+1. **Inline Document Lightbox Viewer**: Admins can now preview student photos, IC cards, and certificates directly inside a premium backdrop-blurred overlay modal on [lihat.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/lihat.php) without leaving the page.
+2. **Dynamic Consent (Persetujuan) Management**: Built a fully dynamic CRUD dashboard at `?page=admin_persetujuan` using [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) allowing admins to create, update, toggle (enable/disable), and delete registration agreements which dynamically sync to Step 6 of the parent registration wizard.
+
+---
+
+## 1. Feature Details
+
+### Inline Document Lightbox Viewer
+* Integrated a clean slate-colored overlay modal with a backdrop filter blur effect (`backdrop-filter: blur(8px)`) directly into [lihat.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/lihat.php).
+* Injected click event handlers that intercept clicks on student pictures (PNG/JPG) or credentials (PDF) to load them inside an `<img>` tag or encapsulated `<iframe>` natively within the modal wrapper.
+* Enabled multiple closing triggers: click on the close button, clicking on the backdrop area, or pressing the `Escape` key.
+* Clean resource lifecycle disposal on close (clears iframe and image src tags to free memory).
+
+### Dynamic Consent Management
+* **Database Controller logic**: Implemented `getAgreements()`, `addAgreement()`, `updateAgreement()`, `toggleAgreementStatus()`, and `deleteAgreement()` at the bottom of [AdminController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AdminController.php).
+* **View Template**: Created [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) incorporating:
+  * An interactive agreements list table with badges indicating status (Aktif/Tidak Aktif).
+  * A dual-purpose card handling both "Tambah Persetujuan" and "Kemaskini Persetujuan". When clicking "Edit" on a row, details populate dynamically using JSON-safe JavaScript bindings.
+  * Direct action buttons to delete (with confirmation alerts) and toggle statuses.
+* **Routing Switch-cases**: Registered `admin_persetujuan`, `admin_persetujuan_save`, `admin_persetujuan_toggle`, and `admin_persetujuan_delete` cases inside [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php) complete with session and CSRF protections.
+* **Sidebar Link**: Appended the "Urus Persetujuan" menu option between "Simulasi Emel" and "Profil Saya" inside [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php).
+
+---
+
+## 2. File Modifiers
+
+* [AdminController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AdminController.php) - Added database CRUD methods.
+* [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php) - Added routing logic switch-cases.
+* [lihat.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/lihat.php) - Injected modal markup, custom styles, and click intercept JS.
+* [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php) - Injected navigation link.
+* [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) - Created the administrative consent management panel view.
+
+---
+
+## 3. Verification & Manual Testing Steps
+
+### Syntax Validation
+* Ran individual syntax linters to confirm compile-safety:
+  `d:\xampp\php\php.exe -l app/controllers/AdminController.php index.php views/admin/lihat.php views/admin/sidebar.php views/admin/persetujuan.php`
+  *Result*: No syntax errors detected.
+
+### Manual Verification Flow
+
+#### 1. Lightbox Document Previewer
+1. Log in to the Admin Portal (`admin@gmail.com` / `admin123`).
+2. Go to **Senarai Permohonan** -> Select any application -> Select the **Dokumen** tab.
+3. Click on the uploaded student photo (image) or IC card. The lightbox modal opens instantly showing the image with a blurred background. Click on the backdrop or close button to close it.
+4. Click on the certificate (PDF). The lightbox modal opens showing the PDF cleanly inside a scrollable frame. Press `ESC` to close.
+
+#### 2. Consent Management CRUD & Sync
+1. Click **Urus Persetujuan** in the sidebar.
+2. Verify the 3 default clauses exist and have the green "Aktif" badge.
+3. In the right form card, type `"Saya dengan ini mengaku bersetuju dengan syarat tambahan MTA."` and click **Tambah Klausa**. Confirm it appears in the table with an active status.
+4. Click **Edit** on that new clause. Confirm the text loads into the textarea. Edit the text and click **Kemaskini Klausa**. Verify it updates in the table.
+5. Click **Tukar Status**. Confirm the badge changes to "Tidak Aktif" (red). Click **Tukar Status** again to change it back.
+6. Open a new incognito window (or log out and register a new student parent). Go to Step 6 of the registration wizard. Verify that only the currently active agreements are listed and required.
+7. Go back to the Admin screen, click **Padam** on the newly created agreement. Verify that a confirmation dialog appears, and once accepted, the item is permanently deleted from the database.

@@ -983,6 +983,96 @@ switch ($page) {
 
         break;
 
+    case 'admin_persetujuan':
+
+        AdminMiddleware::check();
+
+        $adminController = new AdminController();
+
+        $agreements = $adminController->getAgreements();
+
+        $content = "views/admin/persetujuan.php";
+
+        require_once "views/layouts/admin_layout.php";
+
+        break;
+
+    case 'admin_persetujuan_save':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_persetujuan");
+            exit;
+        }
+
+        $adminController = new AdminController();
+        $id = $_POST['id_persetujuan'] ?? null;
+
+        if ($id) {
+            $result = $adminController->updateAgreement($id, $_POST);
+        } else {
+            $result = $adminController->addAgreement($_POST);
+        }
+
+        if ($result === true) {
+            $_SESSION['success'] = "Persetujuan berjaya disimpan.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=admin_persetujuan");
+        exit;
+
+    case 'admin_persetujuan_toggle':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_persetujuan");
+            exit;
+        }
+
+        $id = $_POST['id_persetujuan'] ?? $_GET['id'] ?? 0;
+
+        $adminController = new AdminController();
+        $result = $adminController->toggleAgreementStatus($id);
+
+        if ($result === true) {
+            $_SESSION['success'] = "Status persetujuan berjaya ditukar.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=admin_persetujuan");
+        exit;
+
+    case 'admin_persetujuan_delete':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_persetujuan");
+            exit;
+        }
+
+        $id = $_POST['id_persetujuan'] ?? $_GET['id'] ?? 0;
+
+        $adminController = new AdminController();
+        $result = $adminController->deleteAgreement($id);
+
+        if ($result === true) {
+            $_SESSION['success'] = "Persetujuan berjaya dipadam.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=admin_persetujuan");
+        exit;
+
     case 'admin_update_status':
 
         AdminMiddleware::check();

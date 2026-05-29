@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../libs/fpdf.php';
 
-class SuratTawaranGenerator extends FPDF {
+class SuratTawaranGenerator extends FPDF
+{
     private $data;
 
-    public function __construct($data) {
+    public function __construct($data)
+    {
         parent::__construct('P', 'mm', 'A4');
         $this->data = $data;
         $this->SetMargins(15, 15, 15);
@@ -16,7 +18,8 @@ class SuratTawaranGenerator extends FPDF {
      * 
      * @return float
      */
-    public function GetY() {
+    public function GetY()
+    {
         return parent::GetY();
     }
 
@@ -25,24 +28,26 @@ class SuratTawaranGenerator extends FPDF {
      * 
      * @return float
      */
-    public function GetX() {
+    public function GetX()
+    {
         return parent::GetX();
     }
 
     // Page Header
-    public function Header() {
+    public function Header()
+    {
         // 1. Draw left logo (Cell 1, width 40mm, centered)
         $leftLogo = 'public/assets/images/letterhead_left.png';
         if (file_exists($leftLogo)) {
             $this->Image($leftLogo, 17.42, 10, 35.16, 27.25);
         }
-        
+
         // 2. Draw middle calligraphy/divider (Cell 2, width 102mm, centered)
         $middleLogo = 'public/assets/images/letterhead_middle.png';
         if (file_exists($middleLogo)) {
             $this->Image($middleLogo, 65.65, 10, 80.70, 14.58);
         }
-        
+
         // 3. Draw right logo (Cell 3, width 38mm, centered)
         $rightLogo = 'public/assets/images/letterhead_right.jpeg';
         if (file_exists($rightLogo)) {
@@ -69,13 +74,14 @@ class SuratTawaranGenerator extends FPDF {
         $this->Line(15, 45.5, 195, 45.5);
         $this->SetLineWidth(0.2);
         $this->Line(15, 47.0, 195, 47.0);
-        
+
         // 6. Set cursor position to start page body content
         $this->SetY(52);
     }
 
     // Page Footer
-    public function Footer() {
+    public function Footer()
+    {
         $this->SetY(-15);
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(148, 163, 184);
@@ -83,23 +89,24 @@ class SuratTawaranGenerator extends FPDF {
     }
 
     // Dynamic offer letter page
-    public function generateLetter() {
+    public function generateLetter()
+    {
         $this->AliasNbPages();
         $this->AddPage();
-        
+
         $this->SetTextColor(30, 41, 59); // Slate-800
-        
+
         // 1. Reference and Date Block
         $this->SetFont('Arial', '', 10);
         $noRujukan = $this->data['permohonan']['no_rujukan'] ?? 'AR-2026-XXXX';
-        
+
         // Format Date
         $tarikhHantar = $this->data['permohonan']['tarikh_hantar'] ?? date('Y-m-d H:i:s');
         $dateFormatted = date('d F Y', strtotime($tarikhHantar));
-        
+
         $this->Cell(100, 5, "No. Rujukan : " . $noRujukan, 0, 0, 'L');
         $this->Cell(80, 5, "Tarikh : " . $dateFormatted, 0, 1, 'R');
-        
+
         $this->Ln(4);
 
         // 2. Recipient Address
@@ -108,12 +115,12 @@ class SuratTawaranGenerator extends FPDF {
         $primaryGuardian = $penjagaList[0] ?? null;
         $namaPenjaga = $primaryGuardian['nama_penuh'] ?? 'Ibu/Bapa/Penjaga';
         $alamatPenjaga = $primaryGuardian['alamat'] ?? 'Alamat Berdaftar';
-        
+
         $this->Cell(0, 5, "Kepada:", 0, 1, 'L');
         $this->SetFont('Arial', '', 10);
         $this->Cell(0, 5, $namaPenjaga, 0, 1, 'L');
         $this->MultiCell(100, 4, $alamatPenjaga, 0, 'L');
-        
+
         $this->Ln(4);
 
         // 3. Subject Line
@@ -132,7 +139,7 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetFillColor(248, 250, 252); // Very light grey
         $this->SetFont('Arial', 'B', 10);
         $this->Cell(180, 6, "MAKLUMAT PELAJAR & PENGAJIAN", 1, 1, 'L', true);
-        
+
         $this->SetFont('Arial', '', 9);
         // Row 1
         $this->Cell(45, 6, "  Nama Pelajar", 1, 0, 'L');
@@ -154,12 +161,12 @@ class SuratTawaranGenerator extends FPDF {
         // 6. Conditions & Probation details
         $this->SetFont('Arial', '', 10);
         $this->MultiCell(0, 5, "Tawaran kemasukan ini adalah tertakluk kepada syarat-syarat pengajian berikut:", 0, 'J');
-        
+
         $this->SetFont('Arial', 'B', 9);
         $this->Cell(10, 5, " 1. ", 0, 0, 'L');
         $this->SetFont('Arial', '', 9);
         $this->Cell(170, 5, "Mengikuti program percubaan (Probation Period) selama 90 hari di Maahad.", 0, 1, 'L');
-        
+
         $this->SetFont('Arial', 'B', 9);
         $this->Cell(10, 5, " 2. ", 0, 0, 'L');
         $this->SetFont('Arial', '', 9);
@@ -182,7 +189,7 @@ class SuratTawaranGenerator extends FPDF {
 
         // 8. Signatures columns (3 columns)
         $yStartSign = $this->GetY();
-        
+
         // Column 1: Student
         $this->SetXY(15, $yStartSign);
         $this->Line(15, $yStartSign + 18, 65, $yStartSign + 18);
@@ -225,9 +232,10 @@ class SuratTawaranGenerator extends FPDF {
     }
 
     // Page 2: Checklist & dynamic document verify status
-    private function generateChecklistPage() {
+    private function generateChecklistPage()
+    {
         $this->AddPage();
-        
+
         $this->SetTextColor(30, 41, 59);
 
         $this->SetFont('Arial', 'B', 12);
@@ -247,7 +255,7 @@ class SuratTawaranGenerator extends FPDF {
 
         // List of docs in database
         $uploadedDocs = $this->data['dokumen_list'] ?? [];
-        
+
         $docKeys = [
             'IC Pelajar' => 'Salinan Kad Pengenalan Pelajar / MyKid',
             'Gambar Pelajar' => 'Gambar Berukuran Passport Pelajar',
@@ -259,7 +267,7 @@ class SuratTawaranGenerator extends FPDF {
         foreach ($docKeys as $dbKey => $label) {
             $hasDoc = isset($uploadedDocs[$dbKey]) && !empty($uploadedDocs[$dbKey]);
             $statusText = "[     ] Sediakan Fizikal";
-            
+
             $this->Cell(15, 7, " " . $index++, 1, 0, 'C');
             $this->Cell(125, 7, " " . $label, 1, 0, 'L');
             $this->Cell(40, 7, $statusText, 1, 1, 'C');
@@ -289,7 +297,7 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetFont('Arial', 'B', 9.5);
         $this->SetTextColor(153, 27, 27); // Dark red
         $this->Cell(0, 6, "  PERINGATAN PENTING:", 'TRL', 1, 'L', true);
-        
+
         $this->SetFont('Arial', '', 9);
         $this->SetTextColor(185, 28, 28);
         $noticeText = "Pihak pengurusan Maahad Tahfiz 'Ainuddin (MTA) berhak menangguhkan pendaftaran pelajar sekiranya terdapat sebarang maklumat palsu, dokumen sokongan penting yang hilang, atau perakuan yang tidak ditandatangani dengan lengkap.";
@@ -297,7 +305,8 @@ class SuratTawaranGenerator extends FPDF {
     }
 
     // Page 3 & 4: Dynamic Full Registration Details (Lampiran B)
-    private function generateRegistrationDetailsPage() {
+    private function generateRegistrationDetailsPage()
+    {
         // Combined Page 3 (Lampiran B)
         $this->AddPage();
         $this->SetTextColor(30, 41, 59);
@@ -312,11 +321,11 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetFillColor(240, 248, 243); // MTA Light Green/Teal
         $this->SetTextColor(30, 86, 49);
         $this->Cell(0, 5.5, " 1. MAKLUMAT PERIBADI PELAJAR", 1, 1, 'L', true);
-        
+
         $this->SetTextColor(30, 41, 59);
         $this->SetFont('Arial', '', 8);
         $p = $this->data['pelajar'] ?? [];
-        
+
         // Row 1: Nama Penuh
         $this->SetFillColor(248, 250, 252);
         $this->Cell(45, 5.2, "  Nama Penuh", 1, 0, 'L', true);
@@ -350,13 +359,13 @@ class SuratTawaranGenerator extends FPDF {
         // Row 6: Alamat Penuh
         $alamat = ($p['alamat'] ?? '-') . ", " . ($p['negeri'] ?? '');
         $alamat = str_replace(["\r", "\n"], " ", $alamat);
-        
+
         $this->Cell(45, 10.4, "  Alamat Kediaman", 1, 0, 'L', true);
         $yAlamat = $this->GetY();
         $this->SetXY(60, $yAlamat);
         $this->MultiCell(135, 5.2, " " . $alamat, 0, 'L');
         $this->Rect(60, $yAlamat, 135, 10.4);
-        
+
         $this->SetXY(15, $yAlamat + 10.4);
 
         $this->Ln(3);
@@ -378,7 +387,7 @@ class SuratTawaranGenerator extends FPDF {
 
             $this->SetFont('Arial', '', 8);
             $this->SetFillColor(248, 250, 252);
-            
+
             // Row 1: Hubungan
             $this->SetX(15);
             $this->Cell(25, 5.2, "  Hubungan", 1, 0, 'L', true);
@@ -443,7 +452,7 @@ class SuratTawaranGenerator extends FPDF {
             $this->SetFont('Arial', '', 7.5);
             $this->MultiCell(60, 5.2, " " . $alamat1, 0, 'L');
             $this->Rect(40, $yParentAlamat, 60, 10.4);
-            
+
             $this->SetXY(110, $yParentAlamat);
             $this->SetFont('Arial', '', 8);
             $this->Cell(25, 10.4, "  Alamat", 1, 0, 'L', true);
@@ -451,7 +460,7 @@ class SuratTawaranGenerator extends FPDF {
             $this->SetFont('Arial', '', 7.5);
             $this->MultiCell(60, 5.2, " " . $alamat2, 0, 'L');
             $this->Rect(135, $yParentAlamat, 60, 10.4);
-            
+
             $this->SetXY(15, $yParentAlamat + 10.4);
         } else {
             $p1 = $p1 ?: [];
@@ -517,7 +526,7 @@ class SuratTawaranGenerator extends FPDF {
         $this->SetFont('Arial', '', 8);
 
         $a = $this->data['akademik'] ?? [];
-        
+
         // Top general akademik
         $this->SetFillColor(248, 250, 252);
         $this->Cell(45, 5.2, "  Sekolah Terdahulu", 1, 0, 'L', true);
@@ -537,13 +546,13 @@ class SuratTawaranGenerator extends FPDF {
             $surahHafazanText = (is_array($decoded) && isset($decoded['surah_hafazan'])) ? $decoded['surah_hafazan'] : $a['surah_hafazan'];
         }
         $surahHafazanText = str_replace(["\r", "\n"], " ", $surahHafazanText);
-        
+
         $this->Cell(45, 10.4, "  Surah Hafazan (Jika Ada)", 1, 0, 'L', true);
         $yHafazan = $this->GetY();
         $this->SetXY(60, $yHafazan);
         $this->MultiCell(135, 5.2, " " . $surahHafazanText, 0, 'L');
         $this->Rect(60, $yHafazan, 135, 10.4);
-        
+
         $this->SetXY(15, $yHafazan + 10.4);
 
         $this->Ln(3);
@@ -561,7 +570,7 @@ class SuratTawaranGenerator extends FPDF {
         $this->Cell(85, 5.2, "  Keputusan Akademik Sekolah Kebangsaan", 1, 0, 'L', true);
         $this->Cell(10, 5.2, "", 0, 0);
         $this->Cell(85, 5.2, "  Keputusan Sekolah Agama (SRA / KAFA / SMA)", 1, 1, 'L', true);
-        
+
         // Row 5: Column headers
         $this->SetX(15);
         $this->SetTextColor(30, 41, 59);
@@ -570,17 +579,17 @@ class SuratTawaranGenerator extends FPDF {
         $this->Cell(10, 4.5, "", 0, 0);
         $this->Cell(55, 4.5, "  Subjek", 1, 0, 'L');
         $this->Cell(30, 4.5, "  Gred", 1, 1, 'C');
-        
+
         $yRowStart = $this->GetY();
-        
+
         // Synchronized rows output
         $maxRows = max(count($akademikData), count($agamaData));
         $maxRows = max(1, $maxRows);
-        
+
         $this->SetFont('Arial', '', 7.5);
         for ($i = 0; $i < $maxRows; $i++) {
             $yCurrentRow = $yRowStart + ($i * 4.5);
-            
+
             // Academic cell
             $this->SetXY(15, $yCurrentRow);
             if (isset($akademikData[$i])) {
@@ -594,7 +603,7 @@ class SuratTawaranGenerator extends FPDF {
                     $this->Cell(30, 4.5, "", 1, 0, 'C');
                 }
             }
-            
+
             // Religious cell
             $this->SetXY(110, $yCurrentRow);
             if (isset($agamaData[$i])) {
@@ -609,7 +618,7 @@ class SuratTawaranGenerator extends FPDF {
                 }
             }
         }
-        
+
         $yNextSection = $yRowStart + ($maxRows * 4.5) + 3;
 
         // 4. MAKLUMAT KESIHATAN & KECEMASAN

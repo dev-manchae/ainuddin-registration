@@ -586,4 +586,85 @@ class AdminController {
         ");
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+
+    // =========================
+    // GET ALL AGREEMENTS
+    // =========================
+    public function getAgreements() {
+        $stmt = $this->pdo->query("SELECT * FROM persetujuan ORDER BY id_persetujuan ASC");
+        return $stmt->fetchAll();
+    }
+
+    // =========================
+    // ADD NEW AGREEMENT
+    // =========================
+    public function addAgreement($data) {
+        $perihal = trim($data['perihal'] ?? '');
+        if (empty($perihal)) {
+            return "Perihal persetujuan tidak boleh kosong.";
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("INSERT INTO persetujuan (perihal, status) VALUES (?, 'Y')");
+            $stmt->execute([$perihal]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat menambah rekod: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // UPDATE EXISTING AGREEMENT
+    // =========================
+    public function updateAgreement($id, $data) {
+        $id = (int)$id;
+        $perihal = trim($data['perihal'] ?? '');
+        if (empty($perihal)) {
+            return "Perihal persetujuan tidak boleh kosong.";
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("UPDATE persetujuan SET perihal = ? WHERE id_persetujuan = ?");
+            $stmt->execute([$perihal, $id]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat mengemaskini rekod: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // TOGGLE AGREEMENT STATUS
+    // =========================
+    public function toggleAgreementStatus($id) {
+        $id = (int)$id;
+        try {
+            $stmt = $this->pdo->prepare("SELECT status FROM persetujuan WHERE id_persetujuan = ?");
+            $stmt->execute([$id]);
+            $current = $stmt->fetchColumn();
+            if (!$current) {
+                return "Rekod tidak dijumpai.";
+            }
+
+            $newStatus = ($current == 'Y') ? 'T' : 'Y';
+            $stmt = $this->pdo->prepare("UPDATE persetujuan SET status = ? WHERE id_persetujuan = ?");
+            $stmt->execute([$newStatus, $id]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat menukar status: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // DELETE AGREEMENT
+    // =========================
+    public function deleteAgreement($id) {
+        $id = (int)$id;
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM persetujuan WHERE id_persetujuan = ?");
+            $stmt->execute([$id]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat memadam rekod: " . $e->getMessage();
+        }
+    }
 }

@@ -4,6 +4,101 @@ if (!$detail) {
     echo "<div class='alert alert-error'>Permohonan tidak ditemui.</div>";
     return;
 }
+?>
+<style>
+/* PREMIUM LIGHTBOX MODAL */
+.lightbox-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.6); /* Dark slate overlay */
+    backdrop-filter: blur(8px); /* Modern blur effect */
+    -webkit-backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.lightbox-content-wrapper {
+    background: #ffffff;
+    width: 90%;
+    max-width: 950px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.lightbox-modal.active .lightbox-content-wrapper {
+    transform: scale(1);
+}
+
+.lightbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.lightbox-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+}
+
+.lightbox-close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+    padding: 0;
+}
+
+.lightbox-close-btn:hover {
+    color: #0f172a;
+}
+
+.lightbox-body {
+    padding: 24px;
+    background: #f1f5f9;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.lightbox-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+</style>
+<?php
 
  $p  = $detail['permohonan'];
  $pl = $detail['pelajar'];
@@ -303,7 +398,7 @@ function hideRevisionForm() {
         if (!empty($dk)):
             foreach ($docTypes as $key => $label):
                 ?>
-                <div style="border:1px solid #e2e8f0; padding:20px; border-radius:8px; margin-bottom:20px;">
+                <div class="doc-wrapper-card" style="border:1px solid #e2e8f0; padding:20px; border-radius:8px; margin-bottom:20px;">
                     <h4 style="margin-bottom: 15px; color: #334155;"><?= $label; ?></h4>
                     <?php if (!empty($dk[$key])): ?>
                         <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -381,3 +476,125 @@ function hideRevisionForm() {
         <?php endif; ?>
     <?php endif; ?>
 </div>
+
+<!-- LIGHTBOX MODAL CONTAINER -->
+<div id="previewLightbox" class="lightbox-modal">
+    <div class="lightbox-content-wrapper">
+        <div class="lightbox-header">
+            <span id="lightboxTitle" class="lightbox-title">Fail Dokumen</span>
+            <button onclick="closeLightbox()" class="lightbox-close-btn" aria-label="Tutup">&times;</button>
+        </div>
+        <div class="lightbox-body">
+            <div id="lightboxImageContainer" style="display: none; height: 100%; align-items: center; justify-content: center;">
+                <img id="lightboxImage" src="" alt="Pratonton Imej" style="max-width: 100%; max-height: 60vh; object-fit: contain;">
+            </div>
+            <div id="lightboxPdfContainer" style="display: none; height: 100%;">
+                <iframe id="lightboxPdfFrame" src="" style="width: 100%; height: 60vh; border: none; border-radius: 8px;"></iframe>
+            </div>
+        </div>
+        <div class="lightbox-footer">
+            <a id="lightboxDownloadBtn" href="" target="_blank" class="btn btn-teal">Buka di Tab Baru</a>
+            <button onclick="closeLightbox()" class="btn btn-secondary">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openLightbox(title, filePath, isImage) {
+    const modal = document.getElementById('previewLightbox');
+    const titleEl = document.getElementById('lightboxTitle');
+    const imgContainer = document.getElementById('lightboxImageContainer');
+    const pdfContainer = document.getElementById('lightboxPdfContainer');
+    const imgEl = document.getElementById('lightboxImage');
+    const pdfFrame = document.getElementById('lightboxPdfFrame');
+    const downloadBtn = document.getElementById('lightboxDownloadBtn');
+    
+    titleEl.textContent = title;
+    downloadBtn.href = filePath;
+    
+    if (isImage) {
+        imgEl.src = filePath;
+        imgContainer.style.display = 'flex';
+        pdfContainer.style.display = 'none';
+        pdfFrame.src = ''; // Clear iframe src
+    } else {
+        pdfFrame.src = filePath;
+        pdfContainer.style.display = 'block';
+        imgContainer.style.display = 'none';
+        imgEl.src = ''; // Clear image src
+    }
+    
+    modal.style.display = 'flex';
+    // Force browser reflow to trigger transition
+    modal.offsetHeight;
+    modal.classList.add('active');
+    
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('previewLightbox');
+    modal.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.getElementById('lightboxImage').src = '';
+        document.getElementById('lightboxPdfFrame').src = '';
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// Close lightbox on clicking backdrop
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('previewLightbox');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeLightbox();
+            }
+        });
+    }
+    
+    // ESC key close support
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('previewLightbox');
+            if (modal && modal.classList.contains('active')) {
+                closeLightbox();
+            }
+        }
+    });
+
+    // Intercept clicks on preview links inside tab 5
+    const imgAnchors = document.querySelectorAll('.img-preview-anchor');
+    imgAnchors.forEach(function(anchor) {
+        anchor.removeAttribute('target');
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filePath = this.getAttribute('href');
+            const parentCard = this.closest('.doc-wrapper-card');
+            const headerEl = parentCard ? parentCard.querySelector('h4') : null;
+            const labelText = headerEl ? headerEl.textContent.trim() : 'Imej';
+            const detailGrid = this.closest('.detail-grid');
+            const nameEl = detailGrid ? detailGrid.querySelector('.detail-value') : null;
+            const fileName = nameEl ? nameEl.textContent.trim() : 'Pratonton Imej';
+            openLightbox(labelText + ': ' + fileName.split('\n')[0], filePath, true);
+        });
+    });
+
+    const docCards = document.querySelectorAll('.doc-preview-card');
+    docCards.forEach(function(cardLink) {
+        cardLink.removeAttribute('target');
+        cardLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filePath = this.getAttribute('href');
+            const parentCard = this.closest('.doc-wrapper-card');
+            const headerEl = parentCard ? parentCard.querySelector('h4') : null;
+            const labelText = headerEl ? headerEl.textContent.trim() : 'Dokumen';
+            const fileName = this.querySelector('.doc-preview-name') ? this.querySelector('.doc-preview-name').textContent.trim() : 'Pratonton Fail';
+            openLightbox(labelText + ': ' + fileName, filePath, false);
+        });
+    });
+});
+</script>
