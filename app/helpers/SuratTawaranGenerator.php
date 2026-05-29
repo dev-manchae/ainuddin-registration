@@ -31,35 +31,47 @@ class SuratTawaranGenerator extends FPDF {
 
     // Page Header
     public function Header() {
-        // Logo
-        $logoPath = 'public/assets/images/logo.png';
-        if (file_exists($logoPath)) {
-            $this->Image($logoPath, 15, 10, 25);
+        // 1. Draw left logo (Cell 1, width 40mm, centered)
+        $leftLogo = 'public/assets/images/letterhead_left.png';
+        if (file_exists($leftLogo)) {
+            $this->Image($leftLogo, 17.42, 10, 35.16, 27.25);
         }
         
-        // School Info
-        $this->SetFont('Arial', 'B', 15);
-        $this->SetTextColor(30, 86, 49); // MTA Teal color (#1e5631)
-        $this->Cell(28); // Space for logo
-        $this->Cell(0, 8, "MAAHAD TAHFIZ 'AINUDDIN (MTA)", 0, 1, 'L');
-
-        $this->SetFont('Arial', '', 9);
-        $this->SetTextColor(100, 116, 139);
-        $this->Cell(28);
-        $this->Cell(0, 5, "Lot 38221, Kampung Kurnia, Bukit Pekan, 31910 Kampar, Perak", 0, 1, 'L');
-        $this->Cell(28);
-        $this->Cell(0, 5, "Tel: 019-236 4698 | Emel: info@ainuddin.edu.my", 0, 1, 'L');
-
-        $this->Ln(4);
+        // 2. Draw middle calligraphy/divider (Cell 2, width 102mm, centered)
+        $middleLogo = 'public/assets/images/letterhead_middle.png';
+        if (file_exists($middleLogo)) {
+            $this->Image($middleLogo, 65.65, 10, 80.70, 14.58);
+        }
         
-        // Double horizontal divider line
+        // 3. Draw right logo (Cell 3, width 38mm, centered)
+        $rightLogo = 'public/assets/images/letterhead_right.jpeg';
+        if (file_exists($rightLogo)) {
+            $this->Image($rightLogo, 159.18, 10, 33.65, 33.65);
+        }
+
+        // 4. Middle School Info and Text Details
+        $this->SetY(27);
+        $this->SetFont('Arial', 'B', 11);
+        $this->SetTextColor(30, 86, 49); // MTA Teal color (#1e5631)
+        $this->SetX(55);
+        $this->Cell(102, 5, "MAAHAD TAHFIZ 'AINUDDIN.", 0, 1, 'C');
+
+        $this->SetFont('Arial', '', 7.5);
+        $this->SetTextColor(100, 116, 139); // Muted slate color
+        $this->SetX(55);
+        $this->Cell(102, 4, "Lot 38221 Kampung Kurnia, Bukit Pekan, 31910 Kampar, Perak Darul Ridzuan", 0, 1, 'C');
+        $this->SetX(55);
+        $this->Cell(102, 4, "Tel: 019-2364698 | Email: ainuddinmaverick@gmail.com", 0, 1, 'C');
+
+        // 5. Double horizontal divider line below logos
         $this->SetDrawColor(30, 86, 49);
         $this->SetLineWidth(0.8);
-        $this->Line(15, 38, 195, 38);
+        $this->Line(15, 45.5, 195, 45.5);
         $this->SetLineWidth(0.2);
-        $this->Line(15, 39.5, 195, 39.5);
+        $this->Line(15, 47.0, 195, 47.0);
         
-        $this->Ln(6);
+        // 6. Set cursor position to start page body content
+        $this->SetY(52);
     }
 
     // Page Footer
