@@ -27,6 +27,7 @@ We have successfully implemented two major administrative enhancements:
 * **Admin Table Responsive Handling**: Wrapped the table in [senarai.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/senarai.php) with an `overflow-x: auto` card and defined `min-width: 950px` on the table element. Critical data columns (No Rujukan, No KP, Program, Tarikh, Tindakan) are styled with `white-space: nowrap` to prevent text-breaking overlap on smaller screens or browser drag-resizing.
 * **Badge Wrap Protection**: Added `white-space: nowrap` to the global `.badge` class in [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) to prevent text line wrapping inside badges (e.g. "Perlu Kemaskini").
 * **Revision Alert Panel Alignment**: Refactored the alert layout in [dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/dashboard.php) to group the administrator's comments textbox and the "Mula Kemaskini" button into a flex-aligned row matching their heights (`46px`), placing the date label cleanly below.
+* **CSS-based Scroll Reveal Animation**: Transitioned the scroll reveal effect from inline JavaScript styling to clean CSS classes. Declared the initial animation state (`opacity: 0; transform: translateY(20px)`) and transitions in [main.css](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/css/main.css) and [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php). Added the `.revealed` selector to ensure reliable hardware-accelerated animations on all pages (preventing delays caused by loading charts or CDNs).
 
 ---
 
@@ -37,8 +38,9 @@ We have successfully implemented two major administrative enhancements:
 * [lihat.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/lihat.php) - Injected modal markup, custom styles, and click intercept JS.
 * [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php) - Injected navigation link.
 * [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) - Created the administrative consent management panel view.
-* [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) - Injected inline synchronous script block to prevent sidebar toggle flash.
-* [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js) - Added stats/profile cards to fade-in reveal list and deferred trigger timing.
+* [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) - Injected inline synchronous script block to prevent sidebar toggle flash, and defined scroll reveal transition styles.
+* [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js) - Added stats/profile cards to fade-in reveal list and updated to add the `.revealed` class on trigger.
+* [main.css](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/css/main.css) - Defined scroll reveal transition rules and states for global cards.
 
 ---
 
