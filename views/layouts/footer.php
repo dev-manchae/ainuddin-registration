@@ -14,7 +14,7 @@
 </footer>
 
 <!-- External Scripts -->
-<script src="public/assets/js/main.js"></script>
+<script src="public/assets/js/main.js?v=<?= time(); ?>"></script>
 
 </body>
 </html>

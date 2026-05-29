@@ -572,7 +572,7 @@
     </div>
 
     <!-- Load main.js so the sidebar toggle works -->
-    <script src="public/assets/js/main.js"></script>
+    <script src="public/assets/js/main.js?v=<?= time(); ?>"></script>
 
 </body>
 

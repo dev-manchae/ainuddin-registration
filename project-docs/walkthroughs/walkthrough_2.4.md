@@ -28,6 +28,7 @@ We have successfully implemented two major administrative enhancements:
 * **Badge Wrap Protection**: Added `white-space: nowrap` to the global `.badge` class in [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) to prevent text line wrapping inside badges (e.g. "Perlu Kemaskini").
 * **Revision Alert Panel Alignment**: Refactored the alert layout in [dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/dashboard.php) to group the administrator's comments textbox and the "Mula Kemaskini" button into a flex-aligned row matching their heights (`46px`), placing the date label cleanly below.
 * **CSS-based Scroll Reveal Animation**: Transitioned the scroll reveal effect from inline JavaScript styling to clean CSS classes. Declared the initial animation state (`opacity: 0; transform: translateY(20px)`) and transitions in [main.css](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/css/main.css) and [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php). Added the `.revealed` selector to ensure reliable hardware-accelerated animations on all pages (preventing delays caused by loading charts or CDNs).
+* **JavaScript Cache-Busting**: Added time-based cache-busters (`?v=<?= time(); ?>`) to all references of [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js) in [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) and [footer.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/footer.php). This forces the browser to pull the updated scroll reveal triggers for `.stat-card` and `.profile-card`, eliminating the blank page/missing elements bug caused by outdated cached versions of `main.js`.
 
 ---
 
@@ -38,7 +39,8 @@ We have successfully implemented two major administrative enhancements:
 * [lihat.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/lihat.php) - Injected modal markup, custom styles, and click intercept JS.
 * [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php) - Injected navigation link.
 * [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) - Created the administrative consent management panel view.
-* [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) - Injected inline synchronous script block to prevent sidebar toggle flash, and defined scroll reveal transition styles.
+* [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) - Injected inline synchronous script block to prevent sidebar toggle flash, defined scroll reveal transition styles, and added cache-buster to the `main.js` link.
+* [footer.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/footer.php) - Added cache-buster to the `main.js` link to prevent old javascript cache issues.
 * [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js) - Added stats/profile cards to fade-in reveal list and updated to add the `.revealed` class on trigger.
 * [main.css](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/css/main.css) - Defined scroll reveal transition rules and states for global cards.
 
