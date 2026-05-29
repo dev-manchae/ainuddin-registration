@@ -17,9 +17,11 @@ We have successfully implemented two major administrative enhancements:
 ### Dynamic Consent Management
 * **Database Controller logic**: Implemented `getAgreements()`, `addAgreement()`, `updateAgreement()`, `toggleAgreementStatus()`, and `deleteAgreement()` at the bottom of [AdminController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AdminController.php).
 * **View Template**: Created [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) incorporating:
+  * A spacious **stacked layout** (Form Card at the top, Agreements List Card at the bottom) giving the table 100% width and preventing squishing/wrapping of action buttons.
+  * A flex layout form where the textarea takes the main space and submit/cancel buttons align nicely on the right (collapsing vertically on mobile).
   * An interactive agreements list table with badges indicating status (Aktif/Tidak Aktif).
   * A dual-purpose card handling both "Tambah Persetujuan" and "Kemaskini Persetujuan". When clicking "Edit" on a row, details populate dynamically using JSON-safe JavaScript bindings.
-  * Direct action buttons to delete (with confirmation alerts) and toggle statuses.
+  * Direct action buttons to delete (with confirmation alerts) and toggle statuses in a single aligned row.
 * **Routing Switch-cases**: Registered `admin_persetujuan`, `admin_persetujuan_save`, `admin_persetujuan_toggle`, and `admin_persetujuan_delete` cases inside [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php) complete with session and CSRF protections.
 * **Sidebar Link**: Appended the "Urus Persetujuan" menu option between "Simulasi Emel" and "Profil Saya" inside [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php).
 
