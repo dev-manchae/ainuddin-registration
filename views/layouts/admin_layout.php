@@ -542,6 +542,17 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Scroll Reveal Animation Styles */
+        .feature-card, .form-card, .card, .stat-card, .profile-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .feature-card.revealed, .form-card.revealed, .card.revealed, .stat-card.revealed, .profile-card.revealed {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
     </style>
 </head>
 

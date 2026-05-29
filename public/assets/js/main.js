@@ -127,19 +127,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     var revealOnScroll = function() {
         revealElements.forEach(function(el) {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
+            el.classList.add('revealed');
         });
     };
 
-    revealElements.forEach(function(el) {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    });
-
     window.addEventListener('scroll', revealOnScroll);
-    // Defer initial reveal to force browser paint of 0 state, enabling the transition
+    // Defer initial reveal to allow browser setup, triggering CSS transitions smoothly
     setTimeout(revealOnScroll, 50); 
 
     // ==========================
