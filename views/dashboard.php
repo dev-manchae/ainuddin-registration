@@ -72,29 +72,31 @@ if (!empty($revisionApps)) {
 
 <?php if ($revisionAlert): ?>
     <div class="alert alert-error" style="background: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-family: inherit;">
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <div style="flex: 1;">
-                <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #b45309;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    Tindakan Diperlukan: Kemaskini Maklumat Permohonan
-                </h4>
-                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #78350f;">
-                    Pentadbir (<strong><?= htmlspecialchars($revisionAlert['nama_admin'] ?? 'Sistem'); ?></strong>) telah meminta pembetulan pada permohonan anda dengan catatan:
-                </p>
-                <div style="background: white; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; margin-top: 10px; font-style: italic; color: #78350f; font-weight: 500; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+        <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #b45309;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Tindakan Diperlukan: Kemaskini Maklumat Permohonan
+        </h4>
+        <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.5; color: #78350f;">
+            Pentadbir (<strong><?= htmlspecialchars($revisionAlert['nama_admin'] ?? 'Sistem'); ?></strong>) telah meminta pembetulan pada permohonan anda dengan catatan:
+        </p>
+        
+        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px;">
+                <div style="background: white; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; font-style: italic; color: #78350f; font-weight: 500; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); min-height: 46px; display: flex; align-items: center;">
                     "<?= nl2br(htmlspecialchars($revisionAlert['catatan'])); ?>"
                 </div>
-                <small style="display: block; margin-top: 8px; color: #b45309; opacity: 0.8; font-size: 11px;">
-                    Diminta pada: <?= date('d/m/Y H:i', strtotime($revisionAlert['tarikh'])); ?>
-                </small>
             </div>
-            <div style="margin-top: 5px;">
-                <a href="?page=resume_permohonan&id=<?= $revisionAlert['id_permohonan']; ?>" class="btn-permohonan" style="background: #d97706; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: white; border-radius: 8px; font-weight: 600; padding: 10px 22px;">
+            <div style="flex-shrink: 0;">
+                <a href="?page=resume_permohonan&id=<?= $revisionAlert['id_permohonan']; ?>" class="btn-permohonan" style="background: #d97706; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: white; border-radius: 8px; font-weight: 600; padding: 10px 22px; height: 46px;">
                     Mula Kemaskini
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </a>
             </div>
         </div>
+        
+        <small style="display: block; margin-top: 8px; color: #b45309; opacity: 0.8; font-size: 11px;">
+            Diminta pada: <?= date('d/m/Y H:i', strtotime($revisionAlert['tarikh'])); ?>
+        </small>
     </div>
 <?php endif; ?>
 

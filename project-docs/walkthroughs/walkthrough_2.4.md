@@ -23,7 +23,10 @@ We have successfully implemented two major administrative enhancements:
   * A dual-purpose card handling both "Tambah Persetujuan" and "Kemaskini Persetujuan". When clicking "Edit" on a row, details populate dynamically using JSON-safe JavaScript bindings.
   * Direct action buttons to delete (with confirmation alerts) and toggle statuses in a single aligned row.
 * **Routing Switch-cases**: Registered `admin_persetujuan`, `admin_persetujuan_save`, `admin_persetujuan_toggle`, and `admin_persetujuan_delete` cases inside [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php) complete with session and CSRF protections.
-* **Sidebar Link**: Appended the "Urus Persetujuan" menu option between "Simulasi Emel" and "Profil Saya" inside [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php).
+### Layout & Alignment Hotfixes
+* **Admin Table Responsive Handling**: Wrapped the table in [senarai.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/senarai.php) with an `overflow-x: auto` card and defined `min-width: 950px` on the table element. Critical data columns (No Rujukan, No KP, Program, Tarikh, Tindakan) are styled with `white-space: nowrap` to prevent text-breaking overlap on smaller screens or browser drag-resizing.
+* **Badge Wrap Protection**: Added `white-space: nowrap` to the global `.badge` class in [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) to prevent text line wrapping inside badges (e.g. "Perlu Kemaskini").
+* **Revision Alert Panel Alignment**: Refactored the alert layout in [dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/dashboard.php) to group the administrator's comments textbox and the "Mula Kemaskini" button into a flex-aligned row matching their heights (`46px`), placing the date label cleanly below.
 
 ---
 

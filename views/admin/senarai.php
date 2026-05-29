@@ -103,18 +103,18 @@
 </div>
 
 <!-- TABLE -->
-<div class="card">
-    <table>
+<div class="card" style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 950px;">
         <thead>
             <tr>
-                <th>No Rujukan</th>
+                <th style="width: 130px;">No Rujukan</th>
                 <th>Pemohon</th>
                 <th>Pelajar</th>
-                <th>No KP</th>
+                <th style="width: 140px;">No KP</th>
                 <th>Program</th>
-                <th>Status</th>
-                <th>Tarikh Hantar</th>
-                <th>Tindakan</th>
+                <th style="width: 140px; text-align: center;">Status</th>
+                <th style="width: 120px;">Tarikh Hantar</th>
+                <th style="width: 100px;">Tindakan</th>
             </tr>
         </thead>
         <tbody>
@@ -125,12 +125,12 @@
             <?php else: ?>
                 <?php foreach ($applications as $row): ?>
                     <tr>
-                        <td><?= htmlspecialchars($row['no_rujukan'] ?? '-'); ?></td>
+                        <td style="white-space: nowrap; font-weight: 600;"><?= htmlspecialchars($row['no_rujukan'] ?? '-'); ?></td>
                         <td><?= htmlspecialchars($row['nama_pemohon']); ?></td>
                         <td><?= htmlspecialchars($row['nama_pelajar'] ?? '-'); ?></td>
-                        <td><?= htmlspecialchars($row['no_kp'] ?? '-'); ?></td>
-                        <td><?= htmlspecialchars($row['program'] ?? '-'); ?></td>
-                        <td>
+                        <td style="white-space: nowrap;"><?= htmlspecialchars($row['no_kp'] ?? '-'); ?></td>
+                        <td style="white-space: nowrap;"><?= htmlspecialchars($row['program'] ?? '-'); ?></td>
+                        <td style="text-align: center; vertical-align: middle;">
                             <?php
                             $badgeClass = 'badge-draft';
                             if ($row['kod_status'] == '03') $badgeClass = 'badge-submitted';
@@ -149,10 +149,10 @@
                             ?>
                             <span class="badge <?= $badgeClass; ?>"><?= $statusLabel; ?></span>
                         </td>
-                        <td>
+                        <td style="white-space: nowrap;">
                             <?= $row['tarikh_hantar'] ? date('d/m/Y', strtotime($row['tarikh_hantar'])) : '-'; ?>
                         </td>
-                        <td>
+                        <td style="white-space: nowrap; vertical-align: middle;">
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <a href="?page=admin_lihat&id=<?= $row['id_permohonan']; ?>" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">Lihat</a>
                                 <?php if ($row['kod_status'] == '04'): ?>

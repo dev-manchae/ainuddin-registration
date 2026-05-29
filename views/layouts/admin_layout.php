@@ -260,6 +260,7 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .badge-draft { background: #fef3c7; color: #92400e; }
