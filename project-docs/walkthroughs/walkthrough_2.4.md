@@ -37,6 +37,8 @@ We have successfully implemented two major administrative enhancements:
 * [lihat.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/lihat.php) - Injected modal markup, custom styles, and click intercept JS.
 * [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php) - Injected navigation link.
 * [persetujuan.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/persetujuan.php) - Created the administrative consent management panel view.
+* [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php) - Injected inline synchronous script block to prevent sidebar toggle flash.
+* [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js) - Added stats/profile cards to fade-in reveal list and deferred trigger timing.
 
 ---
 

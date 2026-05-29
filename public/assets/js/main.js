@@ -123,10 +123,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==========================
     // SCROLL REVEAL ANIMATION
     // ==========================
-    var revealElements = document.querySelectorAll('.feature-card, .form-card, .card');
+    var revealElements = document.querySelectorAll('.feature-card, .form-card, .card, .stat-card, .profile-card');
     
     var revealOnScroll = function() {
-        var windowHeight = window.innerHeight;
         revealElements.forEach(function(el) {
             el.style.opacity = '1';
             el.style.transform = 'translateY(0)';
@@ -140,7 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     window.addEventListener('scroll', revealOnScroll);
-    revealOnScroll(); 
+    // Defer initial reveal to force browser paint of 0 state, enabling the transition
+    setTimeout(revealOnScroll, 50); 
 
     // ==========================
     // INPUT FIELD FOCUS ENHANCEMENT

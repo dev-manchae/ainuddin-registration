@@ -546,6 +546,11 @@
 </head>
 
 <body>
+    <script>
+        if (localStorage.getItem('sidebar_state') === 'collapsed') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    </script>
 
     <div class="main-content">
 
