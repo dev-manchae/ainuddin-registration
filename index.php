@@ -204,7 +204,7 @@ switch ($page) {
         );
 
         if ($id_permohonan === 0) {
-            $_SESSION['error'] = "Gagal mencipta draf permohonan. Sila cuba lagi.";
+            $_SESSION['error'] = "Pendaftaran gagal dimulakan. Sila pastikan sesi pendaftaran aktif sedang dibuka dan kuota belum penuh.";
             header("Location: ?page=dashboard");
             exit;
         }
@@ -248,7 +248,14 @@ switch ($page) {
         AuthMiddleware::check();
         validatePermohonanSession();
 
+        $is_ajax = isset($_GET['ajax']);
+
         if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Sesi tidak sah. Sila muat semula halaman.']);
+                exit;
+            }
             $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
             header("Location: ?page=step1");
             exit;
@@ -256,12 +263,22 @@ switch ($page) {
 
         $permohonanController = new PermohonanController();
 
-        $is_draft = isset($_POST['simpan_dan_keluar']);
+        $is_draft = isset($_POST['simpan_dan_keluar']) || $is_ajax;
         $result = $permohonanController->savePelajar(
             $_POST,
             $_SESSION['id_permohonan'],
             $is_draft
         );
+
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            if ($result === true) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => $result]);
+            }
+            exit;
+        }
 
         if ($result === true) {
 
@@ -309,7 +326,14 @@ switch ($page) {
         AuthMiddleware::check();
         validatePermohonanSession();
 
+        $is_ajax = isset($_GET['ajax']);
+
         if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Sesi tidak sah. Sila muat semula halaman.']);
+                exit;
+            }
             $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
             header("Location: ?page=step2");
             exit;
@@ -317,12 +341,22 @@ switch ($page) {
 
         $permohonanController = new PermohonanController();
 
-        $is_draft = isset($_POST['simpan_dan_keluar']);
+        $is_draft = isset($_POST['simpan_dan_keluar']) || $is_ajax;
         $result = $permohonanController->saveKeluarga(
             $_POST,
             $_SESSION['id_permohonan'],
             $is_draft
         );
+
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            if ($result === true) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => $result]);
+            }
+            exit;
+        }
 
         if ($result === true) {
 
@@ -370,7 +404,14 @@ switch ($page) {
         AuthMiddleware::check();
         validatePermohonanSession();
 
+        $is_ajax = isset($_GET['ajax']);
+
         if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Sesi tidak sah. Sila muat semula halaman.']);
+                exit;
+            }
             $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
             header("Location: ?page=step3");
             exit;
@@ -378,12 +419,22 @@ switch ($page) {
 
         $permohonanController = new PermohonanController();
 
-        $is_draft = isset($_POST['simpan_dan_keluar']);
+        $is_draft = isset($_POST['simpan_dan_keluar']) || $is_ajax;
         $result = $permohonanController->saveAkademik(
             $_POST,
             $_SESSION['id_permohonan'],
             $is_draft
         );
+
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            if ($result === true) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => $result]);
+            }
+            exit;
+        }
 
         if ($result === true) {
 
@@ -431,7 +482,14 @@ switch ($page) {
         AuthMiddleware::check();
         validatePermohonanSession();
 
+        $is_ajax = isset($_GET['ajax']);
+
         if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Sesi tidak sah. Sila muat semula halaman.']);
+                exit;
+            }
             $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
             header("Location: ?page=step4");
             exit;
@@ -439,12 +497,22 @@ switch ($page) {
 
         $permohonanController = new PermohonanController();
 
-        $is_draft = isset($_POST['simpan_dan_keluar']);
+        $is_draft = isset($_POST['simpan_dan_keluar']) || $is_ajax;
         $result = $permohonanController->saveKesihatan(
             $_POST,
             $_SESSION['id_permohonan'],
             $is_draft
         );
+
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            if ($result === true) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => $result]);
+            }
+            exit;
+        }
 
         if ($result === true) {
 
@@ -492,7 +560,14 @@ switch ($page) {
         AuthMiddleware::check();
         validatePermohonanSession();
 
+        $is_ajax = isset($_GET['ajax']);
+
         if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Sesi tidak sah. Sila muat semula halaman.']);
+                exit;
+            }
             $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
             header("Location: ?page=step5");
             exit;
@@ -500,12 +575,22 @@ switch ($page) {
 
         $permohonanController = new PermohonanController();
 
-        $is_draft = isset($_POST['simpan_dan_keluar']);
+        $is_draft = isset($_POST['simpan_dan_keluar']) || $is_ajax;
         $result = $permohonanController->saveDokumen(
             $_FILES,
             $_SESSION['id_permohonan'],
             $is_draft
         );
+
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            if ($result === true) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => $result]);
+            }
+            exit;
+        }
 
         if ($result === true) {
 
@@ -982,6 +1067,96 @@ switch ($page) {
         require_once "views/layouts/admin_layout.php";
 
         break;
+
+    case 'admin_intakes':
+
+        AdminMiddleware::check();
+
+        $adminController = new AdminController();
+
+        $intakes = $adminController->getIntakes();
+
+        $content = "views/admin/intakes.php";
+
+        require_once "views/layouts/admin_layout.php";
+
+        break;
+
+    case 'admin_intake_save':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_intakes");
+            exit;
+        }
+
+        $adminController = new AdminController();
+        $id = $_POST['id_intake'] ?? null;
+
+        if ($id) {
+            $result = $adminController->updateIntake($id, $_POST);
+        } else {
+            $result = $adminController->addIntake($_POST);
+        }
+
+        if ($result === true) {
+            $_SESSION['success'] = "Sesi pendaftaran berjaya disimpan.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=admin_intakes");
+        exit;
+
+    case 'admin_intake_toggle':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_intakes");
+            exit;
+        }
+
+        $id = $_POST['id_intake'] ?? $_GET['id'] ?? 0;
+
+        $adminController = new AdminController();
+        $result = $adminController->toggleIntakeStatus($id);
+
+        if ($result === true) {
+            $_SESSION['success'] = "Status sesi pendaftaran berjaya ditukar.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=admin_intakes");
+        exit;
+
+    case 'admin_intake_delete':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_intakes");
+            exit;
+        }
+
+        $id = $_POST['id_intake'] ?? $_GET['id'] ?? 0;
+
+        $adminController = new AdminController();
+        $result = $adminController->deleteIntake($id);
+
+        if ($result === true) {
+            $_SESSION['success'] = "Sesi pendaftaran berjaya dipadam.";
+        } else {
+            $_SESSION['error'] = $result;
+        }
+
+        header("Location: ?page=admin_intakes");
+        exit;
 
     case 'admin_persetujuan':
 

@@ -1,83 +1,114 @@
-# Implementation Plan - User Profile & Security Settings
+# Implementation Plan - Intake/Batch Management & Step Wizard Auto-Save
 
-This milestone implements the **User Profile & Security Settings** module. It provides self-contained user configurations (personal details, security parameters, and password adjustments) for both normal applicants and administrators, keeping the core wizard/business flows intact.
+We will implement two major architectural updates to the Tahfiz Ainuddin Registration System:
+1. **Intake/Batch Management System**: Allows admins to define registration sessions, set opening/closing dates, configure student application limits (quotas), toggle intake statuses, and restrict/disable new student registrations if no active intake session exists or quotas are full.
+2. **Step Wizard AJAX Auto-Save**: Integrates a background autosaving mechanism on the parent registration form (Steps 1 to 5) using debounced JavaScript `fetch` calls, so progress is saved as a draft without requiring manual submission.
+
+---
 
 ## User Review Required
 
-Please review the following design and security decisions:
 > [!IMPORTANT]
-> * **Lockout Parameters**: We will enforce a **5 failed consecutive login attempts** lockout policy. Once locked out, the account is temporarily disabled for **15 minutes**.
-> * **Email Changes**: For data consistency and identifier integrity, the email field will be displayed in the profile but locked (read-only) to prevent accidental log-in conflicts.
-> * **Shared Profile Layout**: A unified profile page design is proposed that adapts automatically to the logged-in user's role (rendering the admin sidebar layout for admins, and the standard web header layout for parents).
+> **Database Execution**: The new `intake_batch` table structure must be established by running `database/setup_intake.php`. This migration will automatically register a default active session (`Sesi Akademik 2026/2027`) and update any existing applications in the database to link to it to keep historical data intact.
 
-## Open Questions
-* *None at this time.*
+---
 
 ## Proposed Changes
 
-### 1. Database Schema Update
+### Component 1: Database Setup
+#### [NEW] [setup_intake.php](file:///d:/xampp/htdocs/ainuddin-registration/database/setup_intake.php)
+* Create `intake_batch` table:
+  * `id_intake` INT AUTO_INCREMENT PRIMARY KEY
+  * `nama_intake` VARCHAR(100) NOT NULL
+  * `tarikh_buka` DATE NOT NULL
+  * `tarikh_tutup` DATE NOT NULL
+  * `had_pelajar` INT DEFAULT 0 (0 for unlimited quota)
+  * `status` CHAR(1) NOT NULL DEFAULT 'Y' ('Y' = Aktif, 'T' = Tidak Aktif)
+  * `tarikh_cipta` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+* Seed a default active intake: `Sesi Akademik 2026/2027` (running from Jan 1st to Dec 31st of the current year, active status, quota: 100).
+* Migrate existing applications: run `UPDATE permohonan SET id_intake = {new_seeded_id} WHERE id_intake IS NULL`.
 
-#### [NEW] [migrate_lockout.php](file:///d:/xampp/htdocs/ainuddin-registration/database/migrate_lockout.php)
-Create a migration script to add security columns to the `pengguna` table:
-* `failed_logins` (INT, default 0) to track consecutive failed login attempts.
-* `lockout_time` (DATETIME, NULL) to log when the lockout starts.
+---
 
-### 2. Profile Controller Logic
+### Component 2: Intake Control Panel & Controllers
+#### [MODIFY] [AdminController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AdminController.php)
+* Add CRUD methods for managing intakes:
+  * `getIntakes()`: Returns all intake records.
+  * `addIntake($data)`: Validates dates (Start Date $\le$ End Date) and inserts a new session.
+  * `updateIntake($id, $data)`: Updates details of an existing session.
+  * `toggleIntakeStatus($id)`: Toggles active state between `Y` and `T`.
+  * `deleteIntake($id)`: Deletes an intake session. Safety check: prevents deletion if any student applications are already linked to it in `permohonan`.
 
-#### [NEW] [ProfileController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/ProfileController.php)
-Create a new controller containing:
-* `getProfile($id_pengguna)`: Fetches current user details.
-* `updateProfile($id_pengguna, $data)`: Validates and updates `nama_penuh` and formatted `no_telefon`.
-* `changePassword($id_pengguna, $data)`: Validates the current password, verifies the new password length and matches, hashes the new password using BCRYPT, and updates the database.
+#### [MODIFY] [PermohonanController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/PermohonanController.php)
+* Add `getActiveIntake()`: Query active sessions where `status = 'Y'` and `CURDATE() BETWEEN tarikh_buka AND tarikh_tutup`. If a quota limit `had_pelajar > 0` is set, check it against submitted applications.
+* Modify `createDraft($id_pengguna)`: Verify `getActiveIntake()`. If none exists or quota is exceeded, block draft initialization and return `0`. Assign `id_intake` to the new application record.
 
-#### [MODIFY] [AuthController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AuthController.php)
-Modify `login($data)` to incorporate the lockout mechanism:
-* Check if the account is currently locked out by comparing the current timestamp with `lockout_time + 15 minutes`. If locked, reject the login immediately with a lockout notice.
-* If login fails, increment `failed_logins`. If it reaches 5, set `lockout_time` to the current timestamp.
-* If login succeeds, reset `failed_logins` and `lockout_time` to 0/NULL.
-
-### 3. Front-End Views
-
-#### [NEW] [profil.php](file:///d:/xampp/htdocs/ainuddin-registration/views/profile/profil.php)
-Create the profile settings page view:
-* **Maklumat Peribadi Form**: Input fields for Name and Phone Number (with the live formatting script).
-* **Tukar Kata Laluan Form**: Input fields for Current Password, New Password, and Confirm Password.
-* **Password Strength Indicator**: JavaScript-driven real-time strength bars:
-  * **Weak (Red)**: < 8 characters or only letters.
-  * **Medium (Yellow)**: >= 8 characters with a mix of letters and numbers.
-  * **Strong (Green)**: >= 8 characters with uppercase letters, numbers, and special symbols.
-* **Responsive Layout Styling**: Uses clean CSS classes (matching the Poppins design system) to render forms inside a dual-card layout.
-
-#### [MODIFY] [header.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/header.php)
-* Insert a link to `Profil Saya` (`?page=profil`) in the user navigation menu.
+#### [NEW] [intakes.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/intakes.php)
+* Build the Intake Management UI:
+  * Stacked layout matching `views/admin/persetujuan.php`.
+  * Top: Dual-purpose Card ("Tambah Sesi" / "Kemaskini Sesi").
+  * Bottom: Table listing all intakes with active/inactive status badges, application counts, and action buttons (Edit, Tukar Status, Padam).
 
 #### [MODIFY] [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php)
-* Insert a link to `Profil Saya` (`?page=profil`) in the admin navigation sidebar.
-
-### 4. Router Adjustments
+* Append the sidebar navigation link: "Urus Sesi Pendaftaran" (`?page=admin_intakes`).
 
 #### [MODIFY] [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php)
-Add routes for profile pages:
-* `profil`: Verifies auth session, instantiates `ProfileController`, handles rendering, and processes POST updates for both personal details and password changes.
+* Register routing switch-cases:
+  * `admin_intakes` -> Renders `views/admin/intakes.php` in `admin_layout.php`.
+  * `admin_intake_save`, `admin_intake_toggle`, `admin_intake_delete` -> Run controller actions and redirect back with status alerts.
+* Secure all new cases with admin middleware check and CSRF protection.
+
+---
+
+### Component 3: Parent Registration Control
+#### [MODIFY] [dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/dashboard.php)
+* Check `getActiveIntake()`. If closed:
+  * Disable the **+ Permohonan Baru** action button.
+  * Display a clear slate-themed warning container alerting parent users: *"Pendaftaran pelajar baharu ditutup buat sementara waktu."*
+
+---
+
+### Component 4: AJAX Auto-Save Step Wizard
+#### [MODIFY] [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php)
+* In cases `save_step1` to `save_step5`:
+  * Detect `isset($_GET['ajax'])` requests.
+  * If true: Skip browser redirect headers. Run the controller save method as a draft.
+  * Return JSON response: `{"success": true}` or `{"success": false, "error": "Reason"}` and `exit;`.
+
+#### [MODIFY] [registration_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/registration_layout.php)
+* Insert a hidden container inside `.wizard-card` to render the auto-save indicator:
+  ```html
+  <div id="autosave-status" class="autosave-indicator" style="display:none;"></div>
+  ```
+
+#### [MODIFY] [main.css](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/css/main.css)
+* Add CSS styling rules for the `.autosave-indicator`:
+  * Absolute positioning in the top right of the form card.
+  * Rounded background, tiny typography, and color variables mapping saving states (Blue for saving, green for success, red for errors).
+
+#### [MODIFY] [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js)
+* Write auto-save background listener:
+  * Target forms with ID `stepForm` whose action targets steps 1 to 5.
+  * Intercept input and select elements' change/keystroke actions.
+  * Implement a `1000ms` debounce timer.
+  * Post a serialised `FormData` payload using browser `fetch` to `form.action + '&ajax=1'`.
+  * Manage states visually inside the `#autosave-status` indicator container.
 
 ---
 
 ## Verification Plan
 
 ### Automated/Syntax Tests
-* Validate PHP syntax across all modified and new controller, router, and view files:
-  `php -l app/controllers/ProfileController.php views/profile/profil.php index.php`
+* Lint all modified PHP controller and layout views using:
+  `d:\xampp\php\php.exe -l {filename}`
 
 ### Manual Verification
-1. **Test Profile Updates**:
-   * Navigate to **Profil Saya**. Update your name and phone number.
-   * Verify that details are updated instantly in the database and displayed correctly in the header or admin panel.
-2. **Test Password Change**:
-   * Change your password by typing a mismatching confirmation or incorrect current password. Verify that error alerts display.
-   * Change password with a weak password (< 8 chars). Verify it gets rejected.
-   * Type a strong password. Confirm the visual strength bar changes to green.
-   * Change it successfully and log back in to verify the new password works.
-3. **Test Brute-Force Lockout**:
-   * Go to the login page and type the wrong password 5 times consecutively.
-   * Verify that the system locks you out and shows a message: `Akaun anda telah disekat selama 15 minit kerana cubaan log masuk gagal yang berlebihan.`
-   * Wait or mock the lockout time database column, try logging in with the correct password, and verify you are granted access.
+1. **Database Script**: Run `php database/setup_intake.php`. Verify that the script succeeds and seeds the default intake.
+2. **Admin Intake Control**: Log in as admin, go to **Urus Sesi Pendaftaran**. Create a new intake, toggle status, and edit details. Confirm changes sync to database.
+3. **Registration Restrictions**:
+   * Disable/deactivate all intakes in the admin panel. Log in as parent. Confirm "+ Permohonan Baru" is disabled and the warning banner displays.
+   * Enable the intake session. Verify registrations can proceed.
+4. **AJAX Wizard Auto-Save**:
+   * Open the wizard step 1. Type in the student name. Confirm a small `"Menyimpan draf..."` message displays and transforms to `"Draf disimpan"` in green.
+   * Refresh page to verify values persist.
+5. **CSRF Enforcement**: Verify that AJAX auto-saves include the CSRF token and execute securely.

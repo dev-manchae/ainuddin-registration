@@ -147,6 +147,104 @@ document.addEventListener('DOMContentLoaded', function() {
             this.parentElement.classList.remove('focused');
         });
     });
+
+    // ==========================
+    // STEP WIZARD AUTO-SAVE DRAFTS
+    // ==========================
+    const stepForm = document.getElementById('stepForm');
+    const autosaveStatus = document.getElementById('autosave-status');
+    
+    if (stepForm && autosaveStatus) {
+        const formAction = stepForm.getAttribute('action') || '';
+        
+        // We only autosave on registration wizard steps 1 to 5
+        const isWizardStep = /save_step[1-5]/.test(formAction);
+        
+        if (isWizardStep) {
+            let debounceTimer;
+            
+            const showStatus = function(state, message) {
+                autosaveStatus.style.display = 'inline-flex';
+                autosaveStatus.className = 'autosave-indicator ' + state;
+                
+                let icon = '';
+                if (state === 'saving') {
+                    icon = '<span class="autosave-spinner" style="display:inline-block; width:10px; height:10px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite; margin-right: 5px;"></span> ';
+                } else if (state === 'success') {
+                    icon = '✓ ';
+                } else if (state === 'error') {
+                    icon = '⚠️ ';
+                }
+                
+                autosaveStatus.innerHTML = icon + message;
+                
+                if (state === 'success') {
+                    // Hide success status after 3 seconds
+                    setTimeout(function() {
+                        if (autosaveStatus.classList.contains('success')) {
+                            autosaveStatus.style.opacity = '0';
+                            setTimeout(function() {
+                                if (autosaveStatus.style.opacity === '0') {
+                                    autosaveStatus.style.display = 'none';
+                                    autosaveStatus.style.opacity = '1';
+                                }
+                            }, 300);
+                        }
+                    }, 3000);
+                }
+            };
+            
+            const triggerAutosave = function() {
+                showStatus('saving', 'Menyimpan draf...');
+                
+                const formData = new FormData(stepForm);
+                const url = formAction + '&ajax=1';
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    if (!response.ok) throw new Error('HTTP error ' + response.status);
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.success) {
+                        showStatus('success', 'Draf disimpan');
+                    } else {
+                        showStatus('error', data.error || 'Gagal menyimpan draf');
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Autosave error:', err);
+                    showStatus('error', 'Gagal menyambung ke pelayan');
+                });
+            };
+            
+            const queueAutosave = function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(triggerAutosave, 1200); // 1.2 second debounce
+            };
+            
+            // Listen to inputs, textareas, and select elements
+            const formElements = stepForm.querySelectorAll('input, select, textarea');
+            formElements.forEach(function(el) {
+                // File inputs should save immediately on change rather than debounced keyup
+                if (el.type === 'file') {
+                    el.addEventListener('change', function() {
+                        setTimeout(function() {
+                            if (el.value !== '') {
+                                triggerAutosave();
+                            }
+                        }, 50);
+                    });
+                } else {
+                    el.addEventListener('input', queueAutosave);
+                    el.addEventListener('change', queueAutosave);
+                }
+            });
+        }
+    }
 });
 
 // ==========================

@@ -115,7 +115,9 @@ $isSuccessPage = (isset($content) && $content === "views/registration/success.ph
         </div>
     <?php endif; ?>
 
-    <div class="wizard-card">
+    <div class="wizard-card" style="position: relative;">
+        <!-- Auto-save Status Indicator -->
+        <div id="autosave-status" class="autosave-indicator" style="display: none;"></div>
         <?php if (!$isSuccessPage): ?>
             <?php
             $steps = [

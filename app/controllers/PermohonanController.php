@@ -52,6 +52,42 @@ class PermohonanController {
     }
 
     // =========================
+    // GET ACTIVE INTAKE BATCH
+    // =========================
+    public function getActiveIntake() {
+        try {
+            // Find active intake matching current date range
+            $stmt = $this->pdo->query("
+                SELECT * FROM intake_batch 
+                WHERE status = 'Y' 
+                AND CURDATE() BETWEEN tarikh_buka AND tarikh_tutup
+                LIMIT 1
+            ");
+            $intake = $stmt->fetch();
+            if (!$intake) {
+                return null;
+            }
+
+            // If a quota is defined, check how many applications have been submitted
+            if ($intake['had_pelajar'] > 0) {
+                $countStmt = $this->pdo->prepare("
+                    SELECT COUNT(*) FROM permohonan 
+                    WHERE id_intake = ? AND kod_status != '00'
+                ");
+                $countStmt->execute([$intake['id_intake']]);
+                $submitted = (int)$countStmt->fetchColumn();
+                if ($submitted >= (int)$intake['had_pelajar']) {
+                    return null; // Intake is full
+                }
+            }
+
+            return $intake;
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    // =========================
     // CREATE DRAFT
     // =========================
     public function createDraft($id_pengguna) {
@@ -79,16 +115,23 @@ class PermohonanController {
             }
         }
 
+        // Validate that an active registration intake is available
+        $activeIntake = $this->getActiveIntake();
+        if (!$activeIntake) {
+            return 0; // Block draft creation if closed
+        }
+
         $stmt = $this->pdo->prepare("
             INSERT INTO permohonan (
                 id_pengguna,
                 kod_status,
+                id_intake,
                 langkah_semasa
             )
-            VALUES (?, '00', 1)
+            VALUES (?, '00', ?, 1)
         ");
 
-        $stmt->execute([$id_pengguna]);
+        $stmt->execute([$id_pengguna, $activeIntake['id_intake']]);
 
         $newId = (int) $this->pdo->lastInsertId();
 

@@ -667,4 +667,129 @@ class AdminController {
             return "Ralat memadam rekod: " . $e->getMessage();
         }
     }
+
+    // =========================
+    // GET ALL INTAKES
+    // =========================
+    public function getIntakes() {
+        try {
+            $stmt = $this->pdo->query("
+                SELECT ib.*, COUNT(p.id_permohonan) as total_permohonan
+                FROM intake_batch ib
+                LEFT JOIN permohonan p ON ib.id_intake = p.id_intake AND p.kod_status != '00'
+                GROUP BY ib.id_intake
+                ORDER BY ib.tarikh_buka DESC
+            ");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    // =========================
+    // ADD NEW INTAKE
+    // =========================
+    public function addIntake($data) {
+        $nama = trim($data['nama_intake'] ?? '');
+        $buka = trim($data['tarikh_buka'] ?? '');
+        $tutup = trim($data['tarikh_tutup'] ?? '');
+        $limit = (int)($data['had_pelajar'] ?? 0);
+
+        if (empty($nama)) {
+            return "Nama sesi pendaftaran tidak boleh kosong.";
+        }
+        if (empty($buka) || empty($tutup)) {
+            return "Tarikh buka dan tarikh tutup wajib diisi.";
+        }
+        if (strtotime($buka) > strtotime($tutup)) {
+            return "Tarikh buka tidak boleh melebihi tarikh tutup.";
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO intake_batch (nama_intake, tarikh_buka, tarikh_tutup, had_pelajar, status)
+                VALUES (?, ?, ?, ?, 'Y')
+            ");
+            $stmt->execute([$nama, $buka, $tutup, $limit]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat menambah rekod: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // UPDATE EXISTING INTAKE
+    // =========================
+    public function updateIntake($id, $data) {
+        $id = (int)$id;
+        $nama = trim($data['nama_intake'] ?? '');
+        $buka = trim($data['tarikh_buka'] ?? '');
+        $tutup = trim($data['tarikh_tutup'] ?? '');
+        $limit = (int)($data['had_pelajar'] ?? 0);
+
+        if (empty($nama)) {
+            return "Nama sesi pendaftaran tidak boleh kosong.";
+        }
+        if (empty($buka) || empty($tutup)) {
+            return "Tarikh buka dan tarikh tutup wajib diisi.";
+        }
+        if (strtotime($buka) > strtotime($tutup)) {
+            return "Tarikh buka tidak boleh melebihi tarikh tutup.";
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE intake_batch 
+                SET nama_intake = ?, tarikh_buka = ?, tarikh_tutup = ?, had_pelajar = ?
+                WHERE id_intake = ?
+            ");
+            $stmt->execute([$nama, $buka, $tutup, $limit, $id]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat mengemaskini rekod: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // TOGGLE INTAKE STATUS
+    // =========================
+    public function toggleIntakeStatus($id) {
+        $id = (int)$id;
+        try {
+            $stmt = $this->pdo->prepare("SELECT status FROM intake_batch WHERE id_intake = ?");
+            $stmt->execute([$id]);
+            $current = $stmt->fetchColumn();
+            if (!$current) {
+                return "Sesi tidak dijumpai.";
+            }
+
+            $newStatus = ($current == 'Y') ? 'T' : 'Y';
+            $stmt = $this->pdo->prepare("UPDATE intake_batch SET status = ? WHERE id_intake = ?");
+            $stmt->execute([$newStatus, $id]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat menukar status: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // DELETE INTAKE
+    // =========================
+    public function deleteIntake($id) {
+        $id = (int)$id;
+        try {
+            // Check if any applications exist for this intake
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM permohonan WHERE id_intake = ?");
+            $stmt->execute([$id]);
+            if ($stmt->fetchColumn() > 0) {
+                return "Tidak boleh memadam sesi pendaftaran ini kerana terdapat permohonan yang menggunakan sesi ini.";
+            }
+
+            $stmt = $this->pdo->prepare("DELETE FROM intake_batch WHERE id_intake = ?");
+            $stmt->execute([$id]);
+            return true;
+        } catch (PDOException $e) {
+            return "Ralat memadam rekod: " . $e->getMessage();
+        }
+    }
 }

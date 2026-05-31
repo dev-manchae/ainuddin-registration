@@ -32,6 +32,9 @@ if (!empty($revisionApps)) {
         $revisionAlert['id_permohonan'] = $revApp['id_permohonan'];
     }
 }
+
+// Query active intake batch
+$activeIntake = $permCtrl->getActiveIntake();
 ?>
 
 <style>
@@ -65,10 +68,24 @@ if (!empty($revisionApps)) {
     </div>
     <?php if ($hasActive): ?>
         <button class="btn-permohonan disabled" disabled title="Anda mempunyai permohonan aktif. Sila lengkapkan atau padam sebelum membuat yang baru.">+ Permohonan Baru</button>
+    <?php elseif (!$activeIntake): ?>
+        <button class="btn-permohonan disabled" disabled title="Pendaftaran ditutup buat sementara waktu.">+ Permohonan Baru</button>
     <?php else: ?>
         <a href="?page=mula_permohonan" class="btn-permohonan">+ Permohonan Baru</a>
     <?php endif; ?>
 </div>
+
+<?php if (!$activeIntake): ?>
+    <div class="alert alert-info" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); font-family: inherit;">
+        <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #334155;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            Pendaftaran Ditutup
+        </h4>
+        <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #475569;">
+            Maaf, sesi pendaftaran pelajar baharu Tahfiz Ainuddin telah ditutup buat sementara waktu atau kuota pengambilan pelajar bagi sesi semasa telah penuh. Sila hubungi pentadbiran untuk maklumat lanjut.
+        </p>
+    </div>
+<?php endif; ?>
 
 <?php if ($revisionAlert): ?>
     <div class="alert alert-error" style="background: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-family: inherit;">
