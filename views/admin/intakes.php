@@ -143,21 +143,21 @@
                                 <?php endif; ?>
                             </td>
                             <td style="text-align: center; vertical-align: middle;">
-                                <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                <div style="display: flex; gap: 8px; justify-content: center; align-items: center; white-space: nowrap;">
                                     <button type="button" 
                                             onclick="editIntake(<?= $intake['id_intake']; ?>, <?= htmlspecialchars(json_encode($intake['nama_intake']), ENT_QUOTES, 'UTF-8'); ?>, '<?= $intake['tarikh_buka']; ?>', '<?= $intake['tarikh_tutup']; ?>', <?= (int)$intake['had_pelajar']; ?>)" 
                                             class="btn btn-primary" 
-                                            style="padding: 6px 14px; font-size: 12px; border-radius: 6px;">
+                                            style="padding: 6px 14px; font-size: 12px; border-radius: 6px; white-space: nowrap;">
                                         Edit
                                     </button>
                                     <a href="?page=admin_intake_toggle&id=<?= $intake['id_intake']; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>" 
                                        class="btn btn-teal" 
-                                       style="padding: 6px 14px; font-size: 12px; border-radius: 6px; background: var(--teal); color: white;">
+                                       style="padding: 6px 14px; font-size: 12px; border-radius: 6px; background: var(--teal); color: white; white-space: nowrap;">
                                         Tukar Status
                                     </a>
                                     <a href="?page=admin_intake_delete&id=<?= $intake['id_intake']; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>" 
                                        class="btn btn-danger" 
-                                       style="padding: 6px 14px; font-size: 12px; border-radius: 6px;" 
+                                       style="padding: 6px 14px; font-size: 12px; border-radius: 6px; white-space: nowrap;" 
                                        onclick="return confirm('Adakah anda pasti mahu memadam sesi pendaftaran ini?');">
                                         Padam
                                     </a>
