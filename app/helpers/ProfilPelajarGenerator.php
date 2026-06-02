@@ -77,25 +77,25 @@ class ProfilPelajarGenerator extends FPDF
 
         $this->SetFont('Arial', 'B', 8.5);
         $this->SetFillColor(241, 245, 249);
-        $this->Cell(25, 6.5, "  No. Rujukan", 1, 0, 'L', true);
+        $this->Cell(24, 6.5, "  No. Rujukan", 1, 0, 'L', true);
         $this->SetFont('Arial', '', 8.5);
         $this->Cell(25, 6.5, "  " . $noRujukan, 1, 0, 'L');
         
         $this->SetFont('Arial', 'B', 8.5);
         $this->Cell(22, 6.5, "  No. Pelajar", 1, 0, 'L', true);
         $this->SetFont('Arial', '', 8.5);
-        $this->Cell(25, 6.5, "  " . $noPelajar, 1, 0, 'L');
+        $this->Cell(28, 6.5, "  " . $noPelajar, 1, 0, 'L');
 
         $this->SetFont('Arial', 'B', 8.5);
         $this->Cell(22, 6.5, "  Tarikh Cetak", 1, 0, 'L', true);
         $this->SetFont('Arial', '', 8.5);
-        $this->Cell(25, 6.5, "  " . date('d/m/Y'), 1, 0, 'L');
+        $this->Cell(22, 6.5, "  " . date('d/m/Y'), 1, 0, 'L');
         
         $this->SetFont('Arial', 'B', 8.5);
         $this->Cell(22, 6.5, "  Status", 1, 0, 'L', true);
         $this->SetFont('Arial', 'B', 8.5);
         $this->SetTextColor(30, 86, 49);
-        $this->Cell(24, 6.5, "  " . $statusPerihal, 1, 1, 'L');
+        $this->Cell(25, 6.5, "  " . $statusPerihal, 1, 1, 'L');
         $this->SetTextColor(30, 41, 59);
 
         $this->Ln(5);
