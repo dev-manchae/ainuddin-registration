@@ -64,7 +64,14 @@ $activeIntake = $permCtrl->getActiveIntake();
 <div class="student-header">
     <div>
         <h2>Selamat datang, <?= htmlspecialchars($_SESSION['nama_penuh']); ?></h2>
-        <div class="subtext">Urus permohonan pendaftaran pelajar anda</div>
+        <div class="subtext">
+            Urus permohonan pendaftaran pelajar anda
+            <?php if ($activeIntake): ?>
+                <span style="display: block; margin-top: 4px; font-size: 13px; color: #1e5631; font-weight: 600;">
+                    Sesi Aktif: <?= htmlspecialchars($activeIntake['nama_intake']); ?> (Tutup: <?= date('d/m/Y', strtotime($activeIntake['tarikh_tutup'])); ?>)
+                </span>
+            <?php endif; ?>
+        </div>
     </div>
     <?php if ($hasActive): ?>
         <button class="btn-permohonan disabled" disabled title="Anda mempunyai permohonan aktif. Sila lengkapkan atau padam sebelum membuat yang baru.">+ Permohonan Baru</button>
@@ -162,14 +169,30 @@ $activeIntake = $permCtrl->getActiveIntake();
                     <td>
                         <div class="action-group">
                             <?php if ($app['kod_status'] == '00'): ?>
-                                <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link">Sambung</a>
+                                <?php 
+                                $currentDate = date('Y-m-d');
+                                $intakeActive = ($app['intake_status'] ?? 'N') === 'Y';
+                                $isClosed = ($currentDate < ($app['intake_buka'] ?? '1970-01-01') || $currentDate > ($app['intake_tutup'] ?? '9999-12-31'));
+                                ?>
+                                <?php if (!$intakeActive || $isClosed): ?>
+                                    <span class="badge badge-rejected" style="background: #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px;" title="Sesi pendaftaran telah tamat tempoh atau ditutup.">Tamat Tempoh</span>
+                                <?php else: ?>
+                                    <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link">Sambung</a>
+                                <?php endif; ?>
                                 <form method="POST" action="?page=delete_permohonan" onsubmit="return confirm('Adakah anda pasti ingin memadam draf ini?');">
                                     <?= csrfField(); ?>
                                     <input type="hidden" name="id_permohonan" value="<?= $app['id_permohonan']; ?>">
                                     <button type="submit" class="action-link action-delete">Padam</button>
                                 </form>
                             <?php elseif ($app['kod_status'] == '08'): ?>
-                                <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link" style="background: #f59e0b; color: white;">Kemaskini</a>
+                                <?php 
+                                $intakeActive = ($app['intake_status'] ?? 'N') === 'Y';
+                                ?>
+                                <?php if (!$intakeActive): ?>
+                                    <span class="badge badge-rejected" style="background: #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px;" title="Sesi pendaftaran telah ditutup sepenuhnya.">Sesi Ditutup</span>
+                                <?php else: ?>
+                                    <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link" style="background: #f59e0b; color: white;">Kemaskini</a>
+                                <?php endif; ?>
                             <?php elseif ($app['kod_status'] == '04'): ?>
                                 <a href="?page=cetak_surat_tawaran" target="_blank" class="action-link" style="background: var(--teal); color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Tawaran</a>
                                 <a href="?page=download_peraturan" target="_blank" class="action-link" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Peraturan</a>

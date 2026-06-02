@@ -966,6 +966,35 @@ switch ($page) {
         $generator->Output('I', 'Surat_Tawaran_MTA.pdf');
         exit;
 
+    case 'admin_cetak_profil':
+
+        AdminMiddleware::check();
+
+        $id_permohonan = $_GET['id'] ?? 0;
+
+        $adminController = new AdminController();
+        $detail = $adminController->getApplicationDetail($id_permohonan);
+
+        if (!$detail) {
+            $_SESSION['error'] = "Permohonan tidak sah.";
+            header("Location: ?page=admin_senarai");
+            exit;
+        }
+
+        $pdo = getConnection();
+        $stmt = $pdo->prepare("SELECT jenis_dokumen, nama_fail FROM dokumen WHERE id_permohonan = ?");
+        $stmt->execute([$id_permohonan]);
+        $docsList = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $detail['dokumen_list'] = $docsList;
+
+        $noRujukan = $detail['permohonan']['no_rujukan'] ?? 'Draf';
+
+        require_once "app/helpers/ProfilPelajarGenerator.php";
+        $generator = new ProfilPelajarGenerator($detail);
+        $generator->generate();
+        $generator->Output('I', 'Profil_Pelajar_' . $noRujukan . '.pdf');
+        exit;
+
     case 'admin_dashboard':
 
         AdminMiddleware::check();
@@ -1184,6 +1213,60 @@ switch ($page) {
         header("Location: ?page=admin_intakes");
         exit;
 
+    case 'admin_email_templates':
+
+        AdminMiddleware::check();
+
+        $pdo = getConnection();
+        $stmt = $pdo->query("SELECT template_key, subject, content, tarikh_kemaskini FROM email_templates ORDER BY template_key ASC");
+        $templates = $stmt->fetchAll();
+
+        $activeKey = $_GET['key'] ?? 'pendaftaran_diterima';
+        $stmtActive = $pdo->prepare("SELECT template_key, subject, content, tarikh_kemaskini FROM email_templates WHERE template_key = ?");
+        $stmtActive->execute([$activeKey]);
+        $activeTemplate = $stmtActive->fetch();
+
+        if (!$activeTemplate && !empty($templates)) {
+            $activeTemplate = $templates[0];
+        }
+
+        $content = "views/admin/email_templates.php";
+
+        require_once "views/layouts/admin_layout.php";
+
+        break;
+
+    case 'admin_email_templates_save':
+
+        AdminMiddleware::check();
+
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Sesi tidak sah. Sila muat semula halaman.";
+            header("Location: ?page=admin_email_templates");
+            exit;
+        }
+
+        $key = $_POST['template_key'] ?? '';
+        $subject = trim($_POST['subject'] ?? '');
+        $contentTemplate = trim($_POST['content'] ?? '');
+
+        if (empty($key) || empty($subject) || empty($contentTemplate)) {
+            $_SESSION['error'] = "Sila lengkapkan semua medan wajib.";
+            header("Location: ?page=admin_email_templates&key=" . urlencode($key));
+            exit;
+        }
+
+        $pdo = getConnection();
+        $stmt = $pdo->prepare("UPDATE email_templates SET subject = ?, content = ? WHERE template_key = ?");
+        $stmt->execute([$subject, $contentTemplate, $key]);
+
+        require_once "app/helpers/AuditLogger.php";
+        AuditLogger::log("Kemaskini Templat Emel", "Templat: " . $key);
+
+        $_SESSION['success'] = "Templat emel berjaya dikemaskini.";
+        header("Location: ?page=admin_email_templates&key=" . urlencode($key));
+        exit;
+
     case 'admin_persetujuan':
 
         AdminMiddleware::check();
@@ -1344,14 +1427,35 @@ function validatePermohonanSession() {
 
     $pdo = getConnection();
     $stmt = $pdo->prepare("
-        SELECT id_permohonan FROM permohonan 
-        WHERE id_permohonan = ? AND id_pengguna = ? AND kod_status IN ('00', '08')
+        SELECT p.id_permohonan, p.kod_status, ib.status, ib.tarikh_buka, ib.tarikh_tutup 
+        FROM permohonan p
+        LEFT JOIN intake_batch ib ON p.id_intake = ib.id_intake
+        WHERE p.id_permohonan = ? AND p.id_pengguna = ? AND p.kod_status IN ('00', '08')
     ");
     $stmt->execute([$id, $_SESSION['id_pengguna']]);
+    $row = $stmt->fetch();
 
-    if (!$stmt->fetch()) {
+    if (!$row) {
         unset($_SESSION['id_permohonan']);
         $_SESSION['error'] = "Permohonan tidak sah atau telah dikemaskini. Sila mula permohonan baharu.";
+        header("Location: ?page=dashboard");
+        exit;
+    }
+
+    $intakeActive = ($row['status'] ?? 'N') === 'Y';
+    $currentDate = date('Y-m-d');
+    $isClosed = ($currentDate < ($row['tarikh_buka'] ?? '1970-01-01') || $currentDate > ($row['tarikh_tutup'] ?? '9999-12-31'));
+
+    if (!$intakeActive) {
+        unset($_SESSION['id_permohonan']);
+        $_SESSION['error'] = "Sesi pendaftaran bagi permohonan ini telah dinyahaktifkan.";
+        header("Location: ?page=dashboard");
+        exit;
+    }
+
+    if ($row['kod_status'] === '00' && $isClosed) {
+        unset($_SESSION['id_permohonan']);
+        $_SESSION['error'] = "Sesi pendaftaran bagi draf permohonan ini telah ditutup kerana tamat tempoh.";
         header("Location: ?page=dashboard");
         exit;
     }

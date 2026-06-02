@@ -140,7 +140,8 @@ if (isset($ak['keputusan_agama']) && !empty($ak['keputusan_agama'])) {
             </div>
         <?php endif; ?>
     </div>
-    <div>
+    <div style="display: flex; gap: 10px;">
+        <a href="?page=admin_cetak_profil&id=<?= $p['id_permohonan']; ?>" class="btn" style="background-color: #1e5631; color: white;" target="_blank">Cetak Profil PDF</a>
         <a href="?page=admin_senarai" class="btn btn-secondary">Kembali</a>
     </div>
 </div>

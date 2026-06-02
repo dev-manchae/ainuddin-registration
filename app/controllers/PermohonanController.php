@@ -869,6 +869,32 @@ class PermohonanController {
 
         $id = (int) $id_permohonan;
 
+        // Fetch intake batch associated with this application to verify if it is active and within date limits
+        $intakeStmt = $this->pdo->prepare("
+            SELECT p.kod_status, ib.status, ib.tarikh_buka, ib.tarikh_tutup 
+            FROM permohonan p
+            LEFT JOIN intake_batch ib ON p.id_intake = ib.id_intake
+            WHERE p.id_permohonan = ?
+        ");
+        $intakeStmt->execute([$id]);
+        $intake = $intakeStmt->fetch();
+
+        if (!$intake) {
+            return "Permohonan tidak sah.";
+        }
+
+        $intakeActive = ($intake['status'] ?? 'N') === 'Y';
+        $currentDate = date('Y-m-d');
+        $isClosed = ($currentDate < ($intake['tarikh_buka'] ?? '1970-01-01') || $currentDate > ($intake['tarikh_tutup'] ?? '9999-12-31'));
+
+        if (!$intakeActive) {
+            return "Sesi pendaftaran bagi permohonan ini telah dinyahaktifkan.";
+        }
+
+        if ($intake['kod_status'] === '00' && $isClosed) {
+            return "Sesi pendaftaran bagi draf permohonan ini telah ditutup kerana tamat tempoh.";
+        }
+
         // Ensure all three mandatory documents exist before submission
         $check = $this->pdo->prepare("SELECT jenis_dokumen FROM dokumen WHERE id_permohonan = ?");
         $check->execute([$id]);
@@ -925,9 +951,11 @@ class PermohonanController {
     public function getUserApplications($id_pengguna) {
         $stmt = $this->pdo->prepare("
             SELECT p.id_permohonan, p.no_rujukan, p.kod_status, p.tarikh_cipta, p.tarikh_hantar, p.langkah_semasa,
-                   pl.nama_penuh as nama_pelajar, pl.no_pelajar
+                   pl.nama_penuh as nama_pelajar, pl.no_pelajar,
+                   ib.status as intake_status, ib.tarikh_buka as intake_buka, ib.tarikh_tutup as intake_tutup, ib.nama_intake
             FROM permohonan p
             LEFT JOIN pelajar pl ON p.id_permohonan = pl.id_permohonan
+            LEFT JOIN intake_batch ib ON p.id_intake = ib.id_intake
             WHERE p.id_pengguna = ?
             ORDER BY p.tarikh_cipta DESC
         ");
