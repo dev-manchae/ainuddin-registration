@@ -475,15 +475,16 @@ class ProfilPelajarGenerator extends FPDF
             $statusText = $hasDoc ? "[X] Dimuat Naik" : "[ ] Belum Dihantar";
             
             $this->Cell(22, 10.0, "  " . $dbKey, 1, 0, 'L', true);
-            $this->Cell(43, 10.0, "  " . $label, 1, 0, 'L');
+            $this->Cell(38, 10.0, "  " . $label, 1, 0, 'L');
             
             if ($hasDoc) {
-                $this->SetFont('Arial', 'B', 8.5);
+                $this->SetFont('Arial', 'B', 8);
                 $this->SetTextColor(22, 101, 52); // Dark Green
             } else {
+                $this->SetFont('Arial', 'B', 8);
                 $this->SetTextColor(153, 27, 27); // Dark Red
             }
-            $this->Cell(25, 10.0, "  " . $statusText, 1, 1, 'L');
+            $this->Cell(30, 10.0, "  " . $statusText, 1, 1, 'L');
             $this->SetFont('Arial', '', 8.5);
             $this->SetTextColor(30, 41, 59);
             $yDocRow += 10.0;
