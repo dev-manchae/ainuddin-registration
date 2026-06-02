@@ -407,6 +407,13 @@ class AdminController {
             }
 
             $this->pdo->commit();
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            $statusLabels = ['04' => 'Diluluskan', '05' => 'Ditolak', '08' => 'Perlu Kemaskini'];
+            $label = $statusLabels[$kod_status] ?? $kod_status;
+            AuditLogger::log("Kemaskini Status Permohonan", "Permohonan ID: " . $id_permohonan . ", No Rujukan: " . ($details['no_rujukan'] ?? '-') . ", Status Baru: " . $label);
+
             return true;
 
         } catch (Exception $e) {
@@ -607,6 +614,11 @@ class AdminController {
         try {
             $stmt = $this->pdo->prepare("INSERT INTO persetujuan (perihal, status) VALUES (?, 'Y')");
             $stmt->execute([$perihal]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            AuditLogger::log("Tambah Klausa Persetujuan", "Perihal: " . mb_strimwidth($perihal, 0, 50, "..."));
+
             return true;
         } catch (PDOException $e) {
             return "Ralat menambah rekod: " . $e->getMessage();
@@ -626,6 +638,11 @@ class AdminController {
         try {
             $stmt = $this->pdo->prepare("UPDATE persetujuan SET perihal = ? WHERE id_persetujuan = ?");
             $stmt->execute([$perihal, $id]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            AuditLogger::log("Kemaskini Klausa Persetujuan", "Klausa ID: " . $id . ", Perihal Baru: " . mb_strimwidth($perihal, 0, 50, "..."));
+
             return true;
         } catch (PDOException $e) {
             return "Ralat mengemaskini rekod: " . $e->getMessage();
@@ -648,6 +665,12 @@ class AdminController {
             $newStatus = ($current == 'Y') ? 'T' : 'Y';
             $stmt = $this->pdo->prepare("UPDATE persetujuan SET status = ? WHERE id_persetujuan = ?");
             $stmt->execute([$newStatus, $id]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            $statusLabel = ($newStatus == 'Y') ? 'Aktif' : 'Tidak Aktif';
+            AuditLogger::log("Tukar Status Klausa Persetujuan", "Klausa ID: " . $id . ", Status Baru: " . $statusLabel);
+
             return true;
         } catch (PDOException $e) {
             return "Ralat menukar status: " . $e->getMessage();
@@ -662,6 +685,11 @@ class AdminController {
         try {
             $stmt = $this->pdo->prepare("DELETE FROM persetujuan WHERE id_persetujuan = ?");
             $stmt->execute([$id]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            AuditLogger::log("Padam Klausa Persetujuan", "Klausa ID: " . $id);
+
             return true;
         } catch (PDOException $e) {
             return "Ralat memadam rekod: " . $e->getMessage();
@@ -711,6 +739,11 @@ class AdminController {
                 VALUES (?, ?, ?, ?, 'Y')
             ");
             $stmt->execute([$nama, $buka, $tutup, $limit]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            AuditLogger::log("Tambah Sesi Intake", "Nama Sesi: " . $nama . ", Quota: " . $limit);
+
             return true;
         } catch (PDOException $e) {
             return "Ralat menambah rekod: " . $e->getMessage();
@@ -744,6 +777,11 @@ class AdminController {
                 WHERE id_intake = ?
             ");
             $stmt->execute([$nama, $buka, $tutup, $limit, $id]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            AuditLogger::log("Kemaskini Sesi Intake", "Sesi ID: " . $id . ", Nama: " . $nama . ", Quota: " . $limit);
+
             return true;
         } catch (PDOException $e) {
             return "Ralat mengemaskini rekod: " . $e->getMessage();
@@ -766,6 +804,12 @@ class AdminController {
             $newStatus = ($current == 'Y') ? 'T' : 'Y';
             $stmt = $this->pdo->prepare("UPDATE intake_batch SET status = ? WHERE id_intake = ?");
             $stmt->execute([$newStatus, $id]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            $statusLabel = ($newStatus == 'Y') ? 'Aktif' : 'Tidak Aktif';
+            AuditLogger::log("Tukar Status Sesi Intake", "Sesi ID: " . $id . ", Status Baru: " . $statusLabel);
+
             return true;
         } catch (PDOException $e) {
             return "Ralat menukar status: " . $e->getMessage();
@@ -787,9 +831,36 @@ class AdminController {
 
             $stmt = $this->pdo->prepare("DELETE FROM intake_batch WHERE id_intake = ?");
             $stmt->execute([$id]);
+
+            // LOG AUDIT
+            require_once __DIR__ . '/../../app/helpers/AuditLogger.php';
+            AuditLogger::log("Padam Sesi Intake", "Sesi ID: " . $id);
+
             return true;
         } catch (PDOException $e) {
             return "Ralat memadam rekod: " . $e->getMessage();
+        }
+    }
+
+    // =========================
+    // GET AUDIT LOGS
+    // =========================
+    public function getAuditLogs($search = '') {
+        try {
+            $sql = "SELECT * FROM audit_log";
+            $params = [];
+            if (!empty($search)) {
+                $sql .= " WHERE emel_pengguna LIKE ? OR tindakan LIKE ? OR butiran LIKE ?";
+                $like = "%" . $search . "%";
+                $params = [$like, $like, $like];
+            }
+            $sql .= " ORDER BY tarikh_cipta DESC LIMIT 200";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            return [];
         }
     }
 }

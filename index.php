@@ -697,6 +697,18 @@ switch ($page) {
 
         exit;
 
+    case 'session_ping':
+        header('Content-Type: application/json');
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (isset($_SESSION['id_pengguna'])) {
+            echo json_encode(['status' => 'active']);
+        } else {
+            echo json_encode(['status' => 'expired']);
+        }
+        exit;
+
     // =========================
     // USER PROFILE & SECURITY
     // =========================
@@ -1077,6 +1089,18 @@ switch ($page) {
         $intakes = $adminController->getIntakes();
 
         $content = "views/admin/intakes.php";
+
+        require_once "views/layouts/admin_layout.php";
+
+        break;
+
+    case 'admin_audit_logs':
+
+        AdminMiddleware::check();
+
+        $adminController = new AdminController();
+
+        $content = "views/admin/audit_logs.php";
 
         require_once "views/layouts/admin_layout.php";
 

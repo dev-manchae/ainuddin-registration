@@ -31,6 +31,9 @@
         <a href="?page=admin_intakes" class="nav-item <?= ($_GET['page'] ?? '') == 'admin_intakes' ? 'active' : ''; ?>">
             <span class="nav-icon">▸</span> <span class="nav-text">Urus Sesi</span>
         </a>
+        <a href="?page=admin_audit_logs" class="nav-item <?= ($_GET['page'] ?? '') == 'admin_audit_logs' ? 'active' : ''; ?>">
+            <span class="nav-icon">▸</span> <span class="nav-text">Log Audit</span>
+        </a>
         <a href="?page=profil" class="nav-item <?= ($_GET['page'] ?? '') == 'profil' ? 'active' : ''; ?>">
             <span class="nav-icon">▸</span> <span class="nav-text">Profil Saya</span>
         </a>

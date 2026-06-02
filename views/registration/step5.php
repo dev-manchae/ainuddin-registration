@@ -9,8 +9,14 @@
 
     <!-- Salinan IC -->
     <div style="border:1px solid var(--border); padding:20px; border-radius:12px; margin-bottom:20px;">
-        <label style="font-weight:600;">Salinan IC/Sijil Lahir Pelajar <span style="color: var(--danger);">*</span></label>
-        <input type="file" name="ic_pelajar" accept=".pdf,.jpg,.jpeg,.png" style="margin-top:10px; display:block;" onchange="previewFile(this)">
+        <label style="font-weight:600; display: block; margin-bottom: 12px;">Salinan IC/Sijil Lahir Pelajar <span style="color: var(--danger);">*</span></label>
+        
+        <div class="upload-dropzone" id="dropzone_ic_pelajar">
+            <div class="upload-icon">📂</div>
+            <div class="upload-text">Drag & drop fail di sini, atau <span>klik untuk pilih fail</span></div>
+            <div class="upload-note">Format: PDF, PNG, JPG (Maks 2MB)</div>
+            <input type="file" name="ic_pelajar" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="previewFile(this)">
+        </div>
         
         <div class="file-preview-wrapper" style="margin-top:12px;" id="preview_ic_pelajar">
             <?php if (!empty($dokumen['IC Pelajar']) && !empty($dokumen['IC Pelajar'][0])): 
@@ -45,8 +51,14 @@
 
     <!-- Gambar Pelajar -->
     <div style="border:1px solid var(--border); padding:20px; border-radius:12px; margin-bottom:20px;">
-        <label style="font-weight:600;">Gambar Pelajar <span style="color: var(--danger);">*</span></label>
-        <input type="file" name="gambar_pelajar" accept=".jpg,.jpeg,.png" style="margin-top:10px; display:block;" onchange="previewFile(this)">
+        <label style="font-weight:600; display: block; margin-bottom: 12px;">Gambar Pelajar <span style="color: var(--danger);">*</span></label>
+        
+        <div class="upload-dropzone" id="dropzone_gambar_pelajar">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Drag & drop gambar di sini, atau <span>klik untuk pilih gambar</span></div>
+            <div class="upload-note">Format: PNG, JPG (Maks 2MB)</div>
+            <input type="file" name="gambar_pelajar" accept=".jpg,.jpeg,.png" style="display:none;" onchange="previewFile(this)">
+        </div>
         
         <div class="file-preview-wrapper" style="margin-top:12px;" id="preview_gambar_pelajar">
             <?php if (!empty($dokumen['Gambar Pelajar']) && !empty($dokumen['Gambar Pelajar'][0])): 
@@ -119,8 +131,13 @@
         <!-- Container Input Fail Baru -->
         <div id="sijil_inputs_container">
             <div id="sijil_row_0">
-                <label style="font-size: 13px; color: var(--text-muted); display: block; margin-top: 10px;">Muat naik sijil:</label>
-                <input type="file" name="sijil_pelajar[]" accept=".pdf,.jpg,.jpeg,.png" style="margin-top:5px; display:block;" onchange="previewMultipleFile(this, 0)">
+                <label style="font-size: 13px; color: var(--text-muted); display: block; margin-top: 10px; margin-bottom: 8px;">Muat naik sijil:</label>
+                <div class="upload-dropzone" id="dropzone_sijil_0">
+                    <div class="upload-icon">📜</div>
+                    <div class="upload-text">Drag & drop sijil di sini, atau <span>klik untuk pilih fail</span></div>
+                    <div class="upload-note">Format: PDF, PNG, JPG (Maks 2MB)</div>
+                    <input type="file" name="sijil_pelajar[]" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="previewMultipleFile(this, 0)">
+                </div>
                 <div class="file-preview-wrapper" style="margin-top:10px;" id="preview_sijil_0"></div>
             </div>
         </div>
@@ -159,8 +176,13 @@ document.addEventListener("DOMContentLoaded", function() {
             
             newRow.innerHTML = `
                 <button type="button" class="btn btn-sm btn-outline-danger" style="position: absolute; right: 0; top: 15px; padding: 4px 8px; font-size: 12px;" onclick="removeSijilRow(${sijilIndex})">Buang</button>
-                <label style="font-size: 13px; color: var(--text-muted); display: block;">Muat naik sijil:</label>
-                <input type="file" name="sijil_pelajar[]" accept=".pdf,.jpg,.jpeg,.png" style="margin-top:5px; display:block;" onchange="previewMultipleFile(this, ${sijilIndex})">
+                <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px; margin-top: 10px;">Muat naik sijil:</label>
+                <div class="upload-dropzone" id="dropzone_sijil_${sijilIndex}">
+                    <div class="upload-icon">📜</div>
+                    <div class="upload-text">Drag & drop sijil di sini, atau <span>klik untuk pilih fail</span></div>
+                    <div class="upload-note">Format: PDF, PNG, JPG (Maks 2MB)</div>
+                    <input type="file" name="sijil_pelajar[]" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="previewMultipleFile(this, sijilIndex)">
+                </div>
                 <div class="file-preview-wrapper" style="margin-top:10px;" id="preview_sijil_${sijilIndex}"></div>
             `;
             container.appendChild(newRow);

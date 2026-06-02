@@ -194,6 +194,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
             
+            let isAutosaving = false;
+
+            const showStatus = function(state, message) {
+                if (state === 'saving') {
+                    isAutosaving = true;
+                } else {
+                    isAutosaving = false;
+                }
+                
+                autosaveStatus.style.display = 'inline-flex';
+                autosaveStatus.className = 'autosave-indicator ' + state;
+                
+                let icon = '';
+                if (state === 'saving') {
+                    icon = '<span class="autosave-spinner" style="display:inline-block; width:10px; height:10px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite; margin-right: 5px;"></span> ';
+                } else if (state === 'success') {
+                    icon = '✓ ';
+                } else if (state === 'error') {
+                    icon = '⚠️ ';
+                }
+                
+                autosaveStatus.innerHTML = icon + message;
+                
+                if (state === 'success') {
+                    // Hide success status after 3 seconds
+                    setTimeout(function() {
+                        if (autosaveStatus.classList.contains('success')) {
+                            autosaveStatus.style.opacity = '0';
+                            setTimeout(function() {
+                                if (autosaveStatus.style.opacity === '0') {
+                                    autosaveStatus.style.display = 'none';
+                                    autosaveStatus.style.opacity = '1';
+                                }
+                            }, 300);
+                        }
+                    }, 3000);
+                }
+            };
+
             const triggerAutosave = function() {
                 showStatus('saving', 'Menyimpan draf...');
                 
@@ -211,13 +250,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(function(data) {
                     if (data.success) {
                         showStatus('success', 'Draf disimpan');
+                        document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
+                            z.classList.remove('uploading');
+                        });
                     } else {
                         showStatus('error', data.error || 'Gagal menyimpan draf');
+                        document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
+                            z.classList.remove('uploading');
+                        });
                     }
                 })
                 .catch(function(err) {
                     console.error('Autosave error:', err);
                     showStatus('error', 'Gagal menyambung ke pelayan');
+                    document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
+                        z.classList.remove('uploading');
+                    });
                 });
             };
             
@@ -232,6 +280,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // File inputs should save immediately on change rather than debounced keyup
                 if (el.type === 'file') {
                     el.addEventListener('change', function() {
+                        const zone = el.closest('.upload-dropzone');
+                        if (zone) zone.classList.add('uploading');
                         setTimeout(function() {
                             if (el.value !== '') {
                                 triggerAutosave();
@@ -243,7 +293,151 @@ document.addEventListener('DOMContentLoaded', function() {
                     el.addEventListener('change', queueAutosave);
                 }
             });
+
+            // Prevent page exit during active save
+            window.addEventListener('beforeunload', function(e) {
+                if (isAutosaving) {
+                    e.preventDefault();
+                    e.returnValue = 'Terdapat draf yang sedang disimpan. Adakah anda pasti mahu keluar?';
+                    return e.returnValue;
+                }
+            });
         }
+    }
+
+    // ==========================
+    // DRAG AND DROP FILE UPLOADS
+    // ==========================
+    // Click to trigger hidden input
+    document.addEventListener('click', function(e) {
+        const zone = e.target.closest('.upload-dropzone');
+        if (zone) {
+            const input = zone.querySelector('input[type="file"]');
+            if (input && e.target !== input) {
+                input.click();
+            }
+        }
+    });
+
+    // Drag and Drop files handler
+    document.addEventListener('dragover', function(e) {
+        const zone = e.target.closest('.upload-dropzone');
+        if (zone) {
+            e.preventDefault();
+            zone.classList.add('dragover');
+        }
+    });
+    document.addEventListener('dragenter', function(e) {
+        const zone = e.target.closest('.upload-dropzone');
+        if (zone) {
+            e.preventDefault();
+            zone.classList.add('dragover');
+        }
+    });
+    document.addEventListener('dragleave', function(e) {
+        const zone = e.target.closest('.upload-dropzone');
+        if (zone) {
+            e.preventDefault();
+            const rect = zone.getBoundingClientRect();
+            if (e.clientX < rect.left || e.clientX >= rect.right || e.clientY < rect.top || e.clientY >= rect.bottom) {
+                zone.classList.remove('dragover');
+            }
+        }
+    });
+    document.addEventListener('drop', function(e) {
+        const zone = e.target.closest('.upload-dropzone');
+        if (zone) {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            const input = zone.querySelector('input[type="file"]');
+            if (input && e.dataTransfer.files.length > 0) {
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            }
+        }
+    });
+
+    // ==========================
+    // ACTIVE SESSION TIMEOUT WARNING
+    // ==========================
+    const sessionModal = document.getElementById('session-timeout-modal');
+    if (sessionModal) {
+        const keepSessionBtn = document.getElementById('session-keep-btn');
+        const logoutSessionBtn = document.getElementById('session-logout-btn');
+        const countdownSpan = document.getElementById('session-countdown');
+        
+        let warningTimer;
+        let countdownTimer;
+        let secondsRemaining = 180; // 3 minutes countdown
+        
+        const resetWarningTimer = function() {
+            // Only reset if modal is not currently open
+            if (sessionModal.style.display === 'flex') return;
+            
+            clearTimeout(warningTimer);
+            // 17 minutes = 1020000 ms
+            warningTimer = setTimeout(showSessionWarning, 1020000); 
+        };
+        
+        const showSessionWarning = function() {
+            sessionModal.style.display = 'flex';
+            secondsRemaining = 180;
+            countdownSpan.textContent = formatTime(secondsRemaining);
+            
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(function() {
+                secondsRemaining--;
+                countdownSpan.textContent = formatTime(secondsRemaining);
+                
+                if (secondsRemaining <= 0) {
+                    clearInterval(countdownTimer);
+                    window.location.href = '?page=logout';
+                }
+            }, 1000);
+        };
+        
+        const formatTime = function(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return m + ":" + (s < 10 ? "0" : "") + s;
+        };
+        
+        const pingServer = function() {
+            fetch('?page=session_ping')
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(data) {
+                if (data.status === 'active') {
+                    sessionModal.style.display = 'none';
+                    clearInterval(countdownTimer);
+                    resetWarningTimer();
+                } else {
+                    window.location.href = '?page=logout';
+                }
+            })
+            .catch(function() {
+                window.location.href = '?page=logout';
+            });
+        };
+        
+        if (keepSessionBtn) {
+            keepSessionBtn.addEventListener('click', pingServer);
+        }
+        if (logoutSessionBtn) {
+            logoutSessionBtn.addEventListener('click', function() {
+                window.location.href = '?page=logout';
+            });
+        }
+        
+        // Listen for activity to keep timer reset
+        const activityEvents = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
+        activityEvents.forEach(function(event) {
+            document.addEventListener(event, resetWarningTimer);
+        });
+        
+        // Initial call
+        resetWarningTimer();
     }
 });
 

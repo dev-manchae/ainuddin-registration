@@ -1,114 +1,97 @@
-# Implementation Plan - Intake/Batch Management & Step Wizard Auto-Save
+# Implementation Plan - Session Warning, Drag-and-Drop Uploads, Auto-Save Alerts, and Audit Logging
 
-We will implement two major architectural updates to the Tahfiz Ainuddin Registration System:
-1. **Intake/Batch Management System**: Allows admins to define registration sessions, set opening/closing dates, configure student application limits (quotas), toggle intake statuses, and restrict/disable new student registrations if no active intake session exists or quotas are full.
-2. **Step Wizard AJAX Auto-Save**: Integrates a background autosaving mechanism on the parent registration form (Steps 1 to 5) using debounced JavaScript `fetch` calls, so progress is saved as a draft without requiring manual submission.
+We will implement a set of administrative and user experience enhancements for the Tahfiz Ainuddin Registration System (Release `v2.6`):
+1. **Active Session Expiry Warning**: Client-side countdown timer alerting parents before their PHP session/CSRF token expires, with a heartbeat button to extend the session.
+2. **Drag-and-Drop Uploads & Loading Progress**: Styled dropzones on Step 5 with drag/drop handlers, instant client-side format/size validation, and a visual loading upload spinner.
+3. **Auto-Save Pending Exit Alert**: Intercepts tab/page exits if an AJAX background save is currently in progress, preventing data loss.
+4. **Admin Audit Logging**: Database logger tracking admin actions (status changes, intake modifications, consent changes) and rendering a logs viewer in the admin portal.
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Database Execution**: The new `intake_batch` table structure must be established by running `database/setup_intake.php`. This migration will automatically register a default active session (`Sesi Akademik 2026/2027`) and update any existing applications in the database to link to it to keep historical data intact.
+> **Database Execution**: The new admin auditing features require establishing the `audit_log` table by running the new `database/setup_audit_logs.php` script.
 
 ---
 
 ## Proposed Changes
 
-### Component 1: Database Setup
-#### [NEW] [setup_intake.php](file:///d:/xampp/htdocs/ainuddin-registration/database/setup_intake.php)
-* Create `intake_batch` table:
-  * `id_intake` INT AUTO_INCREMENT PRIMARY KEY
-  * `nama_intake` VARCHAR(100) NOT NULL
-  * `tarikh_buka` DATE NOT NULL
-  * `tarikh_tutup` DATE NOT NULL
-  * `had_pelajar` INT DEFAULT 0 (0 for unlimited quota)
-  * `status` CHAR(1) NOT NULL DEFAULT 'Y' ('Y' = Aktif, 'T' = Tidak Aktif)
+### Component 1: Database Setup (Audit Logging)
+#### [NEW] [setup_audit_logs.php](file:///d:/xampp/htdocs/ainuddin-registration/database/setup_audit_logs.php)
+* Create `audit_log` table:
+  * `id_log` INT AUTO_INCREMENT PRIMARY KEY
+  * `id_pengguna` INT NOT NULL (Foreign Key to `pengguna`)
+  * `emel_pengguna` VARCHAR(100) NOT NULL (To cache who did it even if accounts are modified)
+  * `tindakan` VARCHAR(255) NOT NULL (e.g. "Tukar Status Intake")
+  * `butiran` TEXT NULL (Specific log metadata, e.g., intake ID or clause changes)
   * `tarikh_cipta` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-* Seed a default active intake: `Sesi Akademik 2026/2027` (running from Jan 1st to Dec 31st of the current year, active status, quota: 100).
-* Migrate existing applications: run `UPDATE permohonan SET id_intake = {new_seeded_id} WHERE id_intake IS NULL`.
+
+#### [NEW] [AuditLogger.php](file:///d:/xampp/htdocs/ainuddin-registration/app/helpers/AuditLogger.php)
+* Define static class `AuditLogger` with method `log($tindakan, $butiran = null)` to automatically pull the active `$_SESSION['id_pengguna']` and save logs to the database.
 
 ---
 
-### Component 2: Intake Control Panel & Controllers
-#### [MODIFY] [AdminController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AdminController.php)
-* Add CRUD methods for managing intakes:
-  * `getIntakes()`: Returns all intake records.
-  * `addIntake($data)`: Validates dates (Start Date $\le$ End Date) and inserts a new session.
-  * `updateIntake($id, $data)`: Updates details of an existing session.
-  * `toggleIntakeStatus($id)`: Toggles active state between `Y` and `T`.
-  * `deleteIntake($id)`: Deletes an intake session. Safety check: prevents deletion if any student applications are already linked to it in `permohonan`.
-
-#### [MODIFY] [PermohonanController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/PermohonanController.php)
-* Add `getActiveIntake()`: Query active sessions where `status = 'Y'` and `CURDATE() BETWEEN tarikh_buka AND tarikh_tutup`. If a quota limit `had_pelajar > 0` is set, check it against submitted applications.
-* Modify `createDraft($id_pengguna)`: Verify `getActiveIntake()`. If none exists or quota is exceeded, block draft initialization and return `0`. Assign `id_intake` to the new application record.
-
-#### [NEW] [intakes.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/intakes.php)
-* Build the Intake Management UI:
-  * Stacked layout matching `views/admin/persetujuan.php`.
-  * Top: Dual-purpose Card ("Tambah Sesi" / "Kemaskini Sesi").
-  * Bottom: Table listing all intakes with active/inactive status badges, application counts, and action buttons (Edit, Tukar Status, Padam).
+### Component 2: Audit Logs View & Sidebar Integration
+#### [NEW] [audit_logs.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/audit_logs.php)
+* Administrative Audit View:
+  * Grid/Card listing all logged actions with a table showing: No., Timestamp, Admin Email, Action, and Details.
+  * Search bar to filter by Admin Email or Action keyword.
 
 #### [MODIFY] [sidebar.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/sidebar.php)
-* Append the sidebar navigation link: "Urus Sesi Pendaftaran" (`?page=admin_intakes`).
+* Add a navigation link: "Log Audit" (`?page=admin_audit_logs`) visible only to administrators.
 
 #### [MODIFY] [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php)
-* Register routing switch-cases:
-  * `admin_intakes` -> Renders `views/admin/intakes.php` in `admin_layout.php`.
-  * `admin_intake_save`, `admin_intake_toggle`, `admin_intake_delete` -> Run controller actions and redirect back with status alerts.
-* Secure all new cases with admin middleware check and CSRF protection.
+* Register `admin_audit_logs` page route.
+* Log all administrative state changes in `AdminController` cases (e.g. intake updates, consent edits, application approvals/rejections).
+
+#### [MODIFY] [AdminController.php](file:///d:/xampp/htdocs/ainuddin-registration/app/controllers/AdminController.php)
+* Injected calls to `AuditLogger::log()` during actions:
+  * `addIntake`, `updateIntake`, `toggleIntakeStatus`, `deleteIntake`
+  * `addAgreement`, `updateAgreement`, `toggleAgreementStatus`, `deleteAgreement`
+  * `kemaskiniStatus` (approval, rejection, revision requests)
 
 ---
 
-### Component 3: Parent Registration Control
-#### [MODIFY] [dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/dashboard.php)
-* Check `getActiveIntake()`. If closed:
-  * Disable the **+ Permohonan Baru** action button.
-  * Display a clear slate-themed warning container alerting parent users: *"Pendaftaran pelajar baharu ditutup buat sementara waktu."*
-
----
-
-### Component 4: AJAX Auto-Save Step Wizard
-#### [MODIFY] [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php)
-* In cases `save_step1` to `save_step5`:
-  * Detect `isset($_GET['ajax'])` requests.
-  * If true: Skip browser redirect headers. Run the controller save method as a draft.
-  * Return JSON response: `{"success": true}` or `{"success": false, "error": "Reason"}` and `exit;`.
-
-#### [MODIFY] [registration_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/registration_layout.php)
-* Insert a hidden container inside `.wizard-card` to render the auto-save indicator:
-  ```html
-  <div id="autosave-status" class="autosave-indicator" style="display:none;"></div>
-  ```
+### Component 3: Drag-and-Drop & Visual Upload Previews
+#### [MODIFY] [step5.php](file:///d:/xampp/htdocs/ainuddin-registration/views/registration/step5.php)
+* Replace native standard file inputs with a premium styled dropzone box:
+  * Dashed border styling, file icon, and prompt text.
+  * Dragover, dragleave, and drop event listeners.
+* Trigger a circular rotating CSS upload spinner while the AJAX auto-save of the file is occurring.
 
 #### [MODIFY] [main.css](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/css/main.css)
-* Add CSS styling rules for the `.autosave-indicator`:
-  * Absolute positioning in the top right of the form card.
-  * Rounded background, tiny typography, and color variables mapping saving states (Blue for saving, green for success, red for errors).
+* Add styles for `.upload-dropzone` container (dashed borders, hover transitions, file icon styling, drop indicators).
+
+---
+
+### Component 4: Active Session Expiry Countdowns & Unload Alerts
+#### [MODIFY] [registration_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/registration_layout.php) & [admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php)
+* Append a hidden session warning modal dialog markup at the bottom of the layouts.
+* Add modal buttons: "Kekalkan Sesi" (ping server) and "Log Keluar".
+
+#### [MODIFY] [index.php](file:///d:/xampp/htdocs/ainuddin-registration/index.php)
+* Add `session_ping` AJAX route case returning `{ "status": "active" }` to update the user's session cookie life.
 
 #### [MODIFY] [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js)
-* Write auto-save background listener:
-  * Target forms with ID `stepForm` whose action targets steps 1 to 5.
-  * Intercept input and select elements' change/keystroke actions.
-  * Implement a `1000ms` debounce timer.
-  * Post a serialised `FormData` payload using browser `fetch` to `form.action + '&ajax=1'`.
-  * Manage states visually inside the `#autosave-status` indicator container.
+* Track `isSaving` state when starting/completing background AJAX auto-saves.
+* Add `beforeunload` listener that intercepts exits when `isSaving === true`.
+* Initialize a 17-minute javascript inactivity timeout timer. If triggered:
+  * Show the warning modal with a 3-minute live countdown timer.
+  * Clicking "Kekalkan Sesi" calls `session_ping` via fetch, resets the timer, and hides the modal.
+  * If the countdown reaches zero, redirect to `?page=logout`.
 
 ---
 
 ## Verification Plan
 
 ### Automated/Syntax Tests
-* Lint all modified PHP controller and layout views using:
-  `d:\xampp\php\php.exe -l {filename}`
+* Lint all modified and new files:
+  `d:\xampp\php\php.exe -l app/helpers/AuditLogger.php views/admin/audit_logs.php index.php app/controllers/AdminController.php`
 
 ### Manual Verification
-1. **Database Script**: Run `php database/setup_intake.php`. Verify that the script succeeds and seeds the default intake.
-2. **Admin Intake Control**: Log in as admin, go to **Urus Sesi Pendaftaran**. Create a new intake, toggle status, and edit details. Confirm changes sync to database.
-3. **Registration Restrictions**:
-   * Disable/deactivate all intakes in the admin panel. Log in as parent. Confirm "+ Permohonan Baru" is disabled and the warning banner displays.
-   * Enable the intake session. Verify registrations can proceed.
-4. **AJAX Wizard Auto-Save**:
-   * Open the wizard step 1. Type in the student name. Confirm a small `"Menyimpan draf..."` message displays and transforms to `"Draf disimpan"` in green.
-   * Refresh page to verify values persist.
-5. **CSRF Enforcement**: Verify that AJAX auto-saves include the CSRF token and execute securely.
+1. **Audit Logs Setup**: Run the `database/setup_audit_logs.php` script. Confirm `audit_log` table is created.
+2. **Logs Logging Check**: Perform an action as admin (e.g. toggle an intake's status). Open **Log Audit** in the sidebar. Verify the action is logged.
+3. **Session Warning Modal**: Set the JavaScript inactivity timer to 10 seconds for testing. Confirm the warning modal appears with a counting-down timer. Click "Kekalkan Sesi" and check that the session remains active.
+4. **Drag-and-Drop uploads**: Open Step 5 of the parent registration. Drag a file into the box. Verify that the loading spinner appears, file uploads, and auto-saves.
+5. **Exit Warning Alert**: Edit a text field on Step 1, and immediately close the tab or reload. Verify that the browser interrupts you with a warning alert indicating unsaved data.

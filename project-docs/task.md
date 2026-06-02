@@ -1,24 +1,22 @@
-# Task Checklist - Sesi Intake & AJAX Auto-Save
+# Task Checklist - Session Warning, Drag-and-Drop, Exit Warnings & Audit Logs
 
-- `[x]` **Phase 1: Database Setup**
-  - `[x]` Create and execute `database/setup_intake.php` script
-  - `[x]` Seed default active intake session & update existing permohonan entries
-- `[x]` **Phase 2: Intake Controllers & Backend Logic**
-  - `[x]` Add intake CRUD methods in `AdminController.php`
-  - `[x]` Implement active intake verification in `PermohonanController.php`
-  - `[x]` Update `index.php` routes for admin intake CRUD and toggle actions
-- `[x]` **Phase 3: Administrative Control Panel UI**
-  - `[x]` Create `views/admin/intakes.php` template
-  - `[x]` Add "Urus Sesi Pendaftaran" link to `views/admin/sidebar.php`
-- `[x]` **Phase 4: Parent Portal Constraints & Warnings**
-  - `[x]` Disable "+ Permohonan Baru" button on `views/dashboard.php` if intake is closed
-  - `[x]` Display HSL-themed intake closed banner on `views/dashboard.php`
-- `[x]` **Phase 5: Step Wizard AJAX Auto-Save**
-  - `[x]` Refactor `index.php` `save_step1` to `save_step5` cases to support JSON responses for AJAX
-  - `[x]` Add autosave indicator wrapper in `views/layouts/registration_layout.php`
-  - `[x]` Implement `.autosave-indicator` styles in `public/assets/css/main.css`
-  - `[x]` Implement JS event listeners, debounce, and fetch handler in `public/assets/js/main.js`
-- `[x]` **Phase 6: Verification & Release**
-  - `[x]` Run PHP CLI syntax validation on all new/modified files
-  - `[x]` Manually test all components (intake limit, auto-save status indicator)
-  - `[x]` Generate the walkthrough report and tag release as `v2.5`
+- `[x]` **Component 1: Database & Helper Setup (Audit Logs)**
+  - `[x]` Create and execute `database/setup_audit_logs.php`
+  - `[x]` Create `app/helpers/AuditLogger.php` static logging class
+- `[x]` **Component 2: Admin Audit Interface & Integration**
+  - `[x]` Create `views/admin/audit_logs.php` list template
+  - `[x]` Modify `views/admin/sidebar.php` to add navigation item
+  - `[x]` Register route and hook logging events in `index.php`
+  - `[x]` Add audit logging calls in `AdminController.php` CRUD methods
+- `[x]` **Component 3: Step 5 Drag-and-Drop Uploads**
+  - `[x]` Redesign `views/registration/step5.php` upload areas with styled dropzones
+  - `[x]` Implement drag/drop event listeners and AJAX loading spinner in `main.js`
+  - `[x]` Add dropzone hover/active styles in `main.css`
+- `[x]` **Component 4: Active Session Warning & Unload Alerts**
+  - `[x]` Append hidden timeout modal markup in `registration_layout.php` and `admin_layout.php`
+  - `[x]` Add `session_ping` gateway route case in `index.php`
+  - `[x]` Implement exit alerts (`beforeunload`), countdown timer, and ping logic in `main.js`
+- `[x]` **Component 5: Validation & Release**
+  - `[x]` Run PHP CLI syntax validations
+  - `[x]` Perform testing verification
+  - `[x]` Generate walkthrough document and tag release as `v2.6`
