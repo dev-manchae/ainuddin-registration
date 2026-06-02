@@ -163,37 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isWizardStep) {
             let debounceTimer;
             
-            const showStatus = function(state, message) {
-                autosaveStatus.style.display = 'inline-flex';
-                autosaveStatus.className = 'autosave-indicator ' + state;
-                
-                let icon = '';
-                if (state === 'saving') {
-                    icon = '<span class="autosave-spinner" style="display:inline-block; width:10px; height:10px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite; margin-right: 5px;"></span> ';
-                } else if (state === 'success') {
-                    icon = '✓ ';
-                } else if (state === 'error') {
-                    icon = '⚠️ ';
-                }
-                
-                autosaveStatus.innerHTML = icon + message;
-                
-                if (state === 'success') {
-                    // Hide success status after 3 seconds
-                    setTimeout(function() {
-                        if (autosaveStatus.classList.contains('success')) {
-                            autosaveStatus.style.opacity = '0';
-                            setTimeout(function() {
-                                if (autosaveStatus.style.opacity === '0') {
-                                    autosaveStatus.style.display = 'none';
-                                    autosaveStatus.style.opacity = '1';
-                                }
-                            }, 300);
-                        }
-                    }, 3000);
-                }
-            };
-            
             let isAutosaving = false;
 
             const showStatus = function(state, message) {
@@ -274,12 +243,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 debounceTimer = setTimeout(triggerAutosave, 1200); // 1.2 second debounce
             };
             
-            // Listen to inputs, textareas, and select elements
-            const formElements = stepForm.querySelectorAll('input, select, textarea');
-            formElements.forEach(function(el) {
-                // File inputs should save immediately on change rather than debounced keyup
-                if (el.type === 'file') {
-                    el.addEventListener('change', function() {
+            // Listen to change and input events via delegation on stepForm to handle dynamically added fields
+            stepForm.addEventListener('change', function(e) {
+                const el = e.target;
+                if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                    if (el.type === 'file') {
                         const zone = el.closest('.upload-dropzone');
                         if (zone) zone.classList.add('uploading');
                         setTimeout(function() {
@@ -287,10 +255,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                 triggerAutosave();
                             }
                         }, 50);
-                    });
-                } else {
-                    el.addEventListener('input', queueAutosave);
-                    el.addEventListener('change', queueAutosave);
+                    } else {
+                        queueAutosave();
+                    }
+                }
+            });
+
+            stepForm.addEventListener('input', function(e) {
+                const el = e.target;
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    if (el.type !== 'file') {
+                        queueAutosave();
+                    }
                 }
             });
 
