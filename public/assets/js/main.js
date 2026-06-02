@@ -164,83 +164,167 @@ document.addEventListener('DOMContentLoaded', function() {
             let debounceTimer;
             
             let isAutosaving = false;
+            let activeAutosaveToast = null;
 
-            const showStatus = function(state, message) {
+            const showAutosaveToast = function(state, message, progress = null) {
+                let container = document.getElementById('floating-status-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'floating-status-container';
+                    document.body.appendChild(container);
+                }
+
+                if (!activeAutosaveToast) {
+                    activeAutosaveToast = document.createElement('div');
+                    activeAutosaveToast.className = 'floating-toast ' + state;
+                    container.appendChild(activeAutosaveToast);
+                } else {
+                    activeAutosaveToast.className = 'floating-toast ' + state;
+                }
+
+                let title = '';
+                let icon = '';
+                let body = message || '';
+                let showBar = false;
+
+                if (state === 'saving') {
+                    title = 'Menyimpan Draf...';
+                    icon = '⏳';
+                    showBar = true;
+                } else if (state === 'success') {
+                    title = 'Perubahan Disimpan!';
+                    icon = '✅';
+                    showBar = true;
+                    body = message || 'Semua draf dan fail telah berjaya disimpan.';
+                    
+                    const currentToast = activeAutosaveToast;
+                    activeAutosaveToast = null;
+                    setTimeout(function() {
+                        currentToast.style.opacity = '0';
+                        currentToast.style.transform = 'translateY(10px) scale(0.95)';
+                        setTimeout(function() {
+                            currentToast.remove();
+                        }, 300);
+                    }, 3000);
+                } else if (state === 'error') {
+                    title = 'Ralat Menyimpan!';
+                    icon = '❌';
+                    body = message || 'Gagal menyambung ke pelayan.';
+                    
+                    const currentToast = activeAutosaveToast;
+                    activeAutosaveToast = null;
+                    setTimeout(function() {
+                        currentToast.style.opacity = '0';
+                        currentToast.style.transform = 'translateY(10px) scale(0.95)';
+                        setTimeout(function() {
+                            currentToast.remove();
+                        }, 300);
+                    }, 5000);
+                }
+
+                activeAutosaveToast.innerHTML = `
+                    <div class="toast-header">
+                        <span>${icon} &nbsp;${title}</span>
+                    </div>
+                    <div class="toast-body">${body}</div>
+                    ${showBar ? `
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: ${progress !== null ? progress : (state === 'success' ? 100 : 0)}%;"></div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                if (state === 'saving' && progress !== null) {
+                    const fill = activeAutosaveToast.querySelector('.progress-bar-fill');
+                    if (fill) fill.style.width = progress + '%';
+                }
+            };
+
+            const showStatus = function(state, message, progress = null) {
                 if (state === 'saving') {
                     isAutosaving = true;
                 } else {
                     isAutosaving = false;
                 }
                 
-                autosaveStatus.style.display = 'inline-flex';
-                autosaveStatus.className = 'autosave-indicator ' + state;
-                
-                let icon = '';
-                if (state === 'saving') {
-                    icon = '<span class="autosave-spinner" style="display:inline-block; width:10px; height:10px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite; margin-right: 5px;"></span> ';
-                } else if (state === 'success') {
-                    icon = '✓ ';
-                } else if (state === 'error') {
-                    icon = '⚠️ ';
+                if (autosaveStatus) {
+                    autosaveStatus.style.display = 'none';
                 }
-                
-                autosaveStatus.innerHTML = icon + message;
-                
-                if (state === 'success') {
-                    // Hide success status after 3 seconds
-                    setTimeout(function() {
-                        if (autosaveStatus.classList.contains('success')) {
-                            autosaveStatus.style.opacity = '0';
-                            setTimeout(function() {
-                                if (autosaveStatus.style.opacity === '0') {
-                                    autosaveStatus.style.display = 'none';
-                                    autosaveStatus.style.opacity = '1';
-                                }
-                            }, 300);
-                        }
-                    }, 3000);
-                }
+
+                showAutosaveToast(state, message, progress);
             };
 
             const triggerAutosave = function() {
-                showStatus('saving', 'Menyimpan draf...');
+                showStatus('saving', 'Menyimpan draf...', 0);
                 
                 const formData = new FormData(stepForm);
                 const url = formAction + '&ajax=1';
                 
-                fetch(url, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(function(response) {
-                    if (!response.ok) throw new Error('HTTP error ' + response.status);
-                    return response.json();
-                })
-                .then(function(data) {
-                    if (data.success) {
-                        showStatus('success', 'Draf disimpan');
-                        document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
-                            z.classList.remove('uploading');
-                        });
-                        
-                        if (data.documents && typeof window.updateUploadedDocuments === 'function') {
-                            window.updateUploadedDocuments(data.documents);
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url);
+                
+                // Track upload progress
+                xhr.upload.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        let hasFiles = false;
+                        if (typeof formData.values === 'function') {
+                            for (let value of formData.values()) {
+                                if (value instanceof File && value.size > 0) {
+                                    hasFiles = true;
+                                    break;
+                                }
+                            }
+                        }
+                        const msg = hasFiles ? `Memuat naik fail (${percentComplete}%)...` : 'Menyimpan draf...';
+                        showStatus('saving', msg, percentComplete);
+                    }
+                };
+                
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.success) {
+                                showStatus('success', 'Semua draf dan fail disimpan.');
+                                document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
+                                    z.classList.remove('uploading');
+                                });
+                                if (data.documents && typeof window.updateUploadedDocuments === 'function') {
+                                    window.updateUploadedDocuments(data.documents);
+                                }
+                            } else {
+                                showStatus('error', data.error || 'Gagal menyimpan draf');
+                                document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
+                                    z.classList.remove('uploading');
+                                });
+                            }
+                        } catch (e) {
+                            showStatus('error', 'Ralat pelayan: Maklum balas tidak sah');
+                            document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
+                                z.classList.remove('uploading');
+                            });
                         }
                     } else {
-                        showStatus('error', data.error || 'Gagal menyimpan draf');
+                        showStatus('error', 'Gagal menyambung ke pelayan (HTTP ' + xhr.status + ')');
                         document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
                             z.classList.remove('uploading');
                         });
                     }
-                })
-                .catch(function(err) {
-                    console.error('Autosave error:', err);
+                };
+                
+                xhr.onerror = function() {
                     showStatus('error', 'Gagal menyambung ke pelayan');
                     document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
                         z.classList.remove('uploading');
                     });
-                });
+                };
+                
+                xhr.send(formData);
             };
+            
+            // Expose globally so step5 can trigger upload when user clicks "Simpan"
+            window.triggerAutosaveGlobal = triggerAutosave;
             
             const queueAutosave = function() {
                 clearTimeout(debounceTimer);
@@ -252,13 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const el = e.target;
                 if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
                     if (el.type === 'file') {
-                        const zone = el.closest('.upload-dropzone');
-                        if (zone) zone.classList.add('uploading');
-                        setTimeout(function() {
-                            if (el.value !== '') {
-                                triggerAutosave();
-                            }
-                        }, 50);
+                        // Do not auto-save files on change. User must click "Simpan" on the preview card.
                     } else {
                         queueAutosave();
                     }

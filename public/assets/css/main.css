@@ -927,3 +927,91 @@ body {
     left: calc(50% - 12px);
     z-index: 5;
 }
+
+/* Floating Status Toast */
+#floating-status-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.floating-toast {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    border: 1px solid #e2e8f0;
+    width: 320px;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: slideInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: inherit;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.floating-toast.saving {
+    border-left: 4px solid #2563eb;
+}
+
+.floating-toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.floating-toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.floating-toast .toast-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #1e293b;
+}
+
+.floating-toast .toast-body {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.floating-toast .progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background-color: #f1f5f9;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.floating-toast .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #2563eb;
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.floating-toast.success .progress-bar-fill {
+    background-color: #10b981;
+    width: 100% !important;
+}

@@ -317,7 +317,10 @@ function previewFile(input) {
             <div style="flex-grow: 1; min-width: 0;">
                 ${previewHtml}
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearLocalSelection('${input.name}')" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button type="button" class="btn btn-sm btn-teal" onclick="uploadPendingFile('${input.name}')" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; height: 32px; display: inline-flex; align-items: center; justify-content: center;">Simpan</button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearLocalSelection('${input.name}')" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; font-weight: 600; cursor: pointer; border: 1px solid #ef4444; background: transparent; color: #ef4444; height: 32px; display: inline-flex; align-items: center; justify-content: center;">Hapus</button>
+            </div>
         </div>
     `;
 }
@@ -396,7 +399,10 @@ function previewMultipleFile(input, id) {
             <div style="flex-grow: 1; min-width: 0;">
                 ${previewHtml}
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearMultipleLocalSelection(${id})" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button type="button" class="btn btn-sm btn-teal" onclick="uploadPendingSijilFile(${id})" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; height: 32px; display: inline-flex; align-items: center; justify-content: center;">Simpan</button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearMultipleLocalSelection(${id})" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; font-weight: 600; cursor: pointer; border: 1px solid #ef4444; background: transparent; color: #ef4444; height: 32px; display: inline-flex; align-items: center; justify-content: center;">Hapus</button>
+            </div>
         </div>
     `;
 }
@@ -487,7 +493,10 @@ function previewMultipleIcFile(input, id) {
             <div style="flex-grow: 1; min-width: 0;">
                 ${previewHtml}
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearMultipleIcLocalSelection(${id})" style="flex-shrink: 0; padding: 6px 12px; font-size: 13px; border-radius: 6px;">Hapus</button>
+            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button type="button" class="btn btn-sm btn-teal" onclick="uploadPendingIcFile(${id})" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; height: 32px; display: inline-flex; align-items: center; justify-content: center;">Simpan</button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearMultipleIcLocalSelection(${id})" style="padding: 6px 12px; font-size: 13px; border-radius: 6px; font-weight: 600; cursor: pointer; border: 1px solid #ef4444; background: transparent; color: #ef4444; height: 32px; display: inline-flex; align-items: center; justify-content: center;">Hapus</button>
+            </div>
         </div>
     `;
 }
@@ -678,6 +687,37 @@ window.updateUploadedDocuments = function(docs) {
     const previewSijil0 = document.getElementById('preview_sijil_0');
     if (previewSijil0) previewSijil0.innerHTML = '';
 };
+
+function uploadPendingFile(inputName) {
+    const input = document.querySelector(`input[name="${inputName}"]`);
+    if (input) {
+        const zone = input.closest('.upload-dropzone');
+        if (zone) zone.classList.add('uploading');
+        if (typeof window.triggerAutosaveGlobal === 'function') {
+            window.triggerAutosaveGlobal();
+        }
+    }
+}
+
+function uploadPendingIcFile(id) {
+    const zone = document.getElementById('dropzone_ic_' + id);
+    if (zone) {
+        zone.classList.add('uploading');
+        if (typeof window.triggerAutosaveGlobal === 'function') {
+            window.triggerAutosaveGlobal();
+        }
+    }
+}
+
+function uploadPendingSijilFile(id) {
+    const zone = document.getElementById('dropzone_sijil_' + id);
+    if (zone) {
+        zone.classList.add('uploading');
+        if (typeof window.triggerAutosaveGlobal === 'function') {
+            window.triggerAutosaveGlobal();
+        }
+    }
+}
 
 function confirmDeleteDoc(id_dokumen) {
     if (confirm("Adakah anda pasti mahu memadam dokumen ini secara kekal?")) {
