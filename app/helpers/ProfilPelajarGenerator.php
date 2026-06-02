@@ -474,8 +474,9 @@ class ProfilPelajarGenerator extends FPDF
             $hasDoc = isset($docsList[$dbKey]) && !empty($docsList[$dbKey]);
             $statusText = $hasDoc ? "[X] Dimuat Naik" : "[ ] Belum Dihantar";
             
-            $this->Cell(22, 10.0, "  " . $dbKey, 1, 0, 'L', true);
-            $this->Cell(38, 10.0, "  " . $label, 1, 0, 'L');
+            $this->SetFont('Arial', '', 8);
+            $this->Cell(24, 10.0, "  " . $dbKey, 1, 0, 'L', true);
+            $this->Cell(36, 10.0, "  " . $label, 1, 0, 'L');
             
             if ($hasDoc) {
                 $this->SetFont('Arial', 'B', 8);
