@@ -622,13 +622,8 @@ class PermohonanController {
         $id = (int) $id_permohonan;
         $maxSize = 2 * 1024 * 1024;
 
-        // Process singular uploads: IC Pelajar and Gambar Pelajar
+        // Process singular uploads: Gambar Pelajar only
         $singularUploads = [
-            'ic_pelajar' => [
-                'folder' => 'public/uploads/pelajar_ic/', 
-                'jenis' => 'IC Pelajar', 
-                'allowed' => ['pdf', 'jpg', 'jpeg', 'png']
-            ],
             'gambar_pelajar' => [
                 'folder' => 'public/uploads/gambar/', 
                 'jenis' => 'Gambar Pelajar', 
@@ -668,6 +663,57 @@ class PermohonanController {
 
                 $this->pdo->prepare("INSERT INTO dokumen (id_permohonan, jenis_dokumen, nama_fail, nama_asal) VALUES (?, ?, ?, ?)")
                     ->execute([$id, $config['jenis'], $newFilename, $originalName]);
+            }
+        }
+
+        // Handle ic_pelajar (multiple array upload)
+        if (isset($files['ic_pelajar'])) {
+            $icConfig = [
+                'folder' => 'public/uploads/pelajar_ic/', 
+                'jenis' => 'IC Pelajar', 
+                'allowed' => ['pdf', 'jpg', 'jpeg', 'png']
+            ];
+
+            if (is_array($files['ic_pelajar']['name'])) {
+                $fileCount = count($files['ic_pelajar']['name']);
+                for ($i = 0; $i < $fileCount; $i++) {
+                    if ($files['ic_pelajar']['error'][$i] == 0) {
+                        $originalName = $files['ic_pelajar']['name'][$i];
+                        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+                        if (!in_array($extension, $icConfig['allowed'])) {
+                            return "Format fail '$originalName' tidak dibenarkan.";
+                        }
+                        if ($files['ic_pelajar']['size'][$i] > $maxSize) {
+                            return "Fail '$originalName' melebihi had 2MB.";
+                        }
+
+                        $newFilename = time() . "_" . uniqid() . "." . $extension;
+                        if (move_uploaded_file($files['ic_pelajar']['tmp_name'][$i], $icConfig['folder'] . $newFilename)) {
+                            $this->pdo->prepare("INSERT INTO dokumen (id_permohonan, jenis_dokumen, nama_fail, nama_asal) VALUES (?, ?, ?, ?)")
+                                ->execute([$id, $icConfig['jenis'], $newFilename, $originalName]);
+                        }
+                    }
+                }
+            } else {
+                if ($files['ic_pelajar']['error'] == 0) {
+                    $file = $files['ic_pelajar'];
+                    $originalName = $file['name'];
+                    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+                    if (!in_array($extension, $icConfig['allowed'])) {
+                        return "Format fail '$originalName' tidak dibenarkan.";
+                    }
+                    if ($file['size'] > $maxSize) {
+                        return "Fail '$originalName' melebihi had 2MB.";
+                    }
+
+                    $newFilename = time() . "_" . uniqid() . "." . $extension;
+                    if (move_uploaded_file($file['tmp_name'], $icConfig['folder'] . $newFilename)) {
+                        $this->pdo->prepare("INSERT INTO dokumen (id_permohonan, jenis_dokumen, nama_fail, nama_asal) VALUES (?, ?, ?, ?)")
+                            ->execute([$id, $icConfig['jenis'], $newFilename, $originalName]);
+                    }
+                }
             }
         }
 
@@ -741,7 +787,7 @@ class PermohonanController {
                 $this->pdo->prepare("UPDATE permohonan SET langkah_semasa = 6 WHERE id_permohonan = ?")->execute([$id]);
             }
         }
-        return true;
+        return $this->getDokumen($id);
     }
 
     public function getDokumen($id_permohonan) {

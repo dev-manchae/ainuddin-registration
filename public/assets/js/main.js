@@ -222,6 +222,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {
                             z.classList.remove('uploading');
                         });
+                        
+                        if (data.documents && typeof window.updateUploadedDocuments === 'function') {
+                            window.updateUploadedDocuments(data.documents);
+                        }
                     } else {
                         showStatus('error', data.error || 'Gagal menyimpan draf');
                         document.querySelectorAll('.upload-dropzone.uploading').forEach(function(z) {

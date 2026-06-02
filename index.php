@@ -584,7 +584,9 @@ switch ($page) {
 
         if ($is_ajax) {
             header('Content-Type: application/json');
-            if ($result === true) {
+            if (is_array($result)) {
+                echo json_encode(['success' => true, 'documents' => $result]);
+            } else if ($result === true) {
                 echo json_encode(['success' => true]);
             } else {
                 echo json_encode(['success' => false, 'error' => $result]);
@@ -592,7 +594,7 @@ switch ($page) {
             exit;
         }
 
-        if ($result === true) {
+        if ($result === true || is_array($result)) {
 
             $_SESSION['success'] = $is_draft ? "Draf permohonan berjaya disimpan." : "Dokumen berjaya dimuat naik.";
 
