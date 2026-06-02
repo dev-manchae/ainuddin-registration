@@ -174,13 +174,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.body.appendChild(container);
                 }
 
-                if (!activeAutosaveToast) {
-                    activeAutosaveToast = document.createElement('div');
-                    activeAutosaveToast.className = 'floating-toast ' + state;
-                    container.appendChild(activeAutosaveToast);
-                } else {
-                    activeAutosaveToast.className = 'floating-toast ' + state;
+                let toastEl = activeAutosaveToast;
+                if (!toastEl) {
+                    toastEl = document.createElement('div');
+                    container.appendChild(toastEl);
                 }
+
+                toastEl.className = 'floating-toast ' + state;
+                toastEl.style.opacity = '1';
+                toastEl.style.transform = 'translateY(0) scale(1)';
 
                 let title = '';
                 let icon = '';
@@ -191,14 +193,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     title = 'Menyimpan Draf...';
                     icon = '⏳';
                     showBar = true;
+                    activeAutosaveToast = toastEl;
                 } else if (state === 'success') {
                     title = 'Perubahan Disimpan!';
                     icon = '✅';
                     showBar = true;
                     body = message || 'Semua draf dan fail telah berjaya disimpan.';
                     
-                    const currentToast = activeAutosaveToast;
                     activeAutosaveToast = null;
+                    const currentToast = toastEl;
                     setTimeout(function() {
                         currentToast.style.opacity = '0';
                         currentToast.style.transform = 'translateY(10px) scale(0.95)';
@@ -211,8 +214,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon = '❌';
                     body = message || 'Gagal menyambung ke pelayan.';
                     
-                    const currentToast = activeAutosaveToast;
                     activeAutosaveToast = null;
+                    const currentToast = toastEl;
                     setTimeout(function() {
                         currentToast.style.opacity = '0';
                         currentToast.style.transform = 'translateY(10px) scale(0.95)';
@@ -222,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 5000);
                 }
 
-                activeAutosaveToast.innerHTML = `
+                toastEl.innerHTML = `
                     <div class="toast-header">
                         <span>${icon} &nbsp;${title}</span>
                     </div>
@@ -235,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 
                 if (state === 'saving' && progress !== null) {
-                    const fill = activeAutosaveToast.querySelector('.progress-bar-fill');
+                    const fill = toastEl.querySelector('.progress-bar-fill');
                     if (fill) fill.style.width = progress + '%';
                 }
             };
