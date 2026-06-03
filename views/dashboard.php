@@ -132,6 +132,108 @@ $activeIntake = $permCtrl->getActiveIntake();
     <div class="stat-item"><div class="stat-number"><?= $rejected; ?></div><div class="stat-label">Ditolak</div></div>
 </div>
 
+<?php if (!empty($applications)): ?>
+    <?php
+    $activeApp = $applications[0]; // Most recent application
+    $status = $activeApp['kod_status'];
+    
+    // Calculate progress state
+    $progressPercent = 0;
+    $progressColor = '#1e5631'; // Default Forest Green
+    
+    // Step 1: Draf (Default pending state)
+    $step1Bg = '#ffffff'; $step1Border = '#cbd5e1'; $step1Text = '#94a3b8';
+    // Step 2: Dihantar
+    $step2Bg = '#ffffff'; $step2Border = '#cbd5e1'; $step2Text = '#94a3b8';
+    // Step 3: Semakan
+    $step3Bg = '#ffffff'; $step3Border = '#cbd5e1'; $step3Text = '#94a3b8'; $step3Subtext = 'Syarat & Temuduga';
+    // Step 4: Keputusan
+    $step4Bg = '#ffffff'; $step4Border = '#cbd5e1'; $step4Text = '#94a3b8'; $step4Subtext = 'Lulus / Ditolak';
+    
+    if ($status === '00') {
+        $progressPercent = 0;
+        $step1Bg = '#eaf5ee'; $step1Border = '#1e5631'; $step1Text = '#1e5631';
+    } elseif ($status === '03') {
+        $progressPercent = 66.6;
+        $step1Bg = '#1e5631'; $step1Border = '#1e5631'; $step1Text = '#ffffff';
+        $step2Bg = '#1e5631'; $step2Border = '#1e5631'; $step2Text = '#ffffff';
+        $step3Bg = '#eaf5ee'; $step3Border = '#1e5631'; $step3Text = '#1e5631'; $step3Subtext = 'Sedang Disemak';
+    } elseif ($status === '08') {
+        $progressPercent = 66.6;
+        $progressColor = '#d97706'; // Amber/Gold warning
+        $step1Bg = '#d97706'; $step1Border = '#d97706'; $step1Text = '#ffffff';
+        $step2Bg = '#d97706'; $step2Border = '#d97706'; $step2Text = '#ffffff';
+        $step3Bg = '#fffbeb'; $step3Border = '#d97706'; $step3Text = '#d97706'; $step3Subtext = 'Tindakan Diperlukan';
+    } elseif ($status === '04') {
+        $progressPercent = 100;
+        $progressColor = '#16a34a'; // Success green
+        $step1Bg = '#16a34a'; $step1Border = '#16a34a'; $step1Text = '#ffffff';
+        $step2Bg = '#16a34a'; $step2Border = '#16a34a'; $step2Text = '#ffffff';
+        $step3Bg = '#16a34a'; $step3Border = '#16a34a'; $step3Text = '#ffffff'; $step3Subtext = 'Selesai Disemak';
+        $step4Bg = '#dcfce7'; $step4Border = '#16a34a'; $step4Text = '#166534'; $step4Subtext = 'Tahniah! Lulus';
+    } elseif ($status === '05') {
+        $progressPercent = 100;
+        $progressColor = '#ef4444'; // Error red
+        $step1Bg = '#ef4444'; $step1Border = '#ef4444'; $step1Text = '#ffffff';
+        $step2Bg = '#ef4444'; $step2Border = '#ef4444'; $step2Text = '#ffffff';
+        $step3Bg = '#ef4444'; $step3Border = '#ef4444'; $step3Text = '#ffffff'; $step3Subtext = 'Selesai Disemak';
+        $step4Bg = '#fee2e2'; $step4Border = '#ef4444'; $step4Text = '#991b1b'; $step4Subtext = 'Ditolak';
+    }
+    ?>
+    
+    <!-- Premium Application Status Timeline Stepper -->
+    <div class="card timeline-card" style="margin-bottom: 30px; padding: 24px; background: white; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.006);">
+        <h4 style="margin: 0 0 24px 0; font-size: 15px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e5631" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Status Alur Permohonan Pelajar: <span style="color: #1e5631; font-weight: 800;"><?= htmlspecialchars($activeApp['nama_pelajar'] ?: 'Tanpa Nama'); ?></span>
+        </h4>
+        
+        <div class="timeline-stepper" style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; margin-top: 10px;">
+            <!-- Timeline connector line -->
+            <div class="timeline-line" style="position: absolute; top: 18px; left: 10%; right: 10%; height: 4px; background: #e2e8f0; z-index: 1; border-radius: 2px;">
+                <!-- Progress fill line depending on status -->
+                <div class="timeline-line-fill" style="position: absolute; top: 0; left: 0; height: 100%; width: <?= $progressPercent; ?>%; background: <?= $progressColor; ?>; z-index: 2; transition: width 0.5s ease; border-radius: 2px;"></div>
+            </div>
+            
+            <!-- Step 1: Draf -->
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step1Bg; ?>; border: 3px solid <?= $step1Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step1Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    1
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Draf</span>
+                <small style="font-size: 11px; color: #64748b; margin-top: 2px;">Mengisi Maklumat</small>
+            </div>
+            
+            <!-- Step 2: Dihantar -->
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step2Bg; ?>; border: 3px solid <?= $step2Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step2Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    2
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Dihantar</span>
+                <small style="font-size: 11px; color: #64748b; margin-top: 2px;">Diterima Sistem</small>
+            </div>
+            
+            <!-- Step 3: Semakan -->
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step3Bg; ?>; border: 3px solid <?= $step3Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step3Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    3
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Semakan Dokumen</span>
+                <small style="font-size: 11px; color: #64748b; margin-top: 2px;"><?= $step3Subtext; ?></small>
+            </div>
+            
+            <!-- Step 4: Keputusan -->
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step4Bg; ?>; border: 3px solid <?= $step4Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step4Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    4
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Keputusan</span>
+                <small style="font-size: 11px; color: #64748b; margin-top: 2px;"><?= $step4Subtext; ?></small>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b;">Senarai Permohonan</h3>
 
 <?php if (!empty($applications)): ?>
