@@ -94,6 +94,8 @@
                                 $badgeClass = 'badge-approved';
                             } elseif ($row['kod_status'] == '05') {
                                 $badgeClass = 'badge-rejected';
+                            } elseif ($row['kod_status'] == '08') {
+                                $badgeClass = 'badge-warning';
                             }
 
                             $statusLabel = match($row['kod_status']) {
@@ -101,6 +103,7 @@
                                 '03' => 'Dihantar',
                                 '04' => 'Diluluskan',
                                 '05' => 'Ditolak',
+                                '08' => 'Perlu Kemaskini',
                                 default => $row['kod_status']
                             };
 

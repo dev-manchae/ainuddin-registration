@@ -1,6 +1,6 @@
-# Walkthrough 2.9 - Inactive Session Timeout Fix
+# Walkthrough 2.9 - Inactive Session Timeout Fix & Admin UI Alignment
 
-We have completed the implementation of all Milestone `v2.9` changes to resolve the inactive session timeout bug where parent users were not warned or logged out.
+We have completed the implementation of all Milestone `v2.9` changes to resolve the inactive session timeout bug where parent users were not warned or logged out, and align the admin dashboard status labels.
 
 ## 1. File Modifiers
 
@@ -12,6 +12,8 @@ We have completed the implementation of all Milestone `v2.9` changes to resolve 
 * [main.js](file:///d:/xampp/htdocs/ainuddin-registration/public/assets/js/main.js) [MODIFY]
   * Temporarily configured shorter timers (10 seconds warning, 10 seconds countdown) for manual verification.
   * Restored the production timer limits after successful validation (17 minutes idle time warning, followed by a 3-minute/180-second countdown).
+* [dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/dashboard.php) [MODIFY]
+  * Aligned status code `08` rendering on the admin dashboard "Permohonan Terkini" table to map to "Perlu Kemaskini" with a `badge-warning` layout class, resolving the UI discrepancy.
 
 ---
 
@@ -19,7 +21,7 @@ We have completed the implementation of all Milestone `v2.9` changes to resolve 
 
 ### Syntax Validation
 * Checked compile-safety of modified PHP files:
-  `d:\xampp\php\php.exe -l views/layouts/footer.php views/layouts/registration_layout.php`
+  `d:\xampp\php\php.exe -l views/layouts/footer.php views/layouts/registration_layout.php views/admin/dashboard.php`
   *Result*: **No syntax errors detected.**
 
 ### Inactivity Timeout Verification
