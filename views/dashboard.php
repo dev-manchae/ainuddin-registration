@@ -295,11 +295,13 @@ $activeIntake = $permCtrl->getActiveIntake();
                                 <?php else: ?>
                                     <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link" style="background: #f59e0b; color: white;">Kemaskini</a>
                                 <?php endif; ?>
+                                <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
                             <?php elseif ($app['kod_status'] == '04'): ?>
                                 <a href="?page=cetak_surat_tawaran" target="_blank" class="action-link" style="background: var(--teal); color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Tawaran</a>
                                 <a href="?page=download_peraturan" target="_blank" class="action-link" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Peraturan</a>
+                                <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
                             <?php else: ?>
-                                <span style="color: #64748b; font-size: 13px;">Tiada Tindakan</span>
+                                <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
                             <?php endif; ?>
                         </div>
                     </td>

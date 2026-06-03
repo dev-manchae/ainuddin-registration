@@ -939,6 +939,40 @@ switch ($page) {
         readfile($filePath);
         exit;
 
+    case 'cetak_profil':
+
+        AuthMiddleware::check();
+
+        $id_permohonan = $_GET['id'] ?? 0;
+
+        // Security check: ensure parent owns the application
+        $pdo = getConnection();
+        $stmt = $pdo->prepare("SELECT id_permohonan FROM permohonan WHERE id_permohonan = ? AND id_pengguna = ?");
+        $stmt->execute([$id_permohonan, $_SESSION['id_pengguna']]);
+        $app = $stmt->fetch();
+
+        if (!$app) {
+            $_SESSION['error'] = "Permohonan tidak dijumpai atau akses ditolak.";
+            header("Location: ?page=dashboard");
+            exit;
+        }
+
+        $adminController = new AdminController();
+        $detail = $adminController->getApplicationDetail($id_permohonan);
+
+        $stmt = $pdo->prepare("SELECT jenis_dokumen, nama_fail FROM dokumen WHERE id_permohonan = ?");
+        $stmt->execute([$id_permohonan]);
+        $docsList = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $detail['dokumen_list'] = $docsList;
+
+        $noRujukan = $detail['permohonan']['no_rujukan'] ?? 'Draf';
+
+        require_once "app/helpers/ProfilPelajarGenerator.php";
+        $generator = new ProfilPelajarGenerator($detail);
+        $generator->generate();
+        $generator->Output('I', 'Profil_Pelajar_' . $noRujukan . '.pdf');
+        exit;
+
     case 'admin_cetak_surat_tawaran':
 
         AdminMiddleware::check();
