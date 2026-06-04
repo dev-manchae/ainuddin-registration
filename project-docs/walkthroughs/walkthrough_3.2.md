@@ -8,6 +8,7 @@ We have completed the implementation of Milestone `v3.2` adding real-time visual
   * Expanded the `getStats()` query system to fetch gender breakdowns, Quranic levels, cawangan (branch) distributions, and computed age group statistics (using `TIMESTAMPDIFF`).
 * **[dashboard.php](file:///d:/xampp/htdocs/ainuddin-registration/views/admin/dashboard.php)** [MODIFY]
   * Added a secondary responsive grid and canvas targets for the new demographic charts.
+  * Split the gender and age charts into separate visual cards to ensure robust responsive layout containment on smaller screen sizes.
   * Initialized and styled four new interactive Chart.js elements: Quranic level mastery, gender ratio, age range breakdowns, and cawangan registration counts.
 * **[admin_layout.php](file:///d:/xampp/htdocs/ainuddin-registration/views/layouts/admin_layout.php)** [MODIFY]
   * Injected a top mobile navigation header containing a menu trigger and the brand logo.
