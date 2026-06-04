@@ -265,19 +265,21 @@ function hideRevisionForm() {
 <div class="tabs">
     <?php
     $tabs = [1 => 'Pelajar', 2 => 'Penjaga', 3 => 'Akademik', 4 => 'Kesihatan', 5 => 'Dokumen', 6 => 'Log Status'];
-    $currentTab = $_GET['tab'] ?? '1';
     foreach ($tabs as $num => $label):
     ?>
-        <a href="?page=admin_lihat&id=<?= $p['id_permohonan']; ?>&tab=<?= $num; ?>"
-           class="<?= ($currentTab == $num) ? 'active' : ''; ?>">
+        <a href="javascript:void(0);"
+           class="admin-tab-btn <?= ($num == 1) ? 'active' : ''; ?>"
+           onclick="switchAdminTab(<?= $num; ?>)"
+           data-tab="<?= $num; ?>">
             <?= $label; ?>
         </a>
     <?php endforeach; ?>
 </div>
 
 <!-- TAB CONTENT -->
-<div class="card">
-    <?php if ($currentTab == '1'): ?>
+<div class="card" style="position: relative;">
+    <!-- Tab 1: Pelajar -->
+    <div id="admin-tab-content-1" class="admin-tab-panel" style="display: block;">
         <h3>Maklumat Pelajar</h3><br>
         <?php if ($pl): ?>
             <div class="detail-grid">
@@ -295,8 +297,10 @@ function hideRevisionForm() {
         <?php else: ?>
             <p style="color: #64748b;">Tiada maklumat pelajar.</p>
         <?php endif; ?>
+    </div>
 
-    <?php elseif ($currentTab == '2'): ?>
+    <!-- Tab 2: Penjaga -->
+    <div id="admin-tab-content-2" class="admin-tab-panel" style="display: none;">
         <h3>Maklumat Penjaga</h3><br>
         <?php if (!empty($kl)): ?>
             <?php foreach ($kl as $penjaga): ?>
@@ -315,8 +319,10 @@ function hideRevisionForm() {
         <?php else: ?>
             <p style="color: #64748b;">Tiada maklumat penjaga.</p>
         <?php endif; ?>
+    </div>
 
-    <?php elseif ($currentTab == '3'): ?>
+    <!-- Tab 3: Akademik -->
+    <div id="admin-tab-content-3" class="admin-tab-panel" style="display: none;">
         <h3>Maklumat Akademik</h3><br>
         <?php if ($ak): ?>
             <div class="detail-grid">
@@ -377,8 +383,10 @@ function hideRevisionForm() {
         <?php else: ?>
             <p style="color: #64748b;">Tiada maklumat akademik.</p>
         <?php endif; ?>
+    </div>
 
-    <?php elseif ($currentTab == '4'): ?>
+    <!-- Tab 4: Kesihatan -->
+    <div id="admin-tab-content-4" class="admin-tab-panel" style="display: none;">
         <h3>Maklumat Kesihatan</h3><br>
         <?php if ($ks): ?>
             <div class="detail-grid">
@@ -391,8 +399,10 @@ function hideRevisionForm() {
         <?php else: ?>
             <p style="color: #64748b;">Tiada maklumat kesihatan.</p>
         <?php endif; ?>
+    </div>
 
-    <?php elseif ($currentTab == '5'): ?>
+    <!-- Tab 5: Dokumen -->
+    <div id="admin-tab-content-5" class="admin-tab-panel" style="display: none;">
         <h3>Dokumen Dimuat Naik</h3><br>
         <?php
         $docTypes = ['IC Pelajar' => 'IC Pelajar', 'Gambar Pelajar' => 'Gambar Pelajar', 'Sijil Pelajar' => 'Sijil Pelajar'];
@@ -445,8 +455,10 @@ function hideRevisionForm() {
         else: ?>
             <p style="color: #64748b;">Tiada dokumen dimuat naik.</p>
         <?php endif; ?>
+    </div>
 
-    <?php elseif ($currentTab == '6'): ?>
+    <!-- Tab 6: Log Status -->
+    <div id="admin-tab-content-6" class="admin-tab-panel" style="display: none;">
         <h3>Log Status</h3><br>
         <?php if (!empty($log)): ?>
             <table>
@@ -475,7 +487,7 @@ function hideRevisionForm() {
         <?php else: ?>
             <p style="color: #64748b;">Tiada log status.</p>
         <?php endif; ?>
-    <?php endif; ?>
+    </div>
 </div>
 
 <!-- LIGHTBOX MODAL CONTAINER -->
@@ -501,6 +513,25 @@ function hideRevisionForm() {
 </div>
 
 <script>
+function switchAdminTab(tabNum) {
+    const panels = document.querySelectorAll('.admin-tab-panel');
+    panels.forEach(p => p.style.display = 'none');
+    
+    const activePanel = document.getElementById('admin-tab-content-' + tabNum);
+    if (activePanel) {
+        activePanel.style.display = 'block';
+    }
+    
+    const tabBtns = document.querySelectorAll('.admin-tab-btn');
+    tabBtns.forEach(btn => {
+        if (btn.getAttribute('data-tab') == tabNum) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
 function openLightbox(title, filePath, isImage) {
     const modal = document.getElementById('previewLightbox');
     const titleEl = document.getElementById('lightboxTitle');

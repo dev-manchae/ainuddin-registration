@@ -169,3 +169,48 @@
         </tbody>
     </table>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchQuery = <?= json_encode($_GET['carian'] ?? ''); ?>;
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return;
+
+    const table = document.querySelector("table tbody");
+    if (!table) return;
+
+    const walker = document.createTreeWalker(table, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+
+    textNodes.forEach(node => {
+        const text = node.nodeValue;
+        const lowerText = text.toLowerCase();
+        if (lowerText.includes(query)) {
+            const span = document.createElement("span");
+            let index = 0;
+            while (index < text.length) {
+                const pos = lowerText.indexOf(query, index);
+                if (pos === -1) {
+                    span.appendChild(document.createTextNode(text.substring(index)));
+                    break;
+                }
+                if (pos > index) {
+                    span.appendChild(document.createTextNode(text.substring(index, pos)));
+                }
+                const mark = document.createElement("mark");
+                mark.textContent = text.substring(pos, pos + query.length);
+                mark.style.background = "#fef08a";
+                mark.style.color = "#854d0e";
+                mark.style.padding = "1px 3px";
+                mark.style.borderRadius = "4px";
+                span.appendChild(mark);
+                index = pos + query.length;
+            }
+            node.parentNode.replaceChild(span, node);
+        }
+    });
+});
+</script>
