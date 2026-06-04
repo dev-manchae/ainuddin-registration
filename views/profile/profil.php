@@ -135,6 +135,19 @@
             width: 100%;
         }
     }
+
+    @media (max-width: 360px) {
+        .profile-card {
+            min-width: 100% !important;
+            padding: 20px 15px !important;
+        }
+        .form-group-custom input {
+            padding: 10px 12px;
+        }
+        .form-group-custom div input[style*="padding-left: 45px;"] {
+            padding-left: 45px !important;
+        }
+    }
 </style>
 <div class="student-header">
     <div>

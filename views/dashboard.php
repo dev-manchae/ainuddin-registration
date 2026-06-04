@@ -59,6 +59,146 @@ $activeIntake = $permCtrl->getActiveIntake();
     .action-delete:hover { background: #fecaca; }
     .action-group { display: flex; gap: 8px; align-items: center; }
     .empty-message { background: white; border-radius: 12px; padding: 60px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; color: #64748b; }
+
+    /* Stepper styles */
+    .timeline-stepper {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        position: relative;
+        margin-top: 10px;
+    }
+    .timeline-line {
+        position: absolute;
+        top: 18px;
+        left: 10%;
+        right: 10%;
+        height: 4px;
+        background: #e2e8f0;
+        z-index: 1;
+        border-radius: 2px;
+    }
+    .timeline-line-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 2;
+        transition: width 0.5s ease;
+        border-radius: 2px;
+    }
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 20%;
+        text-align: center;
+        z-index: 3;
+        position: relative;
+        cursor: default;
+    }
+    .step-item-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .step-label-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 8px;
+    }
+    .step-item-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+    }
+    .step-item-desc {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 2px;
+    }
+    
+    /* Table scroll wrapper */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+    .table-responsive .app-table {
+        margin: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    @media (max-width: 600px) {
+        .timeline-stepper {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 24px;
+            padding-left: 10px;
+        }
+        .timeline-line {
+            display: none;
+        }
+        .step-item {
+            flex-direction: row;
+            width: 100% !important;
+            text-align: left;
+            align-items: center;
+            gap: 16px;
+        }
+        .step-item::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -28px;
+            width: 3px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+        .step-item:last-child::after {
+            display: none;
+        }
+        .step-item-1::after { background: var(--step-2-border); }
+        .step-item-2::after { background: var(--step-3-border); }
+        .step-item-3::after { background: var(--step-4-border); }
+        
+        .step-label-wrapper {
+            align-items: flex-start;
+            margin-top: 0;
+            text-align: left;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-row {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .student-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+            text-align: center;
+        }
+        .btn-permohonan {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+    }
 </style>
 
 <div class="student-header">
@@ -188,47 +328,55 @@ $activeIntake = $permCtrl->getActiveIntake();
             Status Alur Permohonan Pelajar: <span style="color: #1e5631; font-weight: 800;"><?= htmlspecialchars($activeApp['nama_pelajar'] ?: 'Tanpa Nama'); ?></span>
         </h4>
         
-        <div class="timeline-stepper" style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; margin-top: 10px;">
+        <div class="timeline-stepper" style="--step-2-border: <?= $step2Border; ?>; --step-3-border: <?= $step3Border; ?>; --step-4-border: <?= $step4Border; ?>;">
             <!-- Timeline connector line -->
-            <div class="timeline-line" style="position: absolute; top: 18px; left: 10%; right: 10%; height: 4px; background: #e2e8f0; z-index: 1; border-radius: 2px;">
+            <div class="timeline-line">
                 <!-- Progress fill line depending on status -->
-                <div class="timeline-line-fill" style="position: absolute; top: 0; left: 0; height: 100%; width: <?= $progressPercent; ?>%; background: <?= $progressColor; ?>; z-index: 2; transition: width 0.5s ease; border-radius: 2px;"></div>
+                <div class="timeline-line-fill" style="width: <?= $progressPercent; ?>%; background: <?= $progressColor; ?>;"></div>
             </div>
             
             <!-- Step 1: Draf -->
-            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
-                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step1Bg; ?>; border: 3px solid <?= $step1Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step1Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="step-item step-item-1">
+                <div class="step-item-circle" style="background: <?= $step1Bg; ?>; border: 3px solid <?= $step1Border; ?>; color: <?= $step1Text; ?>;">
                     1
                 </div>
-                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Draf</span>
-                <small style="font-size: 11px; color: #64748b; margin-top: 2px;">Mengisi Maklumat</small>
+                <div class="step-label-wrapper">
+                    <span class="step-item-title">Draf</span>
+                    <span class="step-item-desc">Mengisi Maklumat</span>
+                </div>
             </div>
             
             <!-- Step 2: Dihantar -->
-            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
-                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step2Bg; ?>; border: 3px solid <?= $step2Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step2Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="step-item step-item-2">
+                <div class="step-item-circle" style="background: <?= $step2Bg; ?>; border: 3px solid <?= $step2Border; ?>; color: <?= $step2Text; ?>;">
                     2
                 </div>
-                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Dihantar</span>
-                <small style="font-size: 11px; color: #64748b; margin-top: 2px;">Diterima Sistem</small>
+                <div class="step-label-wrapper">
+                    <span class="step-item-title">Dihantar</span>
+                    <span class="step-item-desc">Diterima Sistem</span>
+                </div>
             </div>
             
             <!-- Step 3: Semakan -->
-            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
-                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step3Bg; ?>; border: 3px solid <?= $step3Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step3Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="step-item step-item-3">
+                <div class="step-item-circle" style="background: <?= $step3Bg; ?>; border: 3px solid <?= $step3Border; ?>; color: <?= $step3Text; ?>;">
                     3
                 </div>
-                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Semakan Dokumen</span>
-                <small style="font-size: 11px; color: #64748b; margin-top: 2px;"><?= $step3Subtext; ?></small>
+                <div class="step-label-wrapper">
+                    <span class="step-item-title">Semakan Dokumen</span>
+                    <span class="step-item-desc"><?= $step3Subtext; ?></span>
+                </div>
             </div>
             
             <!-- Step 4: Keputusan -->
-            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; width: 20%; text-align: center; z-index: 3; position: relative; cursor: default;">
-                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: <?= $step4Bg; ?>; border: 3px solid <?= $step4Border; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; color: <?= $step4Text; ?>; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="step-item step-item-4">
+                <div class="step-item-circle" style="background: <?= $step4Bg; ?>; border: 3px solid <?= $step4Border; ?>; color: <?= $step4Text; ?>;">
                     4
                 </div>
-                <span style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 8px;">Keputusan</span>
-                <small style="font-size: 11px; color: #64748b; margin-top: 2px;"><?= $step4Subtext; ?></small>
+                <div class="step-label-wrapper">
+                    <span class="step-item-title">Keputusan</span>
+                    <span class="step-item-desc"><?= $step4Subtext; ?></span>
+                </div>
             </div>
         </div>
     </div>
@@ -237,78 +385,80 @@ $activeIntake = $permCtrl->getActiveIntake();
 <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b;">Senarai Permohonan</h3>
 
 <?php if (!empty($applications)): ?>
-    <table class="app-table">
-        <thead>
-            <tr>
-                <th>Nama Pelajar</th>
-                <th>No. Rujukan</th>
-                <th>Status</th>
-                <th>Tarikh</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($applications as $app): ?>
-                <?php
-                $statusMap = [
-                    '00' => ['Draf', 'badge-draft'],
-                    '03' => ['Dihantar', 'badge-submitted'],
-                    '04' => ['Diluluskan', 'badge-approved'],
-                    '05' => ['Ditolak', 'badge-rejected'],
-                    '08' => ['Perlu Kemaskini', 'badge-warning'],
-                ];
-                [$statusText, $badgeClass] = $statusMap[$app['kod_status']] ?? ['Draf', 'badge-draft'];
-                ?>
+    <div class="table-responsive">
+        <table class="app-table">
+            <thead>
                 <tr>
-                    <td><?= htmlspecialchars($app['nama_pelajar'] ?? 'Tanpa Nama'); ?></td>
-                    <td><?= htmlspecialchars($app['no_rujukan'] ?? '-'); ?></td>
-                    <td><span class="badge <?= $badgeClass; ?>"><?= $statusText; ?></span></td>
-                    <td>
-                        <?= $app['tarikh_hantar'] 
-                            ? date('d/m/Y', strtotime($app['tarikh_hantar'])) 
-                            : date('d/m/Y', strtotime($app['tarikh_cipta'])); ?>
-                    </td>
-                    <td>
-                        <div class="action-group">
-                            <?php if ($app['kod_status'] == '00'): ?>
-                                <?php 
-                                $currentDate = date('Y-m-d');
-                                $intakeActive = ($app['intake_status'] ?? 'N') === 'Y';
-                                $isClosed = ($currentDate < ($app['intake_buka'] ?? '1970-01-01') || $currentDate > ($app['intake_tutup'] ?? '9999-12-31'));
-                                ?>
-                                <?php if (!$intakeActive || $isClosed): ?>
-                                    <span class="badge badge-rejected" style="background: #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px;" title="Sesi pendaftaran telah tamat tempoh atau ditutup.">Tamat Tempoh</span>
-                                <?php else: ?>
-                                    <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link">Sambung</a>
-                                <?php endif; ?>
-                                <form method="POST" action="?page=delete_permohonan" onsubmit="return confirm('Adakah anda pasti ingin memadam draf ini?');">
-                                    <?= csrfField(); ?>
-                                    <input type="hidden" name="id_permohonan" value="<?= $app['id_permohonan']; ?>">
-                                    <button type="submit" class="action-link action-delete">Padam</button>
-                                </form>
-                            <?php elseif ($app['kod_status'] == '08'): ?>
-                                <?php 
-                                $intakeActive = ($app['intake_status'] ?? 'N') === 'Y';
-                                ?>
-                                <?php if (!$intakeActive): ?>
-                                    <span class="badge badge-rejected" style="background: #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px;" title="Sesi pendaftaran telah ditutup sepenuhnya.">Sesi Ditutup</span>
-                                <?php else: ?>
-                                    <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link" style="background: #f59e0b; color: white;">Kemaskini</a>
-                                <?php endif; ?>
-                                <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
-                            <?php elseif ($app['kod_status'] == '04'): ?>
-                                <a href="?page=cetak_surat_tawaran" target="_blank" class="action-link" style="background: var(--teal); color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Tawaran</a>
-                                <a href="?page=download_peraturan" target="_blank" class="action-link" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Peraturan</a>
-                                <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
-                            <?php else: ?>
-                                <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
-                            <?php endif; ?>
-                        </div>
-                    </td>
+                    <th>Nama Pelajar</th>
+                    <th>No. Rujukan</th>
+                    <th>Status</th>
+                    <th>Tarikh</th>
+                    <th></th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($applications as $app): ?>
+                    <?php
+                    $statusMap = [
+                        '00' => ['Draf', 'badge-draft'],
+                        '03' => ['Dihantar', 'badge-submitted'],
+                        '04' => ['Diluluskan', 'badge-approved'],
+                        '05' => ['Ditolak', 'badge-rejected'],
+                        '08' => ['Perlu Kemaskini', 'badge-warning'],
+                    ];
+                    [$statusText, $badgeClass] = $statusMap[$app['kod_status']] ?? ['Draf', 'badge-draft'];
+                    ?>
+                    <tr>
+                        <td><?= htmlspecialchars($app['nama_pelajar'] ?? 'Tanpa Nama'); ?></td>
+                        <td><?= htmlspecialchars($app['no_rujukan'] ?? '-'); ?></td>
+                        <td><span class="badge <?= $badgeClass; ?>"><?= $statusText; ?></span></td>
+                        <td>
+                            <?= $app['tarikh_hantar'] 
+                                ? date('d/m/Y', strtotime($app['tarikh_hantar'])) 
+                                : date('d/m/Y', strtotime($app['tarikh_cipta'])); ?>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                <?php if ($app['kod_status'] == '00'): ?>
+                                    <?php 
+                                    $currentDate = date('Y-m-d');
+                                    $intakeActive = ($app['intake_status'] ?? 'N') === 'Y';
+                                    $isClosed = ($currentDate < ($app['intake_buka'] ?? '1970-01-01') || $currentDate > ($app['intake_tutup'] ?? '9999-12-31'));
+                                    ?>
+                                    <?php if (!$intakeActive || $isClosed): ?>
+                                        <span class="badge badge-rejected" style="background: #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px;" title="Sesi pendaftaran telah tamat tempoh atau ditutup.">Tamat Tempoh</span>
+                                    <?php else: ?>
+                                        <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link">Sambung</a>
+                                    <?php endif; ?>
+                                    <form method="POST" action="?page=delete_permohonan" onsubmit="return confirm('Adakah anda pasti ingin memadam draf ini?');">
+                                        <?= csrfField(); ?>
+                                        <input type="hidden" name="id_permohonan" value="<?= $app['id_permohonan']; ?>">
+                                        <button type="submit" class="action-link action-delete">Padam</button>
+                                    </form>
+                                <?php elseif ($app['kod_status'] == '08'): ?>
+                                    <?php 
+                                    $intakeActive = ($app['intake_status'] ?? 'N') === 'Y';
+                                    ?>
+                                    <?php if (!$intakeActive): ?>
+                                        <span class="badge badge-rejected" style="background: #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px;" title="Sesi pendaftaran telah ditutup sepenuhnya.">Sesi Ditutup</span>
+                                    <?php else: ?>
+                                        <a href="?page=resume_permohonan&id=<?= $app['id_permohonan']; ?>" class="action-link" style="background: #f59e0b; color: white;">Kemaskini</a>
+                                    <?php endif; ?>
+                                    <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
+                                <?php elseif ($app['kod_status'] == '04'): ?>
+                                    <a href="?page=cetak_surat_tawaran" target="_blank" class="action-link" style="background: var(--teal); color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Tawaran</a>
+                                    <a href="?page=download_peraturan" target="_blank" class="action-link" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Surat Peraturan</a>
+                                    <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
+                                <?php else: ?>
+                                    <a href="?page=cetak_profil&id=<?= $app['id_permohonan']; ?>" target="_blank" class="action-link" style="background: #e2e8f0; color: #334155;">Profil PDF</a>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 <?php else: ?>
     <div class="empty-message">
         <p>Belum ada permohonan. Klik "+ Permohonan Baru" untuk mula.</p>

@@ -99,6 +99,89 @@
         margin-top: 30px;
         align-items: center;
     }
+    .wizard-footer-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    /* Mobile step title - hidden on desktop */
+    .mobile-step-title {
+        display: none;
+        text-align: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: #00897b;
+        margin-top: -15px;
+        margin-bottom: 25px;
+    }
+
+    @media (max-width: 600px) {
+        .wizard-wrapper {
+            margin: 15px auto;
+            padding: 0 10px;
+        }
+        .wizard-card {
+            padding: 24px 15px;
+            border-radius: 12px;
+        }
+        .step-label {
+            display: none;
+        }
+        .mobile-step-title {
+            display: block;
+        }
+        .step-dot {
+            width: auto;
+        }
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            font-size: 13px;
+        }
+        .progress-line {
+            top: 16px;
+            left: 20px;
+            right: 20px;
+        }
+        .wizard-heading {
+            font-size: 20px;
+        }
+        .wizard-subtitle {
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .student-header h2 {
+            font-size: 20px;
+        }
+        .student-header .subtext {
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .wizard-footer {
+            flex-direction: column-reverse;
+            gap: 12px;
+            align-items: stretch;
+        }
+        .wizard-footer > div {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+        }
+        .wizard-footer-actions {
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+        }
+        .wizard-footer .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+    }
 </style>
 
 <?php
@@ -163,6 +246,9 @@ $isSuccessPage = (isset($content) && $content === "views/registration/success.ph
                     <div class="progress-line-fill" style="width: <?= (($current-1)/5)*100 ?>%;"></div>
                 </div>
             </div>
+            <div class="mobile-step-title">
+                Langkah <?= $current; ?> dari 6: <?= htmlspecialchars($steps[$current] ?? ''); ?>
+            </div>
         <?php endif; ?>
 
         <!-- FLASH MESSAGE -->
@@ -178,7 +264,7 @@ $isSuccessPage = (isset($content) && $content === "views/registration/success.ph
                         <a href="?page=step<?= $current-1; ?>" class="btn btn-outline">← Kembali</a>
                     <?php endif; ?>
                 </div>
-                <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="wizard-footer-actions">
                     <?php if ($current >= 1 && $current < 6): ?>
                         <button type="submit" name="simpan_dan_keluar" value="1" form="stepForm" class="btn btn-outline" formnovalidate>Simpan & Keluar</button>
                     <?php endif; ?>
