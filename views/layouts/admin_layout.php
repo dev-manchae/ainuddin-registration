@@ -188,6 +188,7 @@
         body.sidebar-collapsed .sidebar {
             width: 75px;
             padding: 25px 10px;
+            overflow: visible !important;
         }
 
         body.sidebar-collapsed .brand-text-wrap,
@@ -205,6 +206,54 @@
         body.sidebar-collapsed .nav-item {
             justify-content: center;
             padding: 10px;
+            position: relative;
+        }
+
+        /* Floating Tooltip Design on Hover for Collapsed Sidebar */
+        body.sidebar-collapsed .nav-item::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 60px;
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            background: #0f172a; /* Sleek dark slate */
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+
+        body.sidebar-collapsed .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 54px;
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            border-width: 6px 6px 6px 0;
+            border-style: solid;
+            border-color: transparent #0f172a transparent transparent;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        body.sidebar-collapsed .nav-item:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        body.sidebar-collapsed .nav-item:hover::before {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
         }
 
         body.sidebar-collapsed .sidebar-brand {
