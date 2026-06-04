@@ -520,22 +520,95 @@
         .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
 
+        /* Mobile header styles - hidden on desktop */
+        .admin-mobile-header {
+            display: none;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 20px;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            z-index: 101;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .admin-mobile-toggle {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 4px;
+        }
+
+        .admin-mobile-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #1e293b;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+
+        /* Backdrop overlay for mobile drawer */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        body.sidebar-open .sidebar-backdrop {
+            display: block;
+            opacity: 1;
+        }
+
         @media (max-width: 768px) {
-            body.sidebar-collapsed .sidebar {
-                width: 0;
-                padding: 0;
-                border: none;
-            }
-            
-            body.sidebar-collapsed .main-content {
-                margin-left: 0;
+            .admin-mobile-header {
+                display: flex;
             }
 
             .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: -260px;
                 width: 260px;
+                transform: translateX(0);
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 102; /* Higher than mobile header */
+                height: 100vh;
             }
+
+            body.sidebar-open .sidebar {
+                left: 0;
+            }
+
             .main-content {
-                margin-left: 260px;
+                margin-left: 0 !important;
+                padding: 76px 15px 30px 15px; /* Offset for top mobile header */
+            }
+
+            body.sidebar-collapsed .main-content {
+                margin-left: 0 !important;
+            }
+
+            .sidebar-toggle {
+                display: none !important; /* Hide desktop toggle arrow on mobile */
             }
             
             .detail-grid {
@@ -563,6 +636,23 @@
         }
     </script>
 
+    <!-- Mobile Top Header -->
+    <div class="admin-mobile-header">
+        <button class="admin-mobile-toggle" id="adminMobileToggle" aria-label="Toggle Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="admin-mobile-brand" style="display: flex; align-items: center;">
+            <img src="public/assets/images/logo.png" alt="Logo" style="width: 24px; height: 24px; object-fit: contain;">
+            <span style="font-weight: 700; color: #1e5631; font-size: 15px; margin-left: 8px;">Ainuddin Admin</span>
+        </div>
+        <div style="width: 24px;"></div> <!-- Spacer to align flex items -->
+    </div>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <div class="main-content">
 
         <?php require_once "views/layouts/flash_message.php"; ?>
@@ -588,6 +678,34 @@
 
     <!-- Load main.js so the sidebar toggle works -->
     <script src="public/assets/js/main.js?v=<?= time(); ?>"></script>
+
+    <!-- Mobile Navigation Toggle Handler -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileToggle = document.getElementById('adminMobileToggle');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', function() {
+                document.body.classList.add('sidebar-open');
+            });
+        }
+        
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                document.body.classList.remove('sidebar-open');
+            });
+        }
+        
+        // Close sidebar on click of navigation links on mobile
+        const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                document.body.classList.remove('sidebar-open');
+            });
+        });
+    });
+    </script>
 
 </body>
 

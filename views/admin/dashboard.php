@@ -40,6 +40,33 @@
     </div>
 </div>
 
+<!-- DEMOGRAPHIC ANALYTICS SECTION -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 20px; font-size: 15px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Tahap Penguasaan Al-Quran</h3>
+        <div style="position: relative; height: 260px;">
+            <canvas id="quranChart"></canvas>
+        </div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 20px; font-size: 15px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Demografi (Jantina & Umur)</h3>
+        <div style="position: relative; height: 260px; display: flex; gap: 10px;">
+            <div style="flex: 1; height: 100%;">
+                <canvas id="genderChart"></canvas>
+            </div>
+            <div style="flex: 1; height: 100%;">
+                <canvas id="ageChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 20px; font-size: 15px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Permohonan Mengikut Cawangan</h3>
+        <div style="position: relative; height: 260px;">
+            <canvas id="cawanganChart"></canvas>
+        </div>
+    </div>
+</div>
+
 <!-- RECENT APPLICATIONS -->
 <div class="card">
 
@@ -207,6 +234,38 @@ foreach ($stats['trend_harian'] as $trend) {
     $trendDates[] = $trend['tarikh'];
     $trendCounts[] = (int)$trend['jumlah'];
 }
+
+// Extract Quranic level distribution data
+$quranLabels = [];
+$quranCounts = [];
+foreach ($stats['tahap_quran'] as $row) {
+    $quranLabels[] = $row['tahap_quran'];
+    $quranCounts[] = (int)$row['jumlah'];
+}
+
+// Extract Gender distribution data
+$genderLabels = [];
+$genderCounts = [];
+foreach ($stats['ikut_jantina'] as $row) {
+    $genderLabels[] = $row['jantina'];
+    $genderCounts[] = (int)$row['jumlah'];
+}
+
+// Extract Age group distribution data
+$ageLabels = [];
+$ageCounts = [];
+foreach ($stats['ikut_umur'] as $row) {
+    $ageLabels[] = $row['umur'];
+    $ageCounts[] = (int)$row['jumlah'];
+}
+
+// Extract Cawangan distribution data
+$cawanganLabels = [];
+$cawanganCounts = [];
+foreach ($stats['ikut_cawangan'] as $row) {
+    $cawanganLabels[] = $row['cawangan'];
+    $cawanganCounts[] = (int)$row['jumlah'];
+}
 ?>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -297,6 +356,151 @@ document.addEventListener("DOMContentLoaded", function() {
                     grid: {
                         display: false
                     }
+                }
+            }
+        }
+    });
+
+    // 3. Quranic Levels Chart
+    const quranLabels = <?= json_encode($quranLabels); ?>;
+    const quranCounts = <?= json_encode($quranCounts); ?>;
+    const ctxQuran = document.getElementById('quranChart').getContext('2d');
+    new Chart(ctxQuran, {
+        type: 'bar',
+        data: {
+            labels: quranLabels,
+            datasets: [{
+                label: 'Pelajar',
+                data: quranCounts,
+                backgroundColor: 'rgba(0, 137, 123, 0.85)',
+                borderColor: '#00897b',
+                borderWidth: 1.5,
+                borderRadius: 5,
+                barPercentage: 0.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { family: "'Poppins', sans-serif" } },
+                    grid: { color: '#f1f5f9' }
+                },
+                x: {
+                    ticks: { font: { family: "'Poppins', sans-serif" } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 4. Gender Chart
+    const genderLabels = <?= json_encode($genderLabels); ?>;
+    const genderCounts = <?= json_encode($genderCounts); ?>;
+    const ctxGender = document.getElementById('genderChart').getContext('2d');
+    new Chart(ctxGender, {
+        type: 'doughnut',
+        data: {
+            labels: genderLabels,
+            datasets: [{
+                data: genderCounts,
+                backgroundColor: ['#1e5631', '#00897b', '#94a3b8'],
+                borderWidth: 1.5,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 8,
+                        padding: 6,
+                        font: { family: "'Poppins', sans-serif", size: 9 }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // 5. Age Chart
+    const ageLabels = <?= json_encode($ageLabels); ?>;
+    const ageCounts = <?= json_encode($ageCounts); ?>;
+    const ctxAge = document.getElementById('ageChart').getContext('2d');
+    new Chart(ctxAge, {
+        type: 'bar',
+        data: {
+            labels: ageLabels,
+            datasets: [{
+                data: ageCounts,
+                backgroundColor: 'rgba(217, 119, 6, 0.85)',
+                borderColor: '#d97706',
+                borderWidth: 1.5,
+                borderRadius: 5,
+                barPercentage: 0.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { family: "'Poppins', sans-serif" } },
+                    grid: { color: '#f1f5f9' }
+                },
+                x: {
+                    ticks: { font: { family: "'Poppins', sans-serif" } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 6. Cawangan Chart
+    const cawanganLabels = <?= json_encode($cawanganLabels); ?>;
+    const cawanganCounts = <?= json_encode($cawanganCounts); ?>;
+    const ctxCawangan = document.getElementById('cawanganChart').getContext('2d');
+    new Chart(ctxCawangan, {
+        type: 'bar',
+        data: {
+            labels: cawanganLabels,
+            datasets: [{
+                data: cawanganCounts,
+                backgroundColor: 'rgba(30, 86, 49, 0.75)',
+                borderColor: '#1e5631',
+                borderWidth: 1.5,
+                borderRadius: 5,
+                barPercentage: 0.5
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { family: "'Poppins', sans-serif" } },
+                    grid: { color: '#f1f5f9' }
+                },
+                y: {
+                    ticks: { font: { family: "'Poppins', sans-serif" } },
+                    grid: { display: false }
                 }
             }
         }

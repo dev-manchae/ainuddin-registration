@@ -109,6 +109,59 @@ class AdminController {
         ");
         $stats['trend_harian'] = $stmt->fetchAll();
 
+        // Gender distribution (excluding drafts)
+        $stmt = $this->pdo->query("
+            SELECT COALESCE(NULLIF(pl.jantina, ''), 'Tidak Dinyatakan') as jantina, COUNT(*) as jumlah
+            FROM pelajar pl
+            JOIN permohonan p ON pl.id_permohonan = p.id_permohonan
+            WHERE p.kod_status != '00'
+            GROUP BY pl.jantina
+        ");
+        $stats['ikut_jantina'] = $stmt->fetchAll();
+
+        // Quranic level distribution (excluding drafts)
+        $stmt = $this->pdo->query("
+            SELECT COALESCE(NULLIF(ak.tahap_quran, ''), 'Tidak Dinyatakan') as tahap_quran, COUNT(*) as jumlah
+            FROM akademik ak
+            JOIN permohonan p ON ak.id_permohonan = p.id_permohonan
+            WHERE p.kod_status != '00'
+            GROUP BY ak.tahap_quran
+        ");
+        $stats['tahap_quran'] = $stmt->fetchAll();
+
+        // Age distribution (excluding drafts)
+        $stmt = $this->pdo->query("
+            SELECT 
+                CASE 
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) < 7 THEN 'Bawah 7 Tahun'
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) = 7 THEN '7 Tahun'
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) = 8 THEN '8 Tahun'
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) = 9 THEN '9 Tahun'
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) = 10 THEN '10 Tahun'
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) = 11 THEN '11 Tahun'
+                    WHEN TIMESTAMPDIFF(YEAR, pl.tarikh_lahir, CURDATE()) = 12 THEN '12 Tahun'
+                    ELSE '13 Tahun & Ke atas'
+                END as umur,
+                COUNT(*) as jumlah
+            FROM pelajar pl
+            JOIN permohonan p ON pl.id_permohonan = p.id_permohonan
+            WHERE p.kod_status != '00' AND pl.tarikh_lahir IS NOT NULL AND pl.tarikh_lahir != '0000-00-00'
+            GROUP BY umur
+            ORDER BY MIN(pl.tarikh_lahir) DESC
+        ");
+        $stats['ikut_umur'] = $stmt->fetchAll();
+
+        // Cawangan distribution (excluding drafts)
+        $stmt = $this->pdo->query("
+            SELECT COALESCE(kc.cawangan, 'Tidak Dinyatakan') as cawangan, COUNT(*) as jumlah
+            FROM pelajar pl
+            JOIN permohonan p ON pl.id_permohonan = p.id_permohonan
+            LEFT JOIN kod_cawangan kc ON pl.kod_cawangan = kc.kod
+            WHERE p.kod_status != '00'
+            GROUP BY kc.cawangan
+        ");
+        $stats['ikut_cawangan'] = $stmt->fetchAll();
+
         return $stats;
     }
 
