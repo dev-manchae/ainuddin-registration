@@ -49,14 +49,15 @@
         </div>
     </div>
     <div class="card" style="margin-bottom: 0;">
-        <h3 style="margin-bottom: 20px; font-size: 15px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Demografi (Jantina & Umur)</h3>
-        <div style="position: relative; height: 260px; display: flex; gap: 10px;">
-            <div style="flex: 1; height: 100%;">
-                <canvas id="genderChart"></canvas>
-            </div>
-            <div style="flex: 1; height: 100%;">
-                <canvas id="ageChart"></canvas>
-            </div>
+        <h3 style="margin-bottom: 20px; font-size: 15px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Taburan Jantina</h3>
+        <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+            <canvas id="genderChart"></canvas>
+        </div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 20px; font-size: 15px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Taburan Umur Pelajar</h3>
+        <div style="position: relative; height: 260px;">
+            <canvas id="ageChart"></canvas>
         </div>
     </div>
     <div class="card" style="margin-bottom: 0;">
