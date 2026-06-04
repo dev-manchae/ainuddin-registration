@@ -207,6 +207,7 @@
             justify-content: center;
             padding: 10px;
             position: relative;
+            overflow: visible !important;
         }
 
         /* Floating Tooltip Design on Hover for Collapsed Sidebar */
