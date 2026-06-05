@@ -300,6 +300,7 @@ $activeIntake = $permCtrl->getActiveIntake();
         flex-direction: column;
         align-items: center;
         width: 25%;
+        flex: 0 0 25%;
         text-align: center;
         z-index: 3;
         position: relative;
