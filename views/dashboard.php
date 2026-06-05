@@ -276,7 +276,7 @@ $activeIntake = $permCtrl->getActiveIntake();
     }
     .timeline-line {
         position: absolute;
-        top: 22px;
+        top: 29px;
         left: 10%;
         right: 10%;
         height: 6px;
