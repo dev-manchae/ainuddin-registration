@@ -120,6 +120,7 @@ body {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     border: none;
 }
 
@@ -515,19 +516,28 @@ body {
         box-shadow: var(--shadow-lg);
         border-bottom: 1px solid var(--border);
         display: none; /* Hidden by default */
+        align-items: stretch;
+        gap: 10px;
     }
     .nav-links.active {
         display: flex;
     }
-    .nav-user-name,
+    .nav-links a {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 0;
+        border: none !important;
+    }
+    .nav-user-name {
+        border-left: none !important;
+        margin-left: 0 !important;
+        padding-left: 16px !important;
+    }
     .btn-nav-logout {
         border-left: none !important;
-        margin-left: 0;
-        border-top: 1px solid var(--border);
-        padding-top: 12px;
-        margin-top: 8px;
-        width: 100%;
-        text-align: center;
+        margin-left: 0 !important;
+        margin-top: 5px;
+        border-radius: 8px !important;
     }
     .hero-title {
         font-size: 32px;
