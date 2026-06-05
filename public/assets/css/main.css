@@ -114,23 +114,29 @@ body {
     text-decoration: none;
     color: var(--text-light);
     font-weight: 500;
-    font-size: 15px;
-    padding: 8px 12px;
+    font-size: 14px;
+    padding: 8px 16px;
     border-radius: 8px;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-bottom 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    border: none;
 }
 
 .nav-links a:hover {
     color: var(--primary);
-    border-bottom-color: var(--primary);
-    background: transparent;
+    background: #f1f5f9;
+}
+
+/* Active Navigation Item styling matching Admin active status */
+.nav-links a.active {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    font-weight: 600 !important;
 }
 
 /* Logged in user name link */
 .nav-user-name {
-    color: var(--primary) !important;
-    font-weight: 600 !important;
     border-left: 1px solid var(--border);
     padding-left: 16px !important;
     margin-left: 4px;
