@@ -521,12 +521,12 @@ $activeIntake = $permCtrl->getActiveIntake();
     
     if ($status === '00') {
         $progressPercent = 0;
-        $step1Bg = '#dcfce7'; $step1Border = '#16a34a'; $step1Text = '#15803d';
+        $step1Bg = '#eaf5ee'; $step1Border = '#1e5631'; $step1Text = '#1e5631';
     } elseif ($status === '03') {
         $progressPercent = 66.6;
-        $step1Bg = '#16a34a'; $step1Border = '#16a34a'; $step1Text = '#ffffff';
-        $step2Bg = '#16a34a'; $step2Border = '#16a34a'; $step2Text = '#ffffff';
-        $step3Bg = '#eaf5ee'; $step3Border = '#16a34a'; $step3Text = '#15803d'; $step3Subtext = 'Sedang Disemak';
+        $step1Bg = '#1e5631'; $step1Border = '#1e5631'; $step1Text = '#ffffff';
+        $step2Bg = '#1e5631'; $step2Border = '#1e5631'; $step2Text = '#ffffff';
+        $step3Bg = '#eaf5ee'; $step3Border = '#1e5631'; $step3Text = '#1e5631'; $step3Subtext = 'Sedang Disemak';
     } elseif ($status === '08') {
         $progressPercent = 66.6;
         $progressColor = '#d97706'; // Amber/Gold warning
@@ -535,11 +535,11 @@ $activeIntake = $permCtrl->getActiveIntake();
         $step3Bg = '#fef3c7'; $step3Border = '#d97706'; $step3Text = '#b45309'; $step3Subtext = 'Tindakan Diperlukan';
     } elseif ($status === '04') {
         $progressPercent = 100;
-        $progressColor = '#16a34a'; // Success green
-        $step1Bg = '#16a34a'; $step1Border = '#16a34a'; $step1Text = '#ffffff';
-        $step2Bg = '#16a34a'; $step2Border = '#16a34a'; $step2Text = '#ffffff';
-        $step3Bg = '#16a34a'; $step3Border = '#16a34a'; $step3Text = '#ffffff'; $step3Subtext = 'Selesai Disemak';
-        $step4Bg = '#dcfce7'; $step4Border = '#16a34a'; $step4Text = '#15803d'; $step4Subtext = 'Tahniah! Lulus';
+        $progressColor = '#1e5631'; // Success Forest Green
+        $step1Bg = '#1e5631'; $step1Border = '#1e5631'; $step1Text = '#ffffff';
+        $step2Bg = '#1e5631'; $step2Border = '#1e5631'; $step2Text = '#ffffff';
+        $step3Bg = '#1e5631'; $step3Border = '#1e5631'; $step3Text = '#ffffff'; $step3Subtext = 'Selesai Disemak';
+        $step4Bg = '#eaf5ee'; $step4Border = '#1e5631'; $step4Text = '#1e5631'; $step4Subtext = 'Tahniah! Lulus';
     } elseif ($status === '05') {
         $progressPercent = 100;
         $progressColor = '#ef4444'; // Error red
