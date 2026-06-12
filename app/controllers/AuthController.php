@@ -106,7 +106,7 @@ class AuthController {
 
         // Check if user is locked out
         if ($user['lockout_time']) {
-            $lockout_seconds = strtotime($user['lockout_time']) + 900 - time();
+            $lockout_seconds = strtotime($user['lockout_time'] . ' UTC') + 900 - time();
             if ($lockout_seconds > 0) {
                 $minutes = ceil($lockout_seconds / 60);
                 return "Akaun anda telah disekat sementara. Sila cuba lagi dalam masa " . $minutes . " minit.";
@@ -116,8 +116,8 @@ class AuthController {
         if (!password_verify($kata_laluan, $user['kata_laluan_hash'])) {
             $failed = $user['failed_logins'] + 1;
             if ($failed >= 5) {
-                $stmt = $this->pdo->prepare("UPDATE pengguna SET failed_logins = ?, lockout_time = NOW() WHERE id_pengguna = ?");
-                $stmt->execute([$failed, $user['id_pengguna']]);
+                $stmt = $this->pdo->prepare("UPDATE pengguna SET failed_logins = ?, lockout_time = ? WHERE id_pengguna = ?");
+                $stmt->execute([$failed, gmdate('Y-m-d H:i:s'), $user['id_pengguna']]);
                 return "Akaun anda telah disekat sementara selama 15 minit kerana cubaan log masuk gagal yang berlebihan.";
             } else {
                 $stmt = $this->pdo->prepare("UPDATE pengguna SET failed_logins = ? WHERE id_pengguna = ?");

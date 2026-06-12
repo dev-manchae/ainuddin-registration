@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Kuala_Lumpur');
 
 require_once "app/helpers/csrf.php";
 require_once "app/controllers/AuthController.php";
